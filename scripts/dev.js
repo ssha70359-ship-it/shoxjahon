@@ -22,7 +22,7 @@ import {
 } from './utils.js';
 import { ensureEnv } from './setup.js';
 import { startTunnel } from './tunnel.js';
-import { setupBot } from './telegram.js';
+import { resetMenuButton, setupBot } from './telegram.js';
 
 const MINI_APP_PORT = 5173;
 const ADMIN_PORT = 5174;
@@ -100,6 +100,9 @@ async function prepareTunnel(env) {
     if (/ngrok|trycloudflare|loca\.lt/i.test(env.WEBAPP_URL || '')) {
       updateEnv('WEBAPP_URL', '');
     }
+
+    // BotFather'da qolgan eski manzil (example.com) ochilib qolmasligi uchun
+    await resetMenuButton(env.BOT_TOKEN);
 
     warn('https tunnel ochilmadi — Mini App Telegram ichida ishlamaydi');
     console.log(

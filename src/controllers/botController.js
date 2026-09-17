@@ -26,6 +26,29 @@ function mainKeyboard() {
   };
 }
 
+/**
+ * Shu suhbatning "Menu" tugmasini joriy Mini App manziliga bog'laydi.
+ * Chat uchun qo'yilgan tugma BotFather'dagi umumiy sozlamadan ustun turadi,
+ * shuning uchun eski manzil (masalan example.com) ochilib qolmaydi.
+ */
+async function syncMenuButton(ctx) {
+  const url = config.bot.webAppUrl;
+  const chatId = ctx.chat?.id;
+
+  if (!chatId) return;
+
+  const menuButton =
+    url && url.startsWith('https://')
+      ? { type: 'web_app', text: '\u{1F355} Buyurtma berish', web_app: { url } }
+      : { type: 'commands' };
+
+  try {
+    await ctx.telegram.setChatMenuButton({ chat_id: chatId, menu_button: menuButton });
+  } catch (error) {
+    console.error('⚠️  Menyu tugmasi yangilanmadi:', error.message);
+  }
+}
+
 export const botController = {
   /** /start */
   async start(ctx) {
@@ -38,7 +61,11 @@ export const botController = {
       username: from.username,
     });
 
-    const hasWebApp = config.bot.webAppUrl?.startsWith('https://');
+    const url = config.bot.webAppUrl;
+    const hasWebApp = url?.startsWith('https://');
+
+    // Eski (BotFather'da qolgan) manzilni har "/start" da yangilaymiz
+    await syncMenuButton(ctx);
 
     const text =
       `Salom, <b>${from.first_name}</b>! \u{1F44B}\n\n` +
@@ -46,9 +73,20 @@ export const botController = {
       'Issiqqina pizzalarni 30 daqiqada yetkazib beramiz.\n\n' +
       (hasWebApp
         ? 'Buyurtma berish uchun pastdagi <b>\u{1F355} Buyurtma berish</b> tugmasini bosing.'
-        : '⚠️ Mini App hali sozlanmagan. .env faylga WEBAPP_URL ni yozing.');
+        : '⚠️ Mini App hali sozlanmagan. Kompyuterda <code>npm start</code> ni qayta ishga tushiring.');
 
-    await ctx.reply(text, { parse_mode: 'HTML', ...mainKeyboard() });
+    const extra = { parse_mode: 'HTML', ...mainKeyboard() };
+
+    await ctx.reply(text, extra);
+
+    // Qo'shimcha ishonchli yo'l: xabar ichidagi tugma har doim joriy manzilni oladi
+    if (hasWebApp) {
+      await ctx.reply('Yoki shu tugma orqali oching \u{1F447}', {
+        reply_markup: {
+          inline_keyboard: [[{ text: '\u{1F355} Pizza buyurtma qilish', web_app: { url } }]],
+        },
+      });
+    }
   },
 
   /** /help */

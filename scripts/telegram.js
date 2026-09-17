@@ -45,9 +45,15 @@ export function getMe(token) {
   return call(token, 'getMe');
 }
 
+/** Telegram hozir qaysi menyu tugmasini saqlab turganini qaytaradi */
+export function getMenuButton(token) {
+  return call(token, 'getChatMenuButton');
+}
+
 /**
- * Botning "Menu Button" ini Mini App'ga bog'laydi.
- * Shu sabab BotFather'da qo'lda sozlash kerak emas.
+ * Botning "Menu Button" ini Mini App'ga bog'laydi va natijani Telegramdan
+ * qayta o'qib tekshiradi. Bu BotFather'da qo'lda qo'yilgan eski manzilni
+ * (masalan example.com) ustidan yozadi.
  */
 export async function setupBot(token, webAppUrl) {
   const me = await getMe(token);
@@ -60,7 +66,16 @@ export async function setupBot(token, webAppUrl) {
       web_app: { url: webAppUrl },
     },
   });
-  ok('Menu tugmasi Mini App’ga bog‘landi (BotFather kerak emas)');
+
+  // Haqiqatan yozilganini tekshiramiz
+  const current = await getMenuButton(token);
+  const savedUrl = current?.web_app?.url;
+
+  if (savedUrl === webAppUrl) {
+    ok(`Menu tugmasi bog‘landi: ${savedUrl}`);
+  } else {
+    warn(`Menu tugmasi kutilganidek yozilmadi. Telegramdagi qiymat: ${savedUrl || current?.type}`);
+  }
 
   await call(token, 'setMyCommands', {
     commands: [
@@ -82,10 +97,15 @@ export async function setupBot(token, webAppUrl) {
   return me;
 }
 
-/** Menu tugmasini oddiy holatga qaytaradi */
+/**
+ * Menu tugmasini oddiy "commands" holatiga qaytaradi.
+ * Tunnel ochilmaganda chaqiriladi - shunda eski, ishlamaydigan manzil
+ * (masalan BotFather'da qolgan example.com) ochilib qolmaydi.
+ */
 export async function resetMenuButton(token) {
   try {
     await call(token, 'setChatMenuButton', { menu_button: { type: 'commands' } });
+    ok('Eski menyu tugmasi tozalandi (ishlamaydigan manzil ochilmaydi)');
   } catch (error) {
     warn(`Menu tugmasini tozalab bo‘lmadi: ${error.message}`);
   }

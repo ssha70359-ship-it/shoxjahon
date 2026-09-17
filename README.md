@@ -42,6 +42,19 @@ Ya'ni tokenni `.env` ga ko'chirish shart emas — bir marta
 
 Hech biri topilmasa loyiha faqat brauzerda (lokal) ishlaydi va skript sababini aytadi.
 
+### Menyu tugmasi qanday yangilanadi
+
+BotFather'da **hech narsa sozlash shart emas**. Manzil 3 ta joyda avtomatik yangilanadi:
+
+1. `npm start` — botning umumiy menyu tugmasini joriy ngrok manziliga bog'laydi va
+   Telegramdan qayta o'qib tekshiradi
+2. `/start` — aynan shu suhbatning menyu tugmasini yangilaydi
+   (suhbat sozlamasi BotFather'dagi umumiy sozlamadan ustun turadi)
+3. `/start` xabaridagi tugmalar — har doim joriy manzilni oladi
+
+Tunnel ochilmasa menyu tugmasi oddiy holatga qaytariladi, ya'ni eski ishlamaydigan
+manzil (masalan `example.com`) ochilib qolmaydi.
+
 ---
 
 ## 📦 Boshqa buyruqlar
@@ -129,5 +142,6 @@ shoxrux/
 | `Bazaga ulanib bo'lmadi` | Neon bazasi uxlab qolgan bo'lishi mumkin — neon.tech'ga kirib uyg'oting |
 | `https tunnel ochilmadi` | `ngrok config add-authtoken <token>` qiling, yoki `.env` ga `NGROK_AUTHTOKEN="..."` yozing |
 | Bot `Mini App hali sozlanmagan` deyapti | Tunnel ochilmagan — yuqoridagi qatorga qarang, keyin `npm start` ni qayta bering |
+| Tugma bosilganda **Example Domain** ochilyapti | Bu BotFather'dagi eski manzil. `npm start` ishlab turganda botga `/start` yuboring — tugma o'zi yangilanadi |
 | Telegramda ngrok ogohlantirishi | Bir marta **Visit Site** bosing (`npm start` buni avtomatik chetlab o'tishga harakat qiladi) |
 | Port band | `Ctrl+C` bilan to'g'ri yoping; kerak bo'lsa terminalni qayta oching |
