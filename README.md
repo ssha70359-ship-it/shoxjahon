@@ -69,6 +69,16 @@ manzil (masalan `example.com`) ochilib qolmaydi.
 
 ---
 
+## 🌍 Internetga chiqarish
+
+Vercel (frontend) + Render (backend) uchun bosqichma-bosqich qo'llanma:
+**[DEPLOY.md](DEPLOY.md)**
+
+Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
+**webhook** rejimiga o'tadi (ngrok kerak emas).
+
+---
+
 ## 📦 Boshqa buyruqlar
 
 | Buyruq | Vazifasi |
@@ -77,6 +87,8 @@ manzil (masalan `example.com`) ochilib qolmaydi.
 | `npm run setup` | Faqat `.env` faylni qaytadan yaratadi |
 | `npm run ngrok:token <token>` | ngrok authtokenni `.env` ga yozadi |
 | `npm run dev` | Faqat backend (bot + API) |
+| `npm run server` | Backend (serverda ishlatiladi) |
+| `npm run build` | Prisma client + migratsiya (deploy uchun) |
 | `npm run db:migrate` | Jadvallarni bazaga yozish |
 | `npm run db:seed` | Boshlang'ich pizzalarni qo'shish |
 | `npm run db:studio` | Bazani brauzerda ko'rish |

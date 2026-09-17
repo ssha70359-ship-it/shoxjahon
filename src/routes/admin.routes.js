@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import adminController from '../controllers/adminController.js';
 import { adminAuth } from '../middlewares/auth.middleware.js';
+import { rateLimit } from '../middlewares/rateLimit.middleware.js';
 
 const router = Router();
 
-// Login parol tekshiruvisiz
-router.post('/login', adminController.login);
+// Login parol tekshiruvisiz, lekin parolni terib topishdan himoyalangan
+router.post('/login', rateLimit({ max: 8 }), adminController.login);
 
 // Qolgan hamma yo'llar himoyalangan
 router.use(adminAuth);

@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,7 +21,26 @@ export const config = {
 
   bot: {
     token: required('BOT_TOKEN'),
+
+    // Mini App manzili (Vercel yoki ngrok)
     webAppUrl: process.env.WEBAPP_URL || '',
+
+    // Backendning o'z ommaviy manzili. Render uni avtomatik beradi.
+    publicUrl: (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/$/, ''),
+
+    // Serverda webhook, kompyuterda long polling.
+    // Render'da RENDER_EXTERNAL_URL bor, shuning uchun o'zi webhook'ga o'tadi.
+    useWebhook: process.env.USE_WEBHOOK
+      ? process.env.USE_WEBHOOK === 'true'
+      : Boolean(process.env.RENDER_EXTERNAL_URL || process.env.PUBLIC_URL),
+
+    // Lokal Bot API serveri yoki test uchun (odatda bo'sh)
+    apiRoot: process.env.TELEGRAM_API_ROOT || '',
+
+    // Telegram so'rovlarini tasdiqlash uchun maxfiy sarlavha
+    webhookSecret:
+      process.env.WEBHOOK_SECRET ||
+      crypto.createHash('sha256').update(`${process.env.BOT_TOKEN}:webhook`).digest('hex').slice(0, 40),
   },
 
   admin: {

@@ -2,6 +2,7 @@ import config from '../config/default.js';
 import ProductModel from '../models/Product.js';
 import OrderModel from '../models/Order.js';
 import UserModel from '../models/User.js';
+import { resetRateLimit } from '../middlewares/rateLimit.middleware.js';
 
 const STATUSES = ['KUTILMOQDA', 'YETKAZILDI', 'BEKOR_QILINDI'];
 
@@ -13,6 +14,9 @@ export const adminController = {
     if (password !== config.admin.password) {
       return res.status(401).json({ ok: false, message: 'Parol noto‘g‘ri' });
     }
+
+    // To'g'ri parol kiritildi - urinishlar hisobi tozalanadi
+    resetRateLimit(req);
 
     res.json({ ok: true, message: 'Xush kelibsiz!' });
   },
