@@ -11,6 +11,42 @@ Localhost'da to'liq ishlaydigan pizza yetkazib berish tizimi.
 
 ---
 
+## 🚀 Ishga tushirish — bitta buyruq
+
+```bash
+npm start
+```
+
+Shu bitta buyruq hamma narsani o'zi bajaradi:
+
+1. `.env` fayl yo'q bo'lsa — savollar berib yaratadi (Neon manzili, bot token, admin parol)
+2. Uch papkaning paketlarini o'rnatadi (faqat kerak bo'lsa)
+3. Prisma client yaratadi, jadvallarni bazaga yozadi, 4 ta pizzani qo'shadi
+4. ngrok tunnelini ochadi va `WEBAPP_URL` ni `.env` ga yozadi
+5. **Bot menyu tugmasini Mini App'ga o'zi bog'laydi — BotFather'ga kirish shart emas**
+6. Backend, Mini App va Admin panelni bitta terminalda ishga tushiradi
+
+To'xtatish uchun — `Ctrl+C`. Barcha jarayonlar toza yopiladi, portlar bo'shaydi.
+
+> **ngrok haqida:** tunnel avtomatik ochilishi uchun [ngrok.com](https://ngrok.com) da
+> ro'yxatdan o'ting va authtoken'ni `.env` faylga `NGROK_AUTHTOKEN="..."` deb yozing.
+> Authtoken bo'lmasa loyiha faqat brauzerda (lokal) ishlaydi.
+
+---
+
+## 📦 Boshqa buyruqlar
+
+| Buyruq | Vazifasi |
+|--------|----------|
+| `npm start` | Hamma narsani ishga tushiradi (asosiy buyruq) |
+| `npm run setup` | Faqat `.env` faylni qaytadan yaratadi |
+| `npm run dev` | Faqat backend (bot + API) |
+| `npm run db:migrate` | Jadvallarni bazaga yozish |
+| `npm run db:seed` | Boshlang'ich pizzalarni qo'shish |
+| `npm run db:studio` | Bazani brauzerda ko'rish |
+
+---
+
 ## 📁 Papka tuzilishi
 
 ```
@@ -28,91 +64,17 @@ shoxrux/
 │   ├── schema.prisma
 │   ├── migrations/
 │   └── seed.js                     # 4 ta pizza
+├── scripts/                        # Avtomatlashtirish (npm start shu yerdan)
+│   ├── dev.js                      # Hamma narsani ishga tushiruvchi
+│   ├── setup.js                    # .env yaratuvchi
+│   ├── tunnel.js                   # ngrok
+│   ├── telegram.js                 # Bot menyu tugmasini sozlaydi
+│   └── utils.js
 ├── mini-app/                       # Mijozlar uchun React ilova
 ├── admin-panel/                    # Admin uchun React dashboard
 ├── .env                            # MAXFIY (git'ga tushmaydi)
 └── .env.example
 ```
-
----
-
-## 1️⃣ O'rnatish
-
-Terminalda loyiha papkasiga kiring va 3 ta buyruqni ketma-ket bajaring:
-
-```bash
-npm install
-cd mini-app && npm install && cd ..
-cd admin-panel && npm install && cd ..
-```
-
----
-
-## 2️⃣ `.env` faylni tayyorlash
-
-Loyiha ildizidagi `.env.example` dan nusxa oling va o'z ma'lumotlaringizni yozing:
-
-```bash
-cp .env.example .env
-```
-
----
-
-## 3️⃣ Bazani tayyorlash (migratsiya + seed)
-
-```bash
-npx prisma generate      # Prisma client yaratish
-npx prisma migrate deploy # Jadvallarni bazaga yozish
-npm run db:seed          # 4 ta pizzani bazaga qo'shish
-```
-
-Bazani ko'z bilan ko'rmoqchi bo'lsangiz:
-
-```bash
-npx prisma studio
-```
-
----
-
-## 4️⃣ Ishga tushirish (3 ta alohida terminal)
-
-**1-terminal — Backend (bot + API):**
-```bash
-npm run dev
-```
-
-**2-terminal — Mini App:**
-```bash
-cd mini-app
-npm run dev
-```
-
-**3-terminal — Admin Panel:**
-```bash
-cd admin-panel
-npm run dev
-```
-
-Admin panel: <http://localhost:5174> (parol `.env` dagi `ADMIN_PASSWORD`)
-
----
-
-## 5️⃣ ngrok orqali Telegramga ulash
-
-Telegram Mini App faqat **https** manzil bilan ishlaydi, shuning uchun localhost'ni ngrok orqali internetga chiqaramiz.
-
-**4-terminal:**
-```bash
-ngrok http 5173 --request-header-add "ngrok-skip-browser-warning: true"
-```
-
-ngrok bergan `https://...` manzilni nusxa oling va:
-
-1. `.env` faylda `WEBAPP_URL` ni o'zgartiring
-2. Backend'ni qayta ishga tushiring (`Ctrl+C` → `npm run dev`)
-3. BotFather → `/mybots` → botingiz → **Bot Settings → Menu Button** → o'sha manzilni kiriting
-
-> Mini App `/api` so'rovlarini Vite proxy orqali backendga uzatadi, shuning uchun **bitta ngrok tunneli yetarli**.
 
 ---
 
@@ -143,5 +105,18 @@ ngrok bergan `https://...` manzilni nusxa oling va:
 ## ⚠️ Muhim eslatmalar
 
 - `.env` fayl `.gitignore` da — parollaringiz GitHub'ga hech qachon yuklanmaydi.
+- ngrok manzili har ishga tushganda o'zgaradi, lekin `npm start` uni o'zi yangilaydi —
+  qo'lda hech narsa ko'chirish kerak emas.
 - `ALLOW_DEV_USER=true` — brauzerdan test qilish uchun. Haqiqiy foydalanishda `false` qiling.
 - Mahsulot **tarkibi** `description` maydonidan vergul bilan ajratib olinadi.
+
+---
+
+## 🛠 Muammolar
+
+| Holat | Yechim |
+|-------|--------|
+| `Bazaga ulanib bo'lmadi` | Neon bazasi uxlab qolgan bo'lishi mumkin — neon.tech'ga kirib uyg'oting |
+| `ngrok topilmadi` | `.env` ga `NGROK_AUTHTOKEN="..."` yozing yoki `ngrok config add-authtoken ...` qiling |
+| Telegramda ngrok ogohlantirishi | Bir marta **Visit Site** bosing (`npm start` buni avtomatik chetlab o'tishga harakat qiladi) |
+| Port band | `Ctrl+C` bilan to'g'ri yoping; kerak bo'lsa terminalni qayta oching |

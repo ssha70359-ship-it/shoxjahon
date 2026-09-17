@@ -77,7 +77,11 @@ async function start() {
 
 async function shutdown(signal) {
   console.log(`\n${signal} — to‘xtatilmoqda...`);
-  bot.stop(signal);
+  try {
+    bot.stop(signal);
+  } catch {
+    // bot ishga tushmagan bo'lsa Telegraf xato beradi - muhim emas
+  }
   await disconnectDatabase();
   process.exit(0);
 }
