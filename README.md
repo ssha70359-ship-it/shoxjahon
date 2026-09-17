@@ -37,8 +37,20 @@ Skript https manzilni 4 ta usulda qidiradi, shu tartibda:
 3. **`ngrok config add-authtoken ...` bilan saqlangan token** (ngrok'ning o'z config fayli)
 4. Kompyuterdagi `ngrok` CLI
 
-Ya'ni tokenni `.env` ga ko'chirish shart emas — bir marta
-`ngrok config add-authtoken <token>` qilsangiz kifoya.
+Eng ishonchli yo'l — tokenni bir marta `.env` ga yozib qo'yish, shunda ngrok
+dasturini alohida o'rnatish ham shart emas:
+
+```bash
+npm run ngrok:token <sizning-authtokeningiz>
+```
+
+Tokenni bu yerdan olasiz: <https://dashboard.ngrok.com/get-started/your-authtoken>
+
+`ngrok config add-authtoken <token>` qilgan bo'lsangiz ham bo'ladi — skript
+ngrok'ning o'z config faylidan tokenni o'zi topadi.
+
+**ngrok manzilini qo'lda ko'chirish hech qachon kerak emas** — uni `npm start` o'zi
+oladi va `.env` ga yozadi.
 
 Hech biri topilmasa loyiha faqat brauzerda (lokal) ishlaydi va skript sababini aytadi.
 
@@ -63,6 +75,7 @@ manzil (masalan `example.com`) ochilib qolmaydi.
 |--------|----------|
 | `npm start` | Hamma narsani ishga tushiradi (asosiy buyruq) |
 | `npm run setup` | Faqat `.env` faylni qaytadan yaratadi |
+| `npm run ngrok:token <token>` | ngrok authtokenni `.env` ga yozadi |
 | `npm run dev` | Faqat backend (bot + API) |
 | `npm run db:migrate` | Jadvallarni bazaga yozish |
 | `npm run db:seed` | Boshlang'ich pizzalarni qo'shish |

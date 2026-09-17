@@ -21,7 +21,7 @@ import {
   warn,
 } from './utils.js';
 import { ensureEnv } from './setup.js';
-import { startTunnel } from './tunnel.js';
+import { findSavedAuthtoken, startTunnel } from './tunnel.js';
 import { resetMenuButton, setupBot } from './telegram.js';
 
 const MINI_APP_PORT = 5173;
@@ -105,16 +105,26 @@ async function prepareTunnel(env) {
     await resetMenuButton(env.BOT_TOKEN);
 
     warn('https tunnel ochilmadi — Mini App Telegram ichida ishlamaydi');
+
+    const hasToken = Boolean(env.NGROK_AUTHTOKEN?.trim() || findSavedAuthtoken());
+
     console.log(
       paint(
         'dim',
-        '\n  Tuzatishning eng ishonchli yo‘li:\n' +
-          '    1. https://dashboard.ngrok.com/get-started/your-authtoken sahifasini oching\n' +
-          '    2. Tokenni nusxa oling\n' +
-          '    3. .env faylga yozing:  NGROK_AUTHTOKEN="tokeningiz"\n' +
-          '    4. npm start ni qayta ishga tushiring\n\n' +
-          '  Yoki boshqa terminalda "ngrok http 5173" deb qo‘yib, keyin npm start bering\n' +
-          '  — skript ishlab turgan ngrok’ni o‘zi topadi.',
+        hasToken
+          ? '\n  Authtoken topildi, lekin ngrok’ga ulanib bo‘lmadi. Sabablari:\n' +
+              '    • Internet yo‘q yoki VPN/antivirus ngrok’ni bloklayapti\n' +
+              '    • ngrok bepul rejada bir vaqtda faqat 1 ta sessiyaga ruxsat beradi —\n' +
+              '      ochiq qolgan ngrok oynalarini yoping (https://dashboard.ngrok.com/agents)\n' +
+              '    • Token eskirgan bo‘lsa yangisini oling va shuni bajaring:\n' +
+              '      npm run ngrok:token <yangi-token>'
+          : '\n  ngrok authtoken topilmadi. Tuzatish:\n' +
+              '    1. https://dashboard.ngrok.com/get-started/your-authtoken sahifasini oching\n' +
+              '    2. Tokenni nusxa oling\n' +
+              '    3. Shu buyruqni bering:  npm run ngrok:token <token>\n' +
+              '    4. npm start ni qayta ishga tushiring\n\n' +
+              '  Yoki boshqa terminalda "ngrok http 5173" deb qo‘yib, keyin npm start bering\n' +
+              '  — skript ishlab turgan ngrok’ni o‘zi topadi.',
       ),
     );
     return null;
