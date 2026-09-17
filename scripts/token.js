@@ -17,7 +17,7 @@ step('ngrok authtoken saqlanmoqda');
 
 if (!TOKEN) {
   fail('Token kiritilmadi.');
-  console.log(paint('dim', '  Namuna:  npm run ngrok:token 3JSBNFHZ..._6iaBMH...'));
+  console.log(paint('dim', '  Namuna:  npm run ngrok:token <sizning-authtokeningiz>'));
   console.log(
     paint('dim', '  Tokenni bu yerdan oling: https://dashboard.ngrok.com/get-started/your-authtoken'),
   );
