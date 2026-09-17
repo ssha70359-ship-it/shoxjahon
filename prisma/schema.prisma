@@ -1,0 +1,65 @@
+// Pizza yetkazib berish - ma'lumotlar bazasi sxemasi
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Mijozlar
+model User {
+  id         Int      @id @default(autoincrement())
+  telegramId String   @unique
+  firstName  String
+  lastName   String?
+  username   String?
+  phone      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  orders Order[]
+}
+
+/// Pizzalar va boshqa mahsulotlar
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  imageUrl    String
+  oldPrice    Int?
+  newPrice    Int
+  category    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Buyurtmalar
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     Json
+  total     Int
+  location  String
+  lat       Float?
+  lng       Float?
+  phone     String?
+  comment   String?
+  status    OrderStatus @default(KUTILMOQDA)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum OrderStatus {
+  KUTILMOQDA
+  YETKAZILDI
+  BEKOR_QILINDI
+}

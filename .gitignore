@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment (MAXFIY! hech qachon git'ga tushmaydi)
+.env
+.env.local
+*/.env
+*/.env.local
+
+# Build
+dist/
+build/
+*/dist/
+
+# Prisma
+prisma/dev.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

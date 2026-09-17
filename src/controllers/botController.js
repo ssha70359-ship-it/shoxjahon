@@ -1,0 +1,117 @@
+import config from '../config/default.js';
+import UserModel from '../models/User.js';
+import { sendMessageToUser } from '../core/bot.js';
+
+/** Mini App tugmasi bo'lgan klaviatura */
+function mainKeyboard() {
+  const url = config.bot.webAppUrl;
+
+  if (!url || !url.startsWith('https://')) {
+    return {
+      reply_markup: {
+        keyboard: [[{ text: '\u{1F4DE} Telefon raqamni yuborish', request_contact: true }]],
+        resize_keyboard: true,
+      },
+    };
+  }
+
+  return {
+    reply_markup: {
+      keyboard: [
+        [{ text: '\u{1F355} Buyurtma berish', web_app: { url } }],
+        [{ text: '\u{1F4DE} Telefon raqamni yuborish', request_contact: true }],
+      ],
+      resize_keyboard: true,
+    },
+  };
+}
+
+export const botController = {
+  /** /start */
+  async start(ctx) {
+    const from = ctx.from;
+
+    await UserModel.upsert({
+      telegramId: from.id,
+      firstName: from.first_name,
+      lastName: from.last_name,
+      username: from.username,
+    });
+
+    const hasWebApp = config.bot.webAppUrl?.startsWith('https://');
+
+    const text =
+      `Salom, <b>${from.first_name}</b>! \u{1F44B}\n\n` +
+      'Bizning pizzeriyaga xush kelibsiz \u{1F355}\n' +
+      'Issiqqina pizzalarni 30 daqiqada yetkazib beramiz.\n\n' +
+      (hasWebApp
+        ? 'Buyurtma berish uchun pastdagi <b>\u{1F355} Buyurtma berish</b> tugmasini bosing.'
+        : '⚠️ Mini App hali sozlanmagan. .env faylga WEBAPP_URL ni yozing.');
+
+    await ctx.reply(text, { parse_mode: 'HTML', ...mainKeyboard() });
+  },
+
+  /** /help */
+  async help(ctx) {
+    await ctx.reply(
+      'ℹ️ <b>Yordam</b>\n\n' +
+        '/start — Botni qayta ishga tushirish\n' +
+        '/help — Yordam\n\n' +
+        'Buyurtma berish uchun pastdagi tugmadan foydalaning \u{1F355}',
+      { parse_mode: 'HTML', ...mainKeyboard() },
+    );
+  },
+
+  /** Telefon raqam yuborilganda */
+  async contact(ctx) {
+    const phone = ctx.message?.contact?.phone_number;
+    if (!phone) return;
+
+    await UserModel.upsert({
+      telegramId: ctx.from.id,
+      firstName: ctx.from.first_name,
+      lastName: ctx.from.last_name,
+      username: ctx.from.username,
+      phone,
+    });
+
+    await ctx.reply(`✅ Rahmat! Raqamingiz saqlandi: <b>${phone}</b>`, {
+      parse_mode: 'HTML',
+      ...mainKeyboard(),
+    });
+  },
+
+  /** /admin — faqat adminlar uchun panel manzili */
+  async admin(ctx) {
+    if (!config.admin.ids.includes(String(ctx.from.id))) return;
+
+    await ctx.reply(
+      `\u{1F5A5}️ Admin panel: ${config.admin.panelUrl}\n` +
+        'Barcha buyurtmalar va mahsulotlar shu yerda boshqariladi.',
+    );
+  },
+
+  /** Boshqa matnlar */
+  async fallback(ctx) {
+    await ctx.reply('Buyurtma berish uchun pastdagi tugmani bosing \u{1F447}', mainKeyboard());
+  },
+
+  /** Buyurtma qabul qilingani haqida mijozga xabar */
+  async notifyOrderAccepted(telegramId, order) {
+    const items = Array.isArray(order.items) ? order.items : [];
+    const list = items
+      .map((item) => `  • ${item.name} × ${item.qty}`)
+      .join('\n');
+
+    const text =
+      `${config.messages.orderAccepted}\n\n` +
+      `<b>Buyurtma №${order.id}</b>\n` +
+      `${list}\n\n` +
+      `Jami: <b>${order.total.toLocaleString('ru-RU')} so‘m</b>\n` +
+      `Manzil: ${order.location}`;
+
+    return sendMessageToUser(telegramId, text);
+  },
+};
+
+export default botController;
