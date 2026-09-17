@@ -29,6 +29,7 @@ const ADMIN_PORT = 5174;
 
 const children = [];
 let tunnel = null;
+let webAppUrl = '';
 let shuttingDown = false;
 
 function banner() {
@@ -93,20 +94,30 @@ async function prepareTunnel(env) {
   tunnel = await startTunnel(MINI_APP_PORT, env.NGROK_AUTHTOKEN);
 
   if (!tunnel) {
-    // Eski ngrok manzili har doim o'lik bo'ladi, shuning uchun tozalaymiz:
-    // bot "Mini App sozlanmagan" deb aytadi, ishlamaydigan tugma ko'rsatmaydi.
-    updateEnv('WEBAPP_URL', '');
-    warn('ngrok topilmadi — loyiha faqat lokal rejimda ishlaydi');
+    // Eski tunnel manzili har doim o'lik bo'ladi - uni tozalaymiz, shunda bot
+    // ishlamaydigan tugma o'rniga tushunarli xabar ko'rsatadi.
+    // Qo'lda yozilgan doimiy manzilga (masalan static domain) tegmaymiz.
+    if (/ngrok|trycloudflare|loca\.lt/i.test(env.WEBAPP_URL || '')) {
+      updateEnv('WEBAPP_URL', '');
+    }
+
+    warn('https tunnel ochilmadi — Mini App Telegram ichida ishlamaydi');
     console.log(
       paint(
         'dim',
-        '  Telegram ichida ochish uchun: ngrok.com dan authtoken oling va\n' +
-          '  .env faylga NGROK_AUTHTOKEN="..." deb yozing.',
+        '\n  Tuzatishning eng ishonchli yo‘li:\n' +
+          '    1. https://dashboard.ngrok.com/get-started/your-authtoken sahifasini oching\n' +
+          '    2. Tokenni nusxa oling\n' +
+          '    3. .env faylga yozing:  NGROK_AUTHTOKEN="tokeningiz"\n' +
+          '    4. npm start ni qayta ishga tushiring\n\n' +
+          '  Yoki boshqa terminalda "ngrok http 5173" deb qo‘yib, keyin npm start bering\n' +
+          '  — skript ishlab turgan ngrok’ni o‘zi topadi.',
       ),
     );
     return null;
   }
 
+  webAppUrl = tunnel.url;
   updateEnv('WEBAPP_URL', tunnel.url);
   ok('.env faylga WEBAPP_URL yozildi');
 
@@ -127,7 +138,11 @@ function startServers() {
 
   const vite = (dir) => path.join(dir, 'node_modules', 'vite', 'bin', 'vite.js');
 
-  children.push(runBackground('backend', 'green', ['--watch', 'src/index.js'], ROOT));
+  children.push(
+    runBackground('backend', 'green', ['--watch', 'src/index.js'], ROOT, {
+      WEBAPP_URL: webAppUrl,
+    }),
+  );
   children.push(runBackground('mini-app', 'magenta', [vite(miniAppDir)], miniAppDir));
   children.push(runBackground('admin', 'blue', [vite(adminDir)], adminDir));
 }

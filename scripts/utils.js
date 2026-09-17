@@ -116,8 +116,8 @@ export function run(command, args, options = {}) {
  * npm va shell qatlamisiz, to'g'ridan-to'g'ri node chaqiriladi - shunda Ctrl+C
  * bosilganda hech qanday jarayon osilib qolmaydi va portlar band bo'lmaydi.
  */
-export function runBackground(label, color, args, cwd) {
-  const child = spawn(process.execPath, args, { cwd, env: process.env });
+export function runBackground(label, color, args, cwd, extraEnv = {}) {
+  const child = spawn(process.execPath, args, { cwd, env: { ...process.env, ...extraEnv } });
 
   const prefix = paint(color, `[${label}]`);
   const write = (data) => {

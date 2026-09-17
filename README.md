@@ -28,9 +28,19 @@ Shu bitta buyruq hamma narsani o'zi bajaradi:
 
 To'xtatish uchun — `Ctrl+C`. Barcha jarayonlar toza yopiladi, portlar bo'shaydi.
 
-> **ngrok haqida:** tunnel avtomatik ochilishi uchun [ngrok.com](https://ngrok.com) da
-> ro'yxatdan o'ting va authtoken'ni `.env` faylga `NGROK_AUTHTOKEN="..."` deb yozing.
-> Authtoken bo'lmasa loyiha faqat brauzerda (lokal) ishlaydi.
+### ngrok tunneli qayerdan topiladi
+
+Skript https manzilni 4 ta usulda qidiradi, shu tartibda:
+
+1. **Allaqachon ishlab turgan ngrok** — boshqa terminalda `ngrok http 5173` qilib qo'ygan bo'lsangiz
+2. `.env` dagi `NGROK_AUTHTOKEN`
+3. **`ngrok config add-authtoken ...` bilan saqlangan token** (ngrok'ning o'z config fayli)
+4. Kompyuterdagi `ngrok` CLI
+
+Ya'ni tokenni `.env` ga ko'chirish shart emas — bir marta
+`ngrok config add-authtoken <token>` qilsangiz kifoya.
+
+Hech biri topilmasa loyiha faqat brauzerda (lokal) ishlaydi va skript sababini aytadi.
 
 ---
 
@@ -117,6 +127,7 @@ shoxrux/
 | Holat | Yechim |
 |-------|--------|
 | `Bazaga ulanib bo'lmadi` | Neon bazasi uxlab qolgan bo'lishi mumkin — neon.tech'ga kirib uyg'oting |
-| `ngrok topilmadi` | `.env` ga `NGROK_AUTHTOKEN="..."` yozing yoki `ngrok config add-authtoken ...` qiling |
+| `https tunnel ochilmadi` | `ngrok config add-authtoken <token>` qiling, yoki `.env` ga `NGROK_AUTHTOKEN="..."` yozing |
+| Bot `Mini App hali sozlanmagan` deyapti | Tunnel ochilmagan — yuqoridagi qatorga qarang, keyin `npm start` ni qayta bering |
 | Telegramda ngrok ogohlantirishi | Bir marta **Visit Site** bosing (`npm start` buni avtomatik chetlab o'tishga harakat qiladi) |
 | Port band | `Ctrl+C` bilan to'g'ri yoping; kerak bo'lsa terminalni qayta oching |
