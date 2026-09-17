@@ -1,29 +1,126 @@
-# Dependencies
+# ============================================
+#  MAXFIY FAYLLAR — hech qachon GitHub'ga tushmaydi
+# ============================================
+.env
+.env.*
+*/.env
+*/.env.*
+
+# .env.example esa kerak — u namuna fayl, ichida parol yo'q
+!.env.example
+!*/.env.example
+
+# Kalitlar va sertifikatlar
+*.pem
+*.key
+*.p12
+*.pfx
+ngrok.yml
+
+# ============================================
+#  PAKETLAR
+# ============================================
 node_modules/
 */node_modules/
+.pnp
+.pnp.js
+.yarn/
+jspm_packages/
 
-# Environment (MAXFIY! hech qachon git'ga tushmaydi)
-.env
-.env.local
-*/.env
-*/.env.local
-
-# Build
+# ============================================
+#  BUILD NATIJALARI
+# ============================================
 dist/
-build/
 */dist/
+dist-ssr/
+build/
+*/build/
+out/
+.output/
 
-# Prisma
-prisma/dev.db
+# ============================================
+#  KESH
+# ============================================
+.cache/
+.parcel-cache/
+.turbo/
+.vite/
+*.tsbuildinfo
+.eslintcache
+.npm/
+.temp/
+.tmp/
 
-# Logs
+# ============================================
+#  PRISMA
+# ============================================
+# Avtomatik yaratiladigan client (npx prisma generate qayta yasaydi)
+node_modules/.prisma/
+prisma/generated/
+
+# Lokal SQLite bazasi (agar ishlatilsa)
+*.db
+*.db-journal
+prisma/dev.db*
+
+# DIQQAT: prisma/migrations/ papkasi git'da SAQLANADI —
+# uni ignore qilmang, aks holda baza jadvallari yo'qoladi.
+
+# ============================================
+#  LOGLAR
+# ============================================
 *.log
+logs/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# OS
+# ============================================
+#  TESTLAR
+# ============================================
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# ============================================
+#  OPERATSION TIZIM
+# ============================================
+# macOS
 .DS_Store
-Thumbs.db
+.AppleDouble
+.LSOverride
+._*
 
-# Editor
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+# ============================================
+#  MUHARRIRLAR (EDITOR)
+# ============================================
 .vscode/
+!.vscode/extensions.json
 .idea/
+*.swp
+*.swo
+*.sublime-workspace
+*~
+
+# ============================================
+#  BOSHQA
+# ============================================
+.vercel
+.netlify
+*.zip
+*.tar.gz
