@@ -1,0 +1,13 @@
+# --- Telegram bot yadrosi ---
+aiogram>=3.15,<4          # Telegram Bot API uchun async framework (3.x)
+
+# --- Ma'lumotlar bazasi ---
+aiosqlite>=0.20           # SQLite bilan async ishlash
+
+# --- Konfiguratsiya ---
+pydantic-settings>=2.6    # .env faylini o'qib, Settings obyektiga aylantiradi
+                          # (pydantic o'zi bog'liqlik sifatida avtomatik o'rnatiladi)
+
+# --- AI provayderlar: faqat tanlaganingizni qoldirsangiz ham bo'ladi ---
+openai>=1.58              # OpenAI GPT-4o-mini uchun (AsyncOpenAI)
+anthropic>=0.42           # Anthropic Claude uchun (AsyncAnthropic)
