@@ -68,8 +68,9 @@ TEXTS: dict[str, str] = {
         "🆕 Новых сегодня: <b>{new_today}</b>\n"
         "🔥 Активных сегодня: <b>{active_today}</b>\n"
         "🚫 Заблокировали бота: <b>{blocked}</b>\n\n"
-        "💬 Всего сообщений: <b>{total_messages}</b>\n"
-        "💬 Сообщений сегодня: <b>{messages_today}</b>\n\n"
+        "💬 Сохранённых сообщений: <b>{stored_messages}</b>\n"
+        "💬 Из них за сегодня: <b>{stored_messages_today}</b>\n"
+        "<i>(уменьшается, когда пользователь нажимает /reset)</i>\n\n"
         "🌐 <b>По языкам:</b>\n{languages}"
     ),
     "broadcast_ask": (

@@ -41,8 +41,23 @@ async def test_statistika_korsatiladi(dp, bot, repo):
     await dp.feed_update(bot, callback_update(AdminCallback(action="stats").pack(), user_id=ADMIN))
     matn = bot.edited[-1][0]
     assert "Jami foydalanuvchilar: <b>2</b>" in matn
-    assert "Bugun faol: <b>1</b>" in matn
+    assert "Bugun faol: <b>2</b>" in matn  # ikkalasi ham bugun muloqot qildi
+    assert "Saqlangan xabarlar: <b>1</b>" in matn
     assert "🇷🇺 Русский — <b>1</b>" in matn
+
+
+async def test_statistika_reset_dan_keyin_faollikni_korsatadi(dp, bot, repo):
+    """Demoda topilgan kamchilik: /reset dan keyin statistika butunlay
+    nolga tushib qolardi."""
+    await dp.feed_update(bot, text_update("savol", user_id=ODDIY))
+    await dp.feed_update(bot, text_update("/reset", user_id=ODDIY, update_id=2))
+
+    await dp.feed_update(
+        bot, callback_update(AdminCallback(action="stats").pack(), user_id=ADMIN, update_id=3)
+    )
+    matn = bot.edited[-1][0]
+    assert "Bugun faol: <b>2</b>" in matn, matn
+    assert "Saqlangan xabarlar: <b>0</b>" in matn
 
 
 async def test_stats_buyrugi_ham_ishlaydi(dp, bot):

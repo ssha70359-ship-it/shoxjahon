@@ -28,6 +28,11 @@ class Repository:
     ) -> None:
         """Foydalanuvchini qo'shadi; mavjud bo'lsa profilini yangilaydi.
 
+        Bu metod har bir yangilanishda (xabar yoki tugma bosish)
+        middleware tomonidan chaqiriladi, shuning uchun `last_active_at`
+        ni ham shu yerda yangilaymiz — statistika uchun aynan shu
+        "oxirgi faollik" hisoblanadi.
+
         DIQQAT: `selected_language` faqat yangi foydalanuvchi uchun
         yoziladi. Mavjud foydalanuvchining tanlagan tili hech qachon
         ustidan yozilmaydi — aks holda har bir xabarda til tiklanib
@@ -38,9 +43,10 @@ class Repository:
             INSERT INTO users (user_id, username, full_name, selected_language)
             VALUES (?, ?, ?, ?)
             ON CONFLICT(user_id) DO UPDATE SET
-                username   = excluded.username,
-                full_name  = excluded.full_name,
-                is_blocked = 0
+                username       = excluded.username,
+                full_name      = excluded.full_name,
+                last_active_at = datetime('now'),
+                is_blocked     = 0
             """,
             (user_id, username, full_name, default_language),
         )
@@ -50,7 +56,8 @@ class Repository:
         """Foydalanuvchini qaytaradi; topilmasa — None."""
         cursor = await self._db.conn.execute(
             """
-            SELECT user_id, username, full_name, selected_language, joined_at, is_blocked
+            SELECT user_id, username, full_name, selected_language,
+                   joined_at, last_active_at, is_blocked
             FROM users WHERE user_id = ?
             """,
             (user_id,),
@@ -65,6 +72,7 @@ class Repository:
             full_name=row["full_name"],
             selected_language=row["selected_language"],
             joined_at=row["joined_at"],
+            last_active_at=row["last_active_at"] or "",
             is_blocked=bool(row["is_blocked"]),
         )
 
@@ -183,14 +191,22 @@ class Repository:
             "SELECT COUNT(*) FROM users WHERE date(joined_at) = date('now')"
         )
         stats.blocked = await scalar("SELECT COUNT(*) FROM users WHERE is_blocked = 1")
-        stats.total_messages = await scalar("SELECT COUNT(*) FROM messages")
-        stats.messages_today = await scalar(
-            "SELECT COUNT(*) FROM messages WHERE date(timestamp) = date('now')"
-        )
-        # Bugun kamida bitta xabar yozgan noyob foydalanuvchilar
+        # Bugun bot bilan muloqot qilgan foydalanuvchilar.
+        #
+        # Ataylab `users.last_active_at` dan olinadi, `messages` dan emas:
+        # foydalanuvchi /reset bilan tarixini tozalasa, uning faolligi
+        # statistikadan yo'qolib ketmasligi kerak. Tugma bosishlar ham
+        # faollik hisoblanadi.
         stats.active_today = await scalar(
-            "SELECT COUNT(DISTINCT user_id) FROM messages "
-            "WHERE date(timestamp) = date('now') AND role = 'user'"
+            "SELECT COUNT(*) FROM users WHERE date(last_active_at) = date('now')"
+        )
+
+        # Quyidagi ikkitasi ayni damda SAQLANIB TURGAN tarixni sanaydi.
+        # /reset ularni kamaytiradi — bu kutilgan holat, shuning uchun
+        # matnlarda ham "saqlangan" deb ataladi.
+        stats.stored_messages = await scalar("SELECT COUNT(*) FROM messages")
+        stats.stored_messages_today = await scalar(
+            "SELECT COUNT(*) FROM messages WHERE date(timestamp) = date('now')"
         )
 
         cursor = await self._db.conn.execute(

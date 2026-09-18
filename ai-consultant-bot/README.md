@@ -41,7 +41,12 @@ ai-consultant-bot/
 ├── .gitignore
 ├── README.md
 │
-├── tests/                        # 79 ta test (pytest)
+├── scripts/                      # Demo (haqiqiy token kerak emas)
+│   ├── demo.py                   #   botni ishga tushirib, u bilan suhbatlashadi
+│   ├── fake_services.py          #   soxta Telegram va Anthropic serverlari
+│   └── _launcher.py              #   aiogram sessiyasini lokal serverga qaratadi
+│
+├── tests/                        # 83 ta test (pytest)
 │   ├── conftest.py               #   fixture'lar: soxta bot, stub AI, baza
 │   ├── test_database.py          #   sxema, migratsiya, tarix, statistika
 │   ├── test_handlers.py          #   menyu, til, AI suhbat, xatolar
@@ -232,7 +237,8 @@ users (
     full_name         TEXT,
     selected_language TEXT NOT NULL DEFAULT 'uz',
     joined_at         TEXT NOT NULL DEFAULT (datetime('now')),
-    is_blocked        INTEGER NOT NULL DEFAULT 0   -- broadcast uchun
+    last_active_at    TEXT NOT NULL DEFAULT (datetime('now')),  -- statistika uchun
+    is_blocked        INTEGER NOT NULL DEFAULT 0                -- broadcast uchun
 )
 
 messages (
@@ -247,9 +253,10 @@ INDEX idx_messages_user_id   ON messages (user_id, id DESC)
 INDEX idx_messages_timestamp ON messages (timestamp)
 ```
 
-`PRAGMA journal_mode=WAL` yoqilgan. `is_blocked` ustuni sizning ro'yxatingizda
-yo'q edi, lekin ommaviy xabar uchun zarur: botni bloklagan odamlarga keyingi
-safar urinib o'tirilmaydi.
+`PRAGMA journal_mode=WAL` yoqilgan. Ikkita ustun sizning ro'yxatingizda yo'q
+edi, lekin zarur bo'ldi: `is_blocked` — botni bloklaganlarga qayta urinmaslik
+uchun, `last_active_at` — statistika `/reset` dan keyin ham to'g'ri qolishi
+uchun.
 
 ---
 
@@ -298,9 +305,18 @@ oladi. Ya'ni **botda admin paneli borligi oshkor bo'lmaydi**.
 
 ### 📊 Statistika
 
-Jami foydalanuvchilar, bugun qo'shilganlar, bugun faol bo'lganlar (bugun
-kamida bitta savol yozgan noyob foydalanuvchilar), botni bloklaganlar, jami
-va bugungi xabarlar, tillar bo'yicha taqsimot.
+Jami foydalanuvchilar, bugun qo'shilganlar, **bugun faol bo'lganlar**,
+botni bloklaganlar, saqlangan xabarlar va tillar bo'yicha taqsimot.
+
+> **Faollik qayerdan olinadi.** `users.last_active_at` dan — `messages`
+> jadvalidan emas. Sabab: foydalanuvchi `/reset` bosганda o'z tarixini
+> o'chiradi, agar statistika xabarlardan hisoblanganda edi, admin
+> ko'rsatkichlari ham nolga tushib ketardi. `last_active_at` esa har bir
+> xabar va tugma bosishda yangilanadi (DI middleware orqali), shuning
+> uchun tarixga bog'liq emas.
+>
+> "Saqlangan xabarlar" esa ataylab ayni damdagi tarix hajmini ko'rsatadi
+> va `/reset` da kamayadi — matnda ham shunday deb yozilgan.
 
 ### 📣 Ommaviy xabar (broadcast)
 
@@ -321,6 +337,35 @@ FSM orqali uch bosqich:
 - `TelegramRetryAfter` — Telegram "sekinroq" desa, kutib qayta urinadi.
 - Bitta xato butun tarqatishni to'xtatmaydi; oxirida hisobot chiqadi:
   yetkazildi / bloklagan / xatolik.
+
+---
+
+## ▶️ Demo — botni ko'rish
+
+Haqiqiy `BOT_TOKEN` ham, `ANTHROPIC_API_KEY` ham kerak emas. `.env` fayli
+bo'lmasa ham ishlaydi va mavjud `.env` ga tegmaydi:
+
+```bash
+python scripts/demo.py
+```
+
+Skript nima qiladi:
+
+1. Ikkita lokal soxta server ko'taradi — Telegram Bot API (`:8081`) va
+   Anthropic API (`:8082`).
+2. `main.py` ni **alohida jarayonda**, o'zining polling sikli bilan ishga
+   tushiradi.
+3. Bot bilan suhbat o'tkazadi va yozishmani ekranga chiqaradi: `/start`,
+   savol-javob, tilni almashtirish, bog'lanish, tarixni tozalash, admin
+   panel, ommaviy xabar.
+
+Bot kodiga umuman tegilmaydi — polling, routerlar, middleware'lar, FSM,
+SQLite va `ClaudeService`ning so'rov yasashi/javobni tahlil qilishi
+hammasi haqiqiy. Faqat ikkita tashqi xizmat lokal HTTP serverlarga
+almashtirilgan (Telegram'ning o'zi ham "local Bot API server" ni
+qo'llab-quvvatlaydi, ya'ni bu sun'iy holat emas).
+
+Bot logi `data/demo-bot.log` ga yoziladi.
 
 ---
 
@@ -355,9 +400,9 @@ Baza har bir test uchun `tmp_path` da yangidan yaratiladi.
 
 | Fayl | Testlar |
 |---|---|
-| `test_database.py` | Sxema, eski bazadan migratsiya, `ON DELETE CASCADE`, tarix tartibi va ajratilishi, statistika, tilning ustidan yozilmasligi |
+| `test_database.py` | Sxema, eski bazadan migratsiya, `ON DELETE CASCADE`, tarix tartibi va ajratilishi, statistika va faollikning `/reset` dan omon qolishi, tilning ustidan yozilmasligi |
 | `test_handlers.py` | Menyu, til avtomatik aniqlash va almashtirish, AI konteksti, uzun javob bo'laklanishi, noma'lum buyruq, AI xatolari |
-| `test_admin.py` | Admin bo'lmaganga panel ko'rinmasligi, statistika, broadcast oqimi (yuborish, bloklaganni aniqlash, bekor qilish, FSM tozalanishi) |
+| `test_admin.py` | Admin bo'lmaganga panel ko'rinmasligi, statistika (`/reset` dan keyin ham), broadcast oqimi (yuborish, bloklaganni aniqlash, bekor qilish, FSM tozalanishi) |
 | `test_services.py` | System Prompt tili, provayder factory, Haiku uchun `effort` o'tkazib yuborilishi, sozlamalar validatsiyasi |
 | `test_locales.py` | Uchala tilda kalitlar bir xilligi, fallback |
 | `test_utils.py` | Matn bo'laklash chegaralari, HTML tozalash |
@@ -375,7 +420,7 @@ tegmaydi).
 | `ruff check` | Linter: ishlatilmagan import, import tartibi, eskirgan sintaksis, async xatolari |
 | `ruff format --check` | Formatlash bir xilligini tekshiradi (fayllarni o'zgartirmaydi) |
 | `python -m compileall` | Barcha fayllar sintaktik to'g'ri ekanini tasdiqlaydi |
-| `pytest -v` | 79 ta test |
+| `pytest -v` | 83 ta test |
 
 Python 3.11 va 3.12 da parallel ishlaydi (`StrEnum` va `X | None` sintaksisi
 3.11+ talab qiladi). Bitta branchga ketma-ket push bo'lsa, eski ishlar

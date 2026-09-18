@@ -72,8 +72,9 @@ TEXTS: dict[str, str] = {
         "🆕 Bugun qo'shilgan: <b>{new_today}</b>\n"
         "🔥 Bugun faol: <b>{active_today}</b>\n"
         "🚫 Botni bloklagan: <b>{blocked}</b>\n\n"
-        "💬 Jami xabarlar: <b>{total_messages}</b>\n"
-        "💬 Bugungi xabarlar: <b>{messages_today}</b>\n\n"
+        "💬 Saqlangan xabarlar: <b>{stored_messages}</b>\n"
+        "💬 Shundan bugungi: <b>{stored_messages_today}</b>\n"
+        "<i>(foydalanuvchi /reset bosganda kamayadi)</i>\n\n"
         "🌐 <b>Tillar bo'yicha:</b>\n{languages}"
     ),
     "broadcast_ask": (

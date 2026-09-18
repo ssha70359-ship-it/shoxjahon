@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS users (
     full_name         TEXT    NOT NULL DEFAULT '',
     selected_language TEXT    NOT NULL DEFAULT 'uz',
     joined_at         TEXT    NOT NULL DEFAULT (datetime('now')),
+    -- Oxirgi faollik. Ataylab `messages` jadvalidan alohida saqlanadi:
+    -- foydalanuvchi /reset bilan tarixini tozalasa ham statistika
+    -- yo'qolmasligi kerak.
+    last_active_at    TEXT    NOT NULL DEFAULT (datetime('now')),
     is_blocked        INTEGER NOT NULL DEFAULT 0    -- botni bloklagan bo'lsa 1
 );
 
@@ -112,6 +116,16 @@ class Database:
                 "ALTER TABLE users ADD COLUMN is_blocked INTEGER NOT NULL DEFAULT 0"
             )
             logger.info("Migratsiya: users.is_blocked qo'shildi")
+
+        if users_columns and "last_active_at" not in users_columns:
+            # SQLite `ADD COLUMN` da o'zgaruvchan sukut qiymatini (datetime('now'))
+            # qabul qilmaydi, shuning uchun avval ustunni qo'shib, keyin mavjud
+            # qatorlarni ro'yxatdan o'tgan sana bilan to'ldiramiz.
+            await self.conn.execute("ALTER TABLE users ADD COLUMN last_active_at TEXT")
+            await self.conn.execute(
+                "UPDATE users SET last_active_at = joined_at WHERE last_active_at IS NULL"
+            )
+            logger.info("Migratsiya: users.last_active_at qo'shildi")
 
         await self.conn.commit()
 

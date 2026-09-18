@@ -11,6 +11,9 @@ data/
 *.db-wal
 *.db-shm
 
+# Demo qoldiqlari
+demo-bot.log
+
 # Python
 __pycache__/
 *.py[cod]

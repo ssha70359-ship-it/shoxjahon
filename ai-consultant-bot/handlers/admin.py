@@ -75,8 +75,8 @@ def _format_stats(stats: Stats, lang: str) -> str:
         new_today=stats.new_today,
         active_today=stats.active_today,
         blocked=stats.blocked,
-        total_messages=stats.total_messages,
-        messages_today=stats.messages_today,
+        stored_messages=stats.stored_messages,
+        stored_messages_today=stats.stored_messages_today,
         languages=languages,
     )
 

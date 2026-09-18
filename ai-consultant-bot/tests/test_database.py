@@ -95,10 +95,68 @@ async def test_statistika(repo):
     assert stats.total_users == 3
     assert stats.new_today == 3
     assert stats.blocked == 1
-    assert stats.total_messages == 3
-    assert stats.messages_today == 3
-    assert stats.active_today == 2  # faqat 'user' rolидagi noyob yozuvchilar
+    assert stats.stored_messages == 3
+    assert stats.stored_messages_today == 3
+    assert stats.active_today == 3  # uchalasi ham bugun qo'shilgan
     assert stats.by_language == {"ru": 2, "uz": 1}
+
+
+async def test_faollik_reset_dan_keyin_ham_saqlanadi(repo):
+    """Eng muhim: foydalanuvchi tarixini tozalasa ham, admin
+    statistikasidagi "bugun faol" ko'rsatkichi yo'qolmasligi kerak.
+
+    Shuning uchun faollik `messages` jadvalidan emas,
+    `users.last_active_at` dan hisoblanadi.
+    """
+    await repo.upsert_user(1, "a", "A", "uz")
+    await repo.add_message(1, "user", "savol")
+    await repo.add_message(1, "assistant", "javob")
+
+    oldin = await repo.get_stats()
+    assert oldin.active_today == 1
+    assert oldin.stored_messages == 2
+
+    await repo.clear_history(1)
+
+    keyin = await repo.get_stats()
+    assert keyin.active_today == 1, "tarix tozalanganda faollik yo'qoldi"
+    assert keyin.stored_messages == 0, "saqlangan xabarlar soni kamayishi kerak"
+
+
+async def test_har_bir_harakat_faollik_vaqtini_yangilaydi(repo):
+    """upsert_user har bir yangilanishda (middleware orqali) chaqiriladi,
+    shuning uchun tugma bosish ham faollik hisoblanadi."""
+    await repo.upsert_user(1, "a", "A", "uz")
+    boshlangich = (await repo.get_user(1)).last_active_at
+    assert boshlangich, "last_active_at to'ldirilmadi"
+
+    await repo.upsert_user(1, "a", "A", "uz")
+    assert (await repo.get_user(1)).last_active_at >= boshlangich
+
+
+async def test_migratsiyada_faollik_royxatdan_otgan_sanaga_tenglanadi(tmp_path):
+    """Eski bazada last_active_at bo'sh qolmasligi kerak."""
+    path = tmp_path / "eski2.db"
+    con = sqlite3.connect(path)
+    con.executescript(
+        """
+        CREATE TABLE users (
+            user_id INTEGER PRIMARY KEY, username TEXT, full_name TEXT,
+            selected_language TEXT, joined_at TEXT, is_blocked INTEGER DEFAULT 0
+        );
+        INSERT INTO users VALUES (42,'eski','Eski','uz','2026-01-01',0);
+        """
+    )
+    con.commit()
+    con.close()
+
+    database = Database(path)
+    await database.connect()
+    try:
+        user = await Repository(database).get_user(42)
+        assert user.last_active_at == "2026-01-01"
+    finally:
+        await database.close()
 
 
 async def test_foydalanuvchi_ochirilsa_tarixi_ham_ochadi(db, repo):
