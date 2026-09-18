@@ -13,14 +13,12 @@ TEXTS: dict[str, str] = {
     "choose_language": "🌐 Choose your language:",
     "menu_prompt": "Pick one of the sections below 👇",
     "back": "⬅️ Back",
-
     # --- reply buttons ---
     "btn_ai": "🤖 Chat with AI",
     "btn_clear": "📜 Clear conversation",
     "btn_language": "🌐 Change language",
     "btn_about": "ℹ️ About the bot",
     "btn_contact": "📞 Contact us",
-
     # --- AI chat ---
     "ai_mode_on": (
         "🤖 <b>AI chat mode is on.</b>\n\n"
@@ -34,7 +32,6 @@ TEXTS: dict[str, str] = {
     "unknown_command": "🤔 No such command. See /help for the list.",
     "only_text": "Sorry, I only understand text messages for now. Please type your question 🙂",
     "throttled": "A bit slower, please 🙂",
-
     # --- info sections ---
     "about": (
         "ℹ️ <b>About the bot</b>\n\n"
@@ -60,7 +57,6 @@ TEXTS: dict[str, str] = {
     "contact_empty": "Contact details will be added soon.",
     "btn_write_operator": "✍️ Message the operator",
     "btn_call": "📱 Call us",
-
     # --- admin ---
     "admin_denied": "⛔️ This section is for administrators only.",
     "admin_panel": "🛠 <b>Admin panel</b>\n\nChoose an action:",
@@ -78,14 +74,12 @@ TEXTS: dict[str, str] = {
     ),
     "broadcast_ask": (
         "📣 Send the message you want to broadcast.\n\n"
-        "HTML formatting works: <b>bold</b>, <i>italic</i>, <a href='https://t.me'>link</a>.\n"
+        "Use Telegram's own formatting (bold, italic, links) — it will be preserved. "
+        "There's no need to type tags by hand.\n"
         "Send /cancel to abort."
     ),
     "broadcast_preview": (
-        "👀 <b>Preview:</b>\n\n{text}\n\n"
-        "━━━━━━━━━━━━━━━\n"
-        "📬 Recipients: <b>{count}</b>\n\n"
-        "Send it?"
+        "👀 <b>Preview:</b>\n\n{text}\n\n━━━━━━━━━━━━━━━\n📬 Recipients: <b>{count}</b>\n\nSend it?"
     ),
     "btn_broadcast_send": "✅ Send",
     "btn_broadcast_cancel": "❌ Cancel",

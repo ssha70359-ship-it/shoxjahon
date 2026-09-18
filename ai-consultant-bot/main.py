@@ -36,7 +36,8 @@ USER_COMMANDS = [
 ]
 
 # Faqat adminlar ko'radigan qo'shimcha buyruqlar
-ADMIN_COMMANDS = USER_COMMANDS + [
+ADMIN_COMMANDS = [
+    *USER_COMMANDS,
     BotCommand(command="admin", description="Admin panel"),
     BotCommand(command="stats", description="Statistika"),
     BotCommand(command="broadcast", description="Ommaviy xabar"),
@@ -51,7 +52,7 @@ async def set_bot_commands(bot: Bot) -> None:
     for admin_id in settings.admin_ids:
         try:
             await bot.set_my_commands(ADMIN_COMMANDS, scope=BotCommandScopeChat(chat_id=admin_id))
-        except Exception as exc:  # noqa: BLE001 — admin hali /start bosmagan bo'lishi mumkin
+        except Exception as exc:
             logger.warning("Admin %s uchun buyruqlarni o'rnatib bo'lmadi: %s", admin_id, exc)
 
 
@@ -95,7 +96,11 @@ async def main() -> None:
     try:
         await set_bot_commands(bot)
         me = await bot.get_me()
-        logger.info("Bot ishga tushdi: @%s | adminlar: %s", me.username, settings.admin_ids or "yo'q")
+        logger.info(
+            "Bot ishga tushdi: @%s | adminlar: %s",
+            me.username,
+            settings.admin_ids or "yo'q",
+        )
 
         # Bot to'xtab turgan vaqtdagi eski xabarlarni o'tkazib yuboramiz
         await bot.delete_webhook(drop_pending_updates=True)

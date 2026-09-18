@@ -33,8 +33,12 @@ class AIClient(ABC):
                 oxirgi element — foydalanuvchining yangi savoli.
         """
 
-    async def close(self) -> None:
-        """HTTP ulanishlarini yopadi (bot to'xtaganda chaqiriladi)."""
+    async def close(self) -> None:  # noqa: B027 — ataylab abstract emas
+        """HTTP ulanishlarini yopadi (bot to'xtaganda chaqiriladi).
+
+        Sukut bo'yicha hech narsa qilmaydi: har bir provayderda yopiladigan
+        ulanish bo'lavermaydi, shuning uchun bu metod majburiy emas.
+        """
 
 
 def create_ai_client(settings: Settings) -> AIClient:

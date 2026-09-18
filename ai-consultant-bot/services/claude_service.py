@@ -33,7 +33,10 @@ class ClaudeService(AIClient):
         self._supports_effort = not any(m in self._model.lower() for m in _NO_EFFORT_MARKERS)
 
         if not self._supports_effort:
-            logger.info("%s modeli `effort` ni qo'llab-quvvatlamaydi — o'tkazib yuborildi", self._model)
+            logger.info(
+                "%s modeli `effort` ni qo'llab-quvvatlamaydi — o'tkazib yuborildi",
+                self._model,
+            )
 
     async def ask(self, system_prompt: str, history: list[ChatMessage]) -> str:
         # Claude formati: system alohida, messages ichida faqat user/assistant

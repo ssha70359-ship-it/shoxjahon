@@ -48,8 +48,7 @@ LANGUAGE_RULES: dict[str, str] = {
         "пишет на другом языке."
     ),
     Language.EN.value: (
-        "RESPONSE LANGUAGE: Always reply in ENGLISH, even if the user writes "
-        "in another language."
+        "RESPONSE LANGUAGE: Always reply in ENGLISH, even if the user writes in another language."
     ),
 }
 

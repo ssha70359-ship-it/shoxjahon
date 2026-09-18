@@ -35,9 +35,20 @@ ai-consultant-bot/
 ├── config.py                     # .env sozlamalari (pydantic-settings)
 ├── requirements.txt              # Kutubxonalar
 ├── requirements.lock.txt         # Sinovdan o'tgan aniq versiyalar
+├── requirements-dev.txt          # pytest, ruff (faqat ishlab chiqish uchun)
+├── pyproject.toml                # ruff va pytest sozlamalari
 ├── .env.example                  # .env uchun namuna
 ├── .gitignore
 ├── README.md
+│
+├── tests/                        # 79 ta test (pytest)
+│   ├── conftest.py               #   fixture'lar: soxta bot, stub AI, baza
+│   ├── test_database.py          #   sxema, migratsiya, tarix, statistika
+│   ├── test_handlers.py          #   menyu, til, AI suhbat, xatolar
+│   ├── test_admin.py             #   kirish huquqi, statistika, broadcast
+│   ├── test_services.py          #   Claude, System Prompt, sozlamalar
+│   ├── test_locales.py           #   tarjima kalitlari, fallback
+│   └── test_utils.py             #   matn bo'laklash, HTML tozalash
 │
 ├── data/                         # SQLite fayli shu yerda (gitga tushmaydi)
 │   └── bot.db
@@ -152,8 +163,8 @@ yo'qolmaydi.
 ```python
 response = await self._client.messages.create(
     model=self._model,
-    system=system_prompt,          # Claude'da system ALOHIDA parametr
-    messages=messages,             # ichida faqat user/assistant
+    system=system_prompt,  # Claude'da system ALOHIDA parametr
+    messages=messages,  # ichida faqat user/assistant
     max_tokens=self._max_tokens,
     output_config={"effort": "low"},
 )
@@ -310,6 +321,65 @@ FSM orqali uch bosqich:
 - `TelegramRetryAfter` — Telegram "sekinroq" desa, kutib qayta urinadi.
 - Bitta xato butun tarqatishni to'xtatmaydi; oxirida hisobot chiqadi:
   yetkazildi / bloklagan / xatolik.
+
+---
+
+## 🧪 Testlar
+
+```bash
+pip install -r requirements-dev.txt
+
+pytest                      # barcha testlar
+pytest -v                   # har bir test nomi bilan
+pytest tests/test_admin.py  # bitta fayl
+pytest -k broadcast         # nomida "broadcast" bo'lganlari
+
+ruff check .                # linter
+ruff check . --fix          # avtomatik tuzatish
+ruff format .               # formatlash
+```
+
+Testlar **haqiqiy `Dispatcher`** orqali ishlaydi: xabar va tugma bosishlari
+`dp.feed_update()` bilan yuboriladi, faqat ikki narsa almashtirilgan —
+Telegram API (`MockBot`, tarmoqqa chiqmaydi) va AI (`StubAI`, pul sarflamaydi).
+Ya'ni routerlar tartibi, middleware'lar, FSM holatlari va filtrlar
+haqiqiy ish rejimida tekshiriladi.
+
+Baza har bir test uchun `tmp_path` da yangidan yaratiladi.
+
+> ⚠️ `tests/conftest.py` muhit o'zgaruvchilarini **import'lardan oldin**
+> o'rnatadi, chunki `config.settings` modul yuklanganda bir marta yaratiladi.
+> Shu sababli testlar mashinangizdagi `.env` ga bog'liq emas.
+
+**Nimalar tekshiriladi:**
+
+| Fayl | Testlar |
+|---|---|
+| `test_database.py` | Sxema, eski bazadan migratsiya, `ON DELETE CASCADE`, tarix tartibi va ajratilishi, statistika, tilning ustidan yozilmasligi |
+| `test_handlers.py` | Menyu, til avtomatik aniqlash va almashtirish, AI konteksti, uzun javob bo'laklanishi, noma'lum buyruq, AI xatolari |
+| `test_admin.py` | Admin bo'lmaganga panel ko'rinmasligi, statistika, broadcast oqimi (yuborish, bloklaganni aniqlash, bekor qilish, FSM tozalanishi) |
+| `test_services.py` | System Prompt tili, provayder factory, Haiku uchun `effort` o'tkazib yuborilishi, sozlamalar validatsiyasi |
+| `test_locales.py` | Uchala tilda kalitlar bir xilligi, fallback |
+| `test_utils.py` | Matn bo'laklash chegaralari, HTML tozalash |
+
+---
+
+## ⚙️ CI (GitHub Actions)
+
+`.github/workflows/bot-ci.yml` — har push va PR'da ishlaydi, lekin faqat
+`ai-consultant-bot/**` o'zgarganda (repozitoriya ildizidagi Node.js loyihasiga
+tegmaydi).
+
+| Qadam | Nima qiladi |
+|---|---|
+| `ruff check` | Linter: ishlatilmagan import, import tartibi, eskirgan sintaksis, async xatolari |
+| `ruff format --check` | Formatlash bir xilligini tekshiradi (fayllarni o'zgartirmaydi) |
+| `python -m compileall` | Barcha fayllar sintaktik to'g'ri ekanini tasdiqlaydi |
+| `pytest -v` | 79 ta test |
+
+Python 3.11 va 3.12 da parallel ishlaydi (`StrEnum` va `X | None` sintaksisi
+3.11+ talab qiladi). Bitta branchga ketma-ket push bo'lsa, eski ishlar
+avtomatik bekor qilinadi.
 
 ---
 

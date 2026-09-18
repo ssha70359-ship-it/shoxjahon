@@ -102,9 +102,7 @@ class Database:
                 continue  # jadval hali yo'q — sxema uni o'zi yaratadi
             for old, new in renames:
                 if old in columns and new not in columns:
-                    await self.conn.execute(
-                        f"ALTER TABLE {table} RENAME COLUMN {old} TO {new}"
-                    )
+                    await self.conn.execute(f"ALTER TABLE {table} RENAME COLUMN {old} TO {new}")
                     logger.info("Migratsiya: %s.%s -> %s", table, old, new)
 
         # Keyinroq qo'shilgan ustunlar

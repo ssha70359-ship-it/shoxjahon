@@ -47,8 +47,8 @@ class IsAdmin(BaseFilter):
 class BroadcastState(StatesGroup):
     """Ommaviy xabar yuborish bosqichlari."""
 
-    waiting_for_message = State()   # admin xabar matnini yozishi kutilmoqda
-    waiting_for_confirm = State()   # tasdiqlash tugmasi kutilmoqda
+    waiting_for_message = State()  # admin xabar matnini yozishi kutilmoqda
+    waiting_for_confirm = State()  # tasdiqlash tugmasi kutilmoqda
 
 
 # Butun routerga filtr qo'yamiz — ichidagi barcha handlerlar faqat
@@ -146,7 +146,10 @@ async def broadcast_preview(
     repo: Repository,
 ) -> None:
     """Admin yozgan matnni ko'rsatib, tasdiqlashni so'raydi."""
-    text = message.html_text  # formatlashni (qalin, havola) saqlab qoladi
+    # `html_text` admin xabaridagi Telegram formatlashini (entity'larni)
+    # HTML teglarga aylantiradi. Qo'lda yozilgan "<b>" esa oddiy matn
+    # hisoblanadi va ekranlanadi — ya'ni teg sifatida ishlamaydi.
+    text = message.html_text
     targets = await repo.get_broadcast_targets()
 
     if not targets:
@@ -238,13 +241,13 @@ async def _do_broadcast(
             try:
                 await bot.send_message(user_id, text)
                 sent += 1
-            except Exception:  # noqa: BLE001
+            except Exception:
                 failed += 1
         except TelegramBadRequest as exc:
             # Masalan, HTML formatlash buzuq yoki chat topilmadi
             logger.warning("Broadcast: %s uchun xato: %s", user_id, exc)
             failed += 1
-        except Exception:  # noqa: BLE001 — bitta xato butun tarqatishni to'xtatmasin
+        except Exception:
             logger.exception("Broadcast: %s uchun kutilmagan xato", user_id)
             failed += 1
 

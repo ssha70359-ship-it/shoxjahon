@@ -75,7 +75,7 @@ class Settings(BaseSettings):
 
     # --- Operator bilan bog'lanish (menyudagi havolali tugma uchun) ---
     operator_username: str | None = None  # masalan: @sunrise_manager
-    operator_phone: str | None = None     # masalan: +998901234567
+    operator_phone: str | None = None  # masalan: +998901234567
 
     # --- Til ---
     default_language: Language = Language.UZ

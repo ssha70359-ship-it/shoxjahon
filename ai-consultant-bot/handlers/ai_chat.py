@@ -103,7 +103,7 @@ async def handle_question(
         # Kutilgan xato — foydalanuvchiga tushunarli matn ko'rsatamiz
         await message.answer(t(lang, "ai_error", error=str(exc)))
         return
-    except Exception:  # noqa: BLE001 — kutilmagan xatoda bot yiqilmasligi kerak
+    except Exception:
         logger.exception("AI so'rovida kutilmagan xato (user_id=%s)", user_id)
         await message.answer(t(lang, "ai_unknown_error"))
         return

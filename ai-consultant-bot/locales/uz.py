@@ -13,14 +13,12 @@ TEXTS: dict[str, str] = {
     "choose_language": "🌐 Muloqot tilini tanlang:",
     "menu_prompt": "Quyidagi bo'limlardan birini tanlang 👇",
     "back": "⬅️ Orqaga",
-
     # --- reply tugmalari ---
     "btn_ai": "🤖 AI bilan suhbat",
     "btn_clear": "📜 Suhbatni tozalash",
     "btn_language": "🌐 Tilni o'zgartirish",
     "btn_about": "ℹ️ Bot haqida",
     "btn_contact": "📞 Bog'lanish",
-
     # --- AI suhbat ---
     "ai_mode_on": (
         "🤖 <b>AI bilan suhbat rejimi yoqildi.</b>\n\n"
@@ -38,7 +36,6 @@ TEXTS: dict[str, str] = {
         "Savolingizni yozib yuboring 🙂"
     ),
     "throttled": "Biroz sekinroq 🙂",
-
     # --- ma'lumot bo'limlari ---
     "about": (
         "ℹ️ <b>Bot haqida</b>\n\n"
@@ -64,7 +61,6 @@ TEXTS: dict[str, str] = {
     "contact_empty": "Aloqa ma'lumotlari tez orada qo'shiladi.",
     "btn_write_operator": "✍️ Operatorga yozish",
     "btn_call": "📱 Qo'ng'iroq qilish",
-
     # --- admin ---
     "admin_denied": "⛔️ Bu bo'lim faqat adminlar uchun.",
     "admin_panel": "🛠 <b>Admin panel</b>\n\nKerakli amalni tanlang:",
@@ -82,7 +78,8 @@ TEXTS: dict[str, str] = {
     ),
     "broadcast_ask": (
         "📣 Yubormoqchi bo'lgan xabaringizni yuboring.\n\n"
-        "HTML formatlash ishlaydi: <b>qalin</b>, <i>kursiv</i>, <a href='https://t.me'>havola</a>.\n"
+        "Telegram'ning o'z formatlashidan foydalaning (qalin, kursiv, havola) — "
+        "u xabarda saqlanib qoladi. Teglarni qo'lda yozish shart emas.\n"
         "Bekor qilish uchun /cancel."
     ),
     "broadcast_preview": (
