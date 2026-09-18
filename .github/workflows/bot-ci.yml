@@ -1,0 +1,72 @@
+# AI-konsultant bot uchun uzluksiz integratsiya (CI).
+#
+# Faqat `ai-consultant-bot/` papkasi o'zgarganda ishga tushadi — repozitoriya
+# ildizidagi Node.js loyihasiga tegmaydi.
+
+name: Bot CI
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "ai-consultant-bot/**"
+      - ".github/workflows/bot-ci.yml"
+  pull_request:
+    paths:
+      - "ai-consultant-bot/**"
+      - ".github/workflows/bot-ci.yml"
+  # Kerak bo'lsa qo'lda ham ishga tushirish mumkin
+  workflow_dispatch:
+
+# Bitta branchda ketma-ket push bo'lsa, eskilarini bekor qilamiz
+concurrency:
+  group: bot-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ai-consultant-bot
+
+jobs:
+  test:
+    name: Lint va testlar (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Loyiha 3.11+ sintaksisidan foydalanadi (StrEnum, `X | None`)
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Kodni yuklab olish
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            ai-consultant-bot/requirements.lock.txt
+            ai-consultant-bot/requirements-dev.txt
+
+      - name: Kutubxonalarni o'rnatish
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock.txt
+          pip install -r requirements-dev.txt
+
+      - name: Ruff — linter
+        run: ruff check --output-format=github .
+
+      - name: Ruff — formatlash tekshiruvi
+        run: ruff format --check --diff .
+
+      - name: Barcha fayllar kompilyatsiya bo'lishini tekshirish
+        # -x '\.venv' — CI da virtual muhit yo'q, lekin bu buyruqni lokalda
+        # ham xuddi shunday ishlatish mumkin bo'lsin
+        run: python -m compileall -q -x '\.venv' .
+
+      - name: Testlar
+        run: pytest -v

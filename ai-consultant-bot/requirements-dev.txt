@@ -1,0 +1,6 @@
+# Ishlab chiqish va CI uchun qo'shimcha kutubxonalar.
+# Avval asosiylarini o'rnating:  pip install -r requirements.txt
+
+pytest>=8.0           # test frameworki
+pytest-asyncio>=0.24  # async testlarni ishga tushirish
+ruff>=0.6             # linter va formatlash tekshiruvi

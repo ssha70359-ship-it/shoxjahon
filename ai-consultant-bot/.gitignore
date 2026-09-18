@@ -1,0 +1,23 @@
+# Muhit o'zgaruvchilari — hech qachon gitga tushmasin!
+.env
+
+# Virtual muhit
+.venv/
+venv/
+
+# Ma'lumotlar bazasi
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Demo qoldiqlari
+demo-bot.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
