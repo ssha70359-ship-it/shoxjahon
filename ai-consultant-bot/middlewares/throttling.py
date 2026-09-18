@@ -14,6 +14,8 @@ from typing import Any
 from aiogram import BaseMiddleware
 from aiogram.types import CallbackQuery, Message, TelegramObject
 
+from locales import t
+
 
 class ThrottlingMiddleware(BaseMiddleware):
     """Foydalanuvchi harakatlari orasidagi minimal vaqtni ta'minlaydi."""
@@ -44,7 +46,8 @@ class ThrottlingMiddleware(BaseMiddleware):
             # Tugma bosilgan bo'lsa, Telegram'dagi "soat" animatsiyasini
             # to'xtatish uchun baribir javob qaytarish shart.
             if isinstance(event, CallbackQuery):
-                await event.answer("Biroz sekinroq 🙂")
+                # Foydalanuvchi tili DI middleware'idan keladi
+                await event.answer(t(data.get("lang", "uz"), "throttled"))
             return None
 
         self._last_seen[user_id] = now

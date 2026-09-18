@@ -1,4 +1,4 @@
-"""OpenAI provayderi (GPT-4o-mini).
+"""OpenAI integratsiyasi (muqobil provayder, GPT-4o-mini).
 
 Chat Completions API ishlatiladi: system prompt xabarlar ro'yxatining
 birinchi elementi sifatida yuboriladi.
@@ -10,14 +10,14 @@ import logging
 
 from openai import APIError, APIStatusError, AsyncOpenAI, RateLimitError
 
-from app.database.repository import ChatMessage
-from app.services.ai_client import AIClient, AIError
 from config import Settings
+from database.models import ChatMessage
+from services.ai_client import AIClient, AIError
 
 logger = logging.getLogger(__name__)
 
 
-class OpenAIClient(AIClient):
+class OpenAIService(AIClient):
     """OpenAI Chat Completions API ustidagi qobiq."""
 
     def __init__(self, settings: Settings) -> None:

@@ -2,7 +2,7 @@
 
 Handlerlar qaysi model ishlatilayotganini bilmaydi — ular faqat
 `AIClient.ask(...)` ni chaqiradi. Provayder `.env` dagi AI_PROVIDER orqali
-tanlanadi.
+tanlanadi (sukut bo'yicha — Anthropic Claude).
 """
 
 from __future__ import annotations
@@ -10,8 +10,8 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 
-from app.database.repository import ChatMessage
 from config import AIProvider, Settings
+from database.models import ChatMessage
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class AIClient(ABC):
         """Suhbat tarixini modelga yuborib, matnli javob qaytaradi.
 
         Args:
-            system_prompt: botning rolini belgilovchi ko'rsatma.
+            system_prompt: botning rolini va javob tilini belgilovchi ko'rsatma.
             history: eng eskisidan eng yangisigacha tartiblangan xabarlar;
                 oxirgi element — foydalanuvchining yangi savoli.
         """
@@ -41,16 +41,16 @@ def create_ai_client(settings: Settings) -> AIClient:
     """Sozlamalarga qarab kerakli provayder klientini yaratadi (Factory)."""
     # Import funksiya ichida: faqat kerak bo'lgan kutubxona yuklanadi,
     # ya'ni ikkinchi provayder o'rnatilmagan bo'lsa ham bot ishlaydi.
+    if settings.ai_provider is AIProvider.ANTHROPIC:
+        from services.claude_service import ClaudeService
+
+        logger.info("AI provayder: Anthropic Claude (%s)", settings.anthropic_model)
+        return ClaudeService(settings)
+
     if settings.ai_provider is AIProvider.OPENAI:
-        from app.services.openai_provider import OpenAIClient
+        from services.openai_service import OpenAIService
 
         logger.info("AI provayder: OpenAI (%s)", settings.openai_model)
-        return OpenAIClient(settings)
-
-    if settings.ai_provider is AIProvider.ANTHROPIC:
-        from app.services.anthropic_provider import AnthropicClient
-
-        logger.info("AI provayder: Anthropic (%s)", settings.anthropic_model)
-        return AnthropicClient(settings)
+        return OpenAIService(settings)
 
     raise ValueError(f"Noma'lum AI provayder: {settings.ai_provider}")
