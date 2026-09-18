@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     company_info: str = ""
     bot_persona_name: str = "Konsultant"
 
+    # --- Operator bilan bog'lanish (menyudagi havolali tugma uchun) ---
+    operator_username: str | None = None  # masalan: @sunrise_manager
+    operator_phone: str | None = None     # masalan: +998901234567
+
     # --- Suhbat xotirasi: kontekstga olinadigan oxirgi xabarlar soni ---
     history_limit: int = Field(default=10, ge=2, le=50)
 

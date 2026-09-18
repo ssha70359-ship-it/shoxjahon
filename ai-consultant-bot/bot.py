@@ -32,6 +32,7 @@ async def set_bot_commands(bot: Bot) -> None:
     await bot.set_my_commands(
         [
             BotCommand(command="start", description="Botni ishga tushirish"),
+            BotCommand(command="menu", description="Xizmatlar menyusi"),
             BotCommand(command="help", description="Yordam va buyruqlar"),
             BotCommand(command="reset", description="Suhbat tarixini tozalash"),
         ]
@@ -61,9 +62,11 @@ async def main() -> None:
     # `update` darajasidagi middleware har qanday yangilanish uchun birinchi
     # ishlaydi: u bog'liqliklarni (repo, ai, prompt) `data` ga qo'shadi.
     dp.update.middleware(DependenciesMiddleware(repo, ai, system_prompt))
-    # `message` darajasidagi anti-spam esa handler chaqirilishidan oldin
-    # juda tez yuborilgan xabarlarni to'xtatadi.
-    dp.message.middleware(ThrottlingMiddleware(settings.throttle_rate))
+    # Anti-spam esa handler chaqirilishidan oldin juda tez yuborilgan
+    # xabarlarni va tugma bosishlarini to'xtatadi.
+    throttling = ThrottlingMiddleware(settings.throttle_rate)
+    dp.message.middleware(throttling)
+    dp.callback_query.middleware(throttling)
 
     # --- Routerlarni ulaymiz ---
     dp.include_routers(*routers)

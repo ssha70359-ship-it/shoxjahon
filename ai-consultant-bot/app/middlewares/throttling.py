@@ -1,8 +1,8 @@
 """Anti-spam (throttling) middleware.
 
-Bir foydalanuvchi belgilangan vaqt ichida bir nechta xabar yuborsa,
-ortiqchalari e'tiborsiz qoldiriladi. Bu AI so'rovlari uchun beriladigan
-pulni ham tejaydi.
+Bir foydalanuvchi belgilangan vaqt ichida bir nechta xabar yuborsa yoki
+tugmani ketma-ket bossa, ortiqchalari e'tiborsiz qoldiriladi. Bu AI
+so'rovlari uchun beriladigan pulni ham tejaydi.
 """
 
 from __future__ import annotations
@@ -12,15 +12,15 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from aiogram import BaseMiddleware
-from aiogram.types import Message, TelegramObject
+from aiogram.types import CallbackQuery, Message, TelegramObject
 
 
 class ThrottlingMiddleware(BaseMiddleware):
-    """Foydalanuvchi xabarlari orasidagi minimal vaqtni ta'minlaydi."""
+    """Foydalanuvchi harakatlari orasidagi minimal vaqtni ta'minlaydi."""
 
     def __init__(self, rate: float = 1.0) -> None:
         self._rate = rate
-        # {user_id: oxirgi ruxsat etilgan xabar vaqti}
+        # {user_id: oxirgi ruxsat etilgan harakat vaqti}
         self._last_seen: dict[int, float] = {}
 
     async def __call__(
@@ -29,7 +29,10 @@ class ThrottlingMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        if self._rate <= 0 or not isinstance(event, Message) or event.from_user is None:
+        # Middleware ham xabarlarga, ham tugma bosishlariga ulanadi
+        if self._rate <= 0 or not isinstance(event, (Message, CallbackQuery)):
+            return await handler(event, data)
+        if event.from_user is None:
             return await handler(event, data)
 
         user_id = event.from_user.id
@@ -37,7 +40,11 @@ class ThrottlingMiddleware(BaseMiddleware):
         last = self._last_seen.get(user_id, 0.0)
 
         if now - last < self._rate:
-            # Juda tez yozildi — xabarni tashlab yuboramiz (handler chaqirilmaydi)
+            # Juda tez bosildi/yozildi — handler chaqirilmaydi.
+            # Tugma bosilgan bo'lsa, Telegram'dagi "soat" animatsiyasini
+            # to'xtatish uchun baribir javob qaytarish shart.
+            if isinstance(event, CallbackQuery):
+                await event.answer("Biroz sekinroq 🙂")
             return None
 
         self._last_seen[user_id] = now

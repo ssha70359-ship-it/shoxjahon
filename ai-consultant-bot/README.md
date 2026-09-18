@@ -24,7 +24,7 @@ ai-consultant-bot/
 └── app/
     ├── handlers/                 # Telegram xabarlarini qabul qiluvchi qatlam
     │   ├── __init__.py           #   routerlar ro'yxati (tartib muhim!)
-    │   ├── commands.py           #   /start, /help, /reset
+    │   ├── commands.py           #   /start, /menu, /help, /reset + tugma bosishlar
     │   └── chat.py               #   AI javob beradigan asosiy handler
     │
     ├── services/                 # Biznes mantiq / tashqi xizmatlar
@@ -42,7 +42,7 @@ ai-consultant-bot/
     │   └── throttling.py         #   anti-spam
     │
     ├── keyboards/
-    │   └── common.py             #   asosiy menyu tugmalari
+    │   └── common.py             #   reply menyu + inline xizmatlar menyusi
     │
     └── utils/
         ├── logger.py             #   loglash sozlamasi
@@ -98,6 +98,8 @@ qo'lda migratsiya qilish shart emas.
 | `COMPANY_FIELD` | — | `xizmat ko'rsatish` | Bot qaysi soha bilan cheklanadi |
 | `COMPANY_INFO` | — | — | Ish vaqti, telefon, manzil va h.k. |
 | `BOT_PERSONA_NAME` | — | `Konsultant` | Botning ismi |
+| `OPERATOR_USERNAME` | — | — | Menyudagi "Operatorga yozish" tugmasi havolasi |
+| `OPERATOR_PHONE` | — | — | Telefon raqami (username bo'lmasa, qo'ng'iroq tugmasi) |
 | `HISTORY_LIMIT` | — | `10` | Kontekstga olinadigan oxirgi xabarlar soni |
 | `DB_PATH` | — | `data/bot.db` | SQLite fayl yo'li |
 | `THROTTLE_RATE` | — | `1.0` | Xabarlar orasidagi min. vaqt (soniya), `0` — o'chirilgan |
@@ -124,6 +126,66 @@ boshqalarning tarixiga tegmaydi.
 
 ---
 
+## 📋 Tugmali menyu va AI-suhbat qanday ulanadi
+
+`/start` yoki `/menu` bosilganda inline menyu chiqadi:
+
+```
+┌──────────────────┬──────────────────┐
+│ 🛠 Xizmatlarimiz │ 💰 Narxlar        │
+├──────────────────┼──────────────────┤
+│ 🏢 Biz haqimizda │ 📞 Operator...   │
+└──────────────────┴──────────────────┘
+```
+
+**Tugmalar `callback_data` si** `CallbackData` fabrikasi orqali yig'iladi
+(`app/keyboards/common.py`):
+
+```python
+class MenuCallback(CallbackData, prefix="menu"):
+    section: str          # -> "menu:services", "menu:prices", ...
+```
+
+Handlerda esa filtr sifatida ishlatiladi — satrni qo'lda kesish shart emas:
+
+```python
+@router.callback_query(MenuCallback.filter())
+async def cb_section(callback, callback_data: MenuCallback, repo): ...
+```
+
+**Eng muhim jihati:** tugma bosilganda ko'rsatilgan matn *suhbat tarixiga ham
+yoziladi* (`_remember_section`). Ya'ni foydalanuvchi "💰 Narxlar" ni bosib,
+keyin shunchaki **"Mobil ilova-chi?"** deb yozsa, AI qaysi bo'lim haqida gap
+ketayotganini biladi va suhbatni davom ettiradi:
+
+```
+user      | 💰 Narxlar bo'limini ochdim
+assistant | Narxlar. Aniq narx loyihaning hajmi va muddatiga bog'liq...
+user      | Mobil ilova-chi?          <- AI kontekstni ko'rib javob beradi
+```
+
+Telegram'ga HTML teglari bilan yuborilgan matn tarixga yozilishidan oldin
+`strip_html()` bilan tozalanadi — model uchun teglar ortiqcha shovqin.
+
+**Boshqa tafsilotlar:**
+
+- Bo'lim ochilganda yangi xabar yuborilmaydi, eskisi `edit_text` bilan
+  almashtiriladi — chat toza qoladi. Tahrirlash imkonsiz bo'lsa (eski xabar,
+  "message is not modified") bot xatoga uchramaydi.
+- `📞 Operator bilan bog'lanish` bo'limida `OPERATOR_USERNAME` ga havolali
+  tugma chiqadi; u ko'rsatilmagan bo'lsa `OPERATOR_PHONE` bilan qo'ng'iroq
+  tugmasi; ikkalasi ham bo'sh bo'lsa tugma umuman chizilmaydi.
+- Bot yangilangandan keyin eski tugma bosilsa, "Bu bo'lim endi mavjud emas"
+  ogohlantirishi chiqadi.
+- Anti-spam tugma bosishlariga ham tegishli (`dp.callback_query`).
+
+Bo'lim matnlarini o'z xizmatlaringizga moslash uchun
+`app/handlers/commands.py` dagi `SECTION_TEXTS` lug'atini tahrirlaysiz;
+yangi tugma qo'shish uchun `app/keyboards/common.py` dagi `MENU_SECTIONS` ga
+bitta qator qo'shsangiz kifoya.
+
+---
+
 ## 🎭 System Prompt
 
 `app/services/prompts.py` da joylashgan va `.env` dagi kompaniya
@@ -143,12 +205,14 @@ Boshqa sohaga moslash uchun kodga tegish shart emas — `.env` dagi
 
 | Buyruq | Vazifasi |
 |---|---|
-| `/start` | Tanishuv xabari + asosiy menyu tugmalari |
+| `/start` | Tanishuv xabari + doimiy klaviatura + xizmatlar menyusi |
+| `/menu` | Xizmat bo'limlari bilan inline menyu |
 | `/help` | Buyruqlar ro'yxati va bot imkoniyatlari |
 | `/reset` | Suhbat tarixini tozalash (o'chirilgan xabarlar sonini aytadi) |
 
 Buyruqlar Telegram menyusiga ham avtomatik yoziladi (`set_my_commands`),
-`/help` va `/reset` uchun esa qo'shimcha tugmalar bor.
+chat pastidagi doimiy klaviaturada esa `📋 Menyu`, `ℹ️ Yordam` va
+`🧹 Suhbatni tozalash` tugmalari turadi.
 
 ---
 

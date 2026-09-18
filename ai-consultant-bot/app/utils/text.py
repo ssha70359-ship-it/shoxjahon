@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 # Telegram bitta xabardagi maksimal belgilar soni
 TELEGRAM_MAX_LENGTH = 4096
 
@@ -33,3 +35,13 @@ def split_text(text: str, limit: int = TELEGRAM_MAX_LENGTH) -> list[str]:
     if remaining:
         chunks.append(remaining)
     return chunks
+
+
+def strip_html(text: str) -> str:
+    """Oddiy HTML teglarini olib tashlaydi.
+
+    Menyudagi matnlar Telegram uchun `<b>`, `<i>` kabi teglar bilan yoziladi.
+    O'sha matnni suhbat tarixiga (AI kontekstiga) yozishdan oldin teglarni
+    tozalaymiz — model uchun ular ortiqcha shovqin.
+    """
+    return re.sub(r"<[^>]+>", "", text)
