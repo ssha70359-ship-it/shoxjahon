@@ -64,7 +64,9 @@ jobs:
         run: ruff format --check --diff .
 
       - name: Barcha fayllar kompilyatsiya bo'lishini tekshirish
-        run: python -m compileall -q .
+        # -x '\.venv' — CI da virtual muhit yo'q, lekin bu buyruqni lokalda
+        # ham xuddi shunday ishlatish mumkin bo'lsin
+        run: python -m compileall -q -x '\.venv' .
 
       - name: Testlar
         run: pytest -v

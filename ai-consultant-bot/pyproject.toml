@@ -29,6 +29,13 @@ ignore = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Loyiha ildizini sys.path ga qo'shamiz, shunda testlar `config`, `handlers`
+# kabi modullarni import qila oladi.
+#
+# Busiz `python -m pytest` ishlaydi (u joriy papkani sys.path ga o'zi
+# qo'shadi), lekin oddiy `pytest` buyrug'i ishlamaydi — CI aynan shunga
+# yiqilgan edi. `pythonpath` ikkala usulni ham bir xil qiladi.
+pythonpath = ["."]
 # Barcha async testlar avtomatik ishga tushadi — har biriga dekorator shart emas
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
