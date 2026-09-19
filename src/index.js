@@ -170,3 +170,12 @@ start().catch((error) => {
   console.error('❌ Ishga tushirishda xato:', error);
   process.exit(1);
 });
+// Serverda kutilmagan asinxron xatolik bo'lsa server to'xtab qolmasligi uchun:
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Asosiy oqimdagi kutilmagan xatoliklarni ushlash:
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception thrown:', err);
+});
