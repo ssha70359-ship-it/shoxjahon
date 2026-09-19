@@ -3,6 +3,7 @@ import ProductModel from '../models/Product.js';
 import OrderModel from '../models/Order.js';
 import UserModel from '../models/User.js';
 import botController from './botController.js';
+import { sendOrderInvoice } from '../core/bot.js';
 
 export const cartController = {
   /** GET /api/client/me */
@@ -125,12 +126,27 @@ export const cartController = {
         comment: comment ? String(comment).trim() : null,
       });
 
-      // Mijozga botdan xabar
-      botController
-        .notifyOrderAccepted(req.user.telegramId, order)
-        .catch((error) => console.error('Xabar yuborishda xato:', error.message));
+      const paymentRequired = Boolean(config.bot.paymentProviderToken);
 
-      res.status(201).json({ ok: true, data: order, message: config.messages.orderAccepted });
+      if (paymentRequired) {
+        // Mijozga Payme hisob-fakturasi. Buyurtma "successful_payment" kelgach TOLANGAN bo'ladi.
+        sendOrderInvoice(req.user.telegramId, order).catch((error) =>
+          console.error('Hisob-faktura yuborishda xato:', error.message),
+        );
+      } else {
+        // To'lov sozlanmagan - eski "naqd/kuryerga" oqimi
+        botController
+          .notifyOrderAccepted(req.user.telegramId, order)
+          .catch((error) => console.error('Xabar yuborishda xato:', error.message));
+      }
+
+      res.status(201).json({
+        ok: true,
+        data: { ...order, paymentRequired },
+        message: paymentRequired
+          ? 'Buyurtma qabul qilindi! To‘lovni yakunlash uchun Telegram chatga qayting.'
+          : config.messages.orderAccepted,
+      });
     } catch (error) {
       next(error);
     }

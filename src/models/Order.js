@@ -50,6 +50,20 @@ export const OrderModel = {
     });
   },
 
+  /** Payme orqali to'lov muvaffaqiyatli o'tganda chaqiriladi */
+  markPaid(id, { telegramChargeId, providerChargeId }) {
+    return prisma.order.update({
+      where: { id: Number(id) },
+      data: {
+        paymentStatus: 'TOLANGAN',
+        telegramChargeId,
+        providerChargeId,
+        paidAt: new Date(),
+      },
+      include: { user: true },
+    });
+  },
+
   remove(id) {
     return prisma.order.delete({ where: { id: Number(id) } });
   },

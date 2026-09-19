@@ -41,6 +41,10 @@ export const config = {
     webhookSecret:
       process.env.WEBHOOK_SECRET ||
       crypto.createHash('sha256').update(`${process.env.BOT_TOKEN}:webhook`).digest('hex').slice(0, 40),
+
+    // Payme (Telegram Payments) provayder tokeni. Bo'sh bo'lsa, buyurtma
+    // to'lovsiz ("naqd/kuryerga") rejimda qabul qilinadi.
+    paymentProviderToken: process.env.PAYMENT_PROVIDER_TOKEN || '',
   },
 
   admin: {

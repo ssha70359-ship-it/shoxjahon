@@ -54,6 +54,12 @@ model Order {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
+  // Payme (Telegram Payments) to'lovi
+  paymentStatus    PaymentStatus @default(KUTILMOQDA)
+  telegramChargeId String?
+  providerChargeId String?
+  paidAt           DateTime?
+
   @@index([userId])
   @@index([createdAt])
 }
@@ -62,4 +68,9 @@ enum OrderStatus {
   KUTILMOQDA
   YETKAZILDI
   BEKOR_QILINDI
+}
+
+enum PaymentStatus {
+  KUTILMOQDA
+  TOLANGAN
 }

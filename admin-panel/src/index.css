@@ -303,6 +303,16 @@ tbody tr:hover {
   color: #128a5f;
 }
 
+.badge.payment-KUTILMOQDA {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.badge.payment-TOLANGAN {
+  background: #e7f8f1;
+  color: #128a5f;
+}
+
 .tag {
   background: var(--bg);
   border: 1px solid var(--line);

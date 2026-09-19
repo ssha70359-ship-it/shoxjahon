@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import api from '../lib/api.js';
 import Stats from './Stats.jsx';
-import { money, date, STATUS_LABEL, STATUSES } from '../lib/format.js';
+import { money, date, STATUS_LABEL, STATUSES, PAYMENT_STATUS_LABEL } from '../lib/format.js';
 
 const REFRESH_MS = 15000;
 
@@ -108,6 +108,7 @@ export default function Orders({ onUnauthorized }) {
                 <th>Telefon</th>
                 <th>Mahsulotlar</th>
                 <th>Jami</th>
+                <th>To&#8216;lov</th>
                 <th>Manzil</th>
                 <th>Sana</th>
                 <th>Holat</th>
@@ -143,6 +144,12 @@ export default function Orders({ onUnauthorized }) {
 
                     <td className="cell-strong" style={{ whiteSpace: 'nowrap' }}>
                       {money(order.total)}
+                    </td>
+
+                    <td>
+                      <div className={`badge payment-${order.paymentStatus}`}>
+                        {PAYMENT_STATUS_LABEL[order.paymentStatus] || order.paymentStatus}
+                      </div>
                     </td>
 
                     <td style={{ maxWidth: 220 }}>

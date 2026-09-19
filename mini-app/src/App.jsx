@@ -59,7 +59,7 @@ export default function App() {
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => saveCart(cart), [cart]);
 
@@ -164,12 +164,12 @@ export default function App() {
     setSubmitting(true);
 
     try {
-      await api.createOrder(payload);
+      const result = await api.createOrder(payload);
 
       notifySuccess();
       setCart([]);
       setWithExtra(false);
-      setSuccess(true);
+      setSuccess(result?.paymentRequired ? 'payment' : 'cod');
 
       setTimeout(closeApp, 2600);
     } catch (error) {
@@ -219,9 +219,13 @@ export default function App() {
   if (success) {
     return (
       <div className="success">
-        <div className="check">{'✅'}</div>
-        <h2>Buyurtma qabul qilindi!</h2>
-        <p>Kuryerimiz tez orada siz bilan bog&#8216;lanadi. Yoqimli ishtaha! {'\u{1F355}'}</p>
+        <div className="check">{success === 'payment' ? '\u{1F4B3}' : '✅'}</div>
+        <h2>{success === 'payment' ? 'Buyurtma yaratildi!' : 'Buyurtma qabul qilindi!'}</h2>
+        <p>
+          {success === 'payment'
+            ? "To‘lovni yakunlash uchun Telegram chatga qayting va hisob-fakturani to‘lang."
+            : `Kuryerimiz tez orada siz bilan bog‘lanadi. Yoqimli ishtaha! ${'\u{1F355}'}`}
+        </p>
       </div>
     );
   }

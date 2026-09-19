@@ -1,6 +1,7 @@
 import config from '../config/default.js';
 import UserModel from '../models/User.js';
-import { sendMessageToUser } from '../core/bot.js';
+import OrderModel from '../models/Order.js';
+import { sendMessageToUser, parseOrderPayload } from '../core/bot.js';
 
 /** Mini App tugmasi bo'lgan klaviatura */
 function mainKeyboard() {
@@ -132,6 +133,65 @@ export const botController = {
   /** Boshqa matnlar */
   async fallback(ctx) {
     await ctx.reply('Buyurtma berish uchun pastdagi tugmani bosing \u{1F447}', mainKeyboard());
+  },
+
+  /** Telegram to'lov tasdig'idan oldin (10 soniya ichida javob berish shart) */
+  async preCheckout(ctx) {
+    const query = ctx.preCheckoutQuery;
+
+    try {
+      const orderId = parseOrderPayload(query.invoice_payload);
+      if (!orderId) {
+        return ctx.answerPreCheckoutQuery(false, 'Buyurtma topilmadi. Qaytadan urinib ko‘ring.');
+      }
+
+      const order = await OrderModel.findById(orderId);
+      if (!order) {
+        return ctx.answerPreCheckoutQuery(false, 'Bunday buyurtma topilmadi.');
+      }
+
+      if (order.paymentStatus === 'TOLANGAN') {
+        return ctx.answerPreCheckoutQuery(false, 'Bu buyurtma allaqachon to‘langan.');
+      }
+
+      const expectedAmount = Math.round(order.total * 100);
+      if (query.total_amount !== expectedAmount) {
+        return ctx.answerPreCheckoutQuery(false, 'Buyurtma summasi mos kelmadi. Qaytadan buyurtma bering.');
+      }
+
+      return ctx.answerPreCheckoutQuery(true);
+    } catch (error) {
+      console.error('⚠️  pre_checkout xatosi:', error.message);
+      try {
+        await ctx.answerPreCheckoutQuery(false, 'Ichki xatolik. Qaytadan urinib ko‘ring.');
+      } catch {
+        /* javob ham bormadi - Telegram 10s dan keyin o'zi bekor qiladi */
+      }
+    }
+  },
+
+  /** To'lov muvaffaqiyatli yakunlangach */
+  async successfulPayment(ctx) {
+    try {
+      const payment = ctx.message.successful_payment;
+      const orderId = parseOrderPayload(payment.invoice_payload);
+      if (!orderId) return;
+
+      const order = await OrderModel.markPaid(orderId, {
+        telegramChargeId: payment.telegram_payment_charge_id,
+        providerChargeId: payment.provider_payment_charge_id,
+      });
+
+      await ctx.reply(
+        '✅ To‘lov muvaffaqiyatli qabul qilindi!\n\n' +
+          `<b>Buyurtma №${order.id}</b>\n` +
+          `Jami: <b>${order.total.toLocaleString('ru-RU')} so‘m</b>\n\n` +
+          'Kuryerimiz tez orada bog‘lanadi \u{1F355}',
+        { parse_mode: 'HTML' },
+      );
+    } catch (error) {
+      console.error('⚠️  successful_payment xatosi:', error.message);
+    }
   },
 
   /** Buyurtma qabul qilingani haqida mijozga xabar */

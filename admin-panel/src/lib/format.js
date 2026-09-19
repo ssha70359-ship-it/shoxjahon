@@ -21,3 +21,8 @@ export const STATUS_LABEL = {
 };
 
 export const STATUSES = Object.keys(STATUS_LABEL);
+
+export const PAYMENT_STATUS_LABEL = {
+  KUTILMOQDA: 'To‘lanmagan',
+  TOLANGAN: 'To‘langan',
+};

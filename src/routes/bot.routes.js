@@ -9,6 +9,8 @@ export function registerBotRoutes() {
   bot.command('admin', botController.admin);
 
   bot.on(message('contact'), botController.contact);
+  bot.on('pre_checkout_query', botController.preCheckout);
+  bot.on(message('successful_payment'), botController.successfulPayment);
   bot.on(message('text'), botController.fallback);
 
   return bot;
