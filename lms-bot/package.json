@@ -1,0 +1,35 @@
+{
+  "name": "lms-bot-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "O'quv markazi - kurslarga yozilish va to'lov boti (Express + Prisma + Telegraf)",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "build": "prisma generate && prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio",
+    "test:e2e": "bash tests/run.sh"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

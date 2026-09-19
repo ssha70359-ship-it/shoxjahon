@@ -1,0 +1,197 @@
+// O'quv markazi - kurslarga yozilish va to'lov tizimi ma'lumotlar bazasi
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Migratsiya uchun pooler'siz ulanish (Neon/Supabase).
+  // MAJBURIY: pooler ishlatmasangiz ham .env da DATABASE_URL bilan bir xil qiymatni yozing.
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Foydalanuvchilar
+// ---------------------------------------------------------------------------
+
+/// Telegram orqali kirgan o'quvchi (yoki admin)
+model User {
+  id         Int      @id @default(autoincrement())
+  telegramId String   @unique
+  firstName  String
+  lastName   String?
+  username   String?
+  /// Ariza qoldirishda kiritiladi: +998901234567
+  phone      String?
+  role       Role     @default(STUDENT)
+  language   String   @default("uz")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  orders Order[]
+
+  @@index([phone])
+}
+
+/// Kurs o'qituvchisi - Mini App'da kurs kartasida ko'rsatiladi
+model Teacher {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  /// Qisqacha tarjimai hol
+  bio       String?
+  photoUrl  String?
+  /// Mutaxassisligi: "Senior Frontend Developer @ EPAM"
+  expertise String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses Course[]
+}
+
+// ---------------------------------------------------------------------------
+// Kurslar
+// ---------------------------------------------------------------------------
+
+/// O'quv kursi
+model Course {
+  id             Int       @id @default(autoincrement())
+  /// URL uchun qisqa nom: "frontend-react"
+  slug           String    @unique
+  title          String
+  description    String
+  /// Yo'nalish: "Dasturlash", "Dizayn", "Marketing", "Chet tillari"
+  direction      String
+  level          Level     @default(BEGINNER)
+  /// Davomiyligi (hafta)
+  durationWeeks  Int
+  /// Haftasiga necha dars
+  lessonsPerWeek Int       @default(3)
+  /// Narxi - SO'MDA (butun son). Tiyinga aylantirish to'lov qatlamida bo'ladi.
+  price          Int
+  /// Chegirmagacha bo'lgan narx (bo'lsa)
+  oldPrice       Int?
+  coverUrl       String?
+  /// Guruhdagi joylar soni
+  seats          Int       @default(20)
+  startDate      DateTime?
+  isActive       Boolean   @default(true)
+
+  teacherId Int?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@index([direction])
+  @@index([isActive])
+  @@index([teacherId])
+}
+
+// ---------------------------------------------------------------------------
+// Arizalar va to'lovlar
+// ---------------------------------------------------------------------------
+
+/// Kursga yozilish arizasi. To'lov shu yozuvga bog'lanadi.
+model Order {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  courseId Int
+
+  /// Arizada kiritilgan ism (User.firstName dan farq qilishi mumkin)
+  fullName String
+  phone    String
+  comment  String?
+
+  /// To'lanishi kerak bo'lgan summa - SO'MDA. Kurs narxi o'zgarsa ham
+  /// ariza summasi o'zgarmasligi uchun nusxalab olinadi.
+  amount Int
+
+  status   OrderStatus      @default(NEW)
+  /// To'lov qaysi tizim orqali amalga oshgani (to'langandan keyin to'ladi)
+  provider PaymentProvider?
+  paidAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course       Course        @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// Payme / Click tranzaksiyasi.
+///
+/// Bu jadval TO'LOV TIZIMI PROTOKOLI uchun majburiy: Payme Merchant API
+/// CheckTransaction/CancelTransaction so'rovlarida aynan shu yozuvni qaytarishni,
+/// Click esa Prepare bosqichida berilgan `merchant_prepare_id` ni Complete
+/// bosqichida qayta yuborishni talab qiladi.
+model Transaction {
+  id      Int   @id @default(autoincrement())
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  provider        PaymentProvider
+  /// Payme: `params.id`, Click: `click_trans_id`
+  providerTransId String
+
+  /// Summa - TIYINDA (Payme protokoli shunday talab qiladi; 1 so'm = 100 tiyin)
+  amount Int
+
+  /// Holati: 1 - yaratildi, 2 - to'landi, -1 - bekor qilindi, -2 - to'langach bekor qilindi
+  state  Int  @default(1)
+  /// Payme bekor qilish sababi kodi
+  reason Int?
+
+  /// Payme `create_time` uchun asos. Javobda millisekundga aylantiriladi.
+  createdTime DateTime  @default(now())
+  performedAt DateTime?
+  cancelledAt DateTime?
+
+  updatedAt DateTime @updatedAt
+
+  /// Bitta tizimda bitta tranzaksiya IDsi faqat bir marta uchrashi mumkin -
+  /// takroriy CreateTransaction so'rovlaridan himoya qiladi.
+  @@unique([provider, providerTransId])
+  @@index([orderId])
+  @@index([state])
+}
+
+// ---------------------------------------------------------------------------
+// Enumlar
+// ---------------------------------------------------------------------------
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum OrderStatus {
+  /// Ariza qabul qilindi, to'lov boshlanmagan
+  NEW
+  /// To'lov tizimida tranzaksiya ochilgan, tasdiqlanishi kutilmoqda
+  PENDING
+  /// To'lov muvaffaqiyatli o'tdi - o'quvchi guruhga qo'shiladi
+  PAID
+  /// Bekor qilindi yoki to'lov qaytarildi
+  CANCELLED
+}
+
+enum PaymentProvider {
+  PAYME
+  CLICK
+}
