@@ -71,7 +71,11 @@ export async function setupBot(token, webAppUrl) {
   const current = await getMenuButton(token);
   const savedUrl = current?.web_app?.url;
 
-  if (savedUrl === webAppUrl) {
+  // Telegram URL saqlaganda oxiriga "/" qo'shib qo'yishi mumkin - shuni
+  // hisobga olmasak, to'g'ri yozilgan taqdirda ham soxta ogohlantirish chiqadi
+  const normalize = (url) => (url || '').replace(/\/+$/, '');
+
+  if (normalize(savedUrl) === normalize(webAppUrl)) {
     ok(`Menu tugmasi bog‘landi: ${savedUrl}`);
   } else {
     warn(`Menu tugmasi kutilganidek yozilmadi. Telegramdagi qiymat: ${savedUrl || current?.type}`);
