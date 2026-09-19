@@ -133,6 +133,11 @@ async function start() {
         ? `\u{1F4F1} Mini App: ${config.bot.webAppUrl}`
         : '⚠️  WEBAPP_URL hali sozlanmagan',
     );
+    console.log(
+      config.bot.paymentProviderToken
+        ? '\u{1F4B3} To‘lov: Payme yoqilgan (PAYMENT_PROVIDER_TOKEN topildi)'
+        : '\u{1F4B3} To‘lov: o‘chirilgan — PAYMENT_PROVIDER_TOKEN .env da yo‘q, naqd oqim ishlaydi',
+    );
   });
 
   if (mode === 'polling') {
