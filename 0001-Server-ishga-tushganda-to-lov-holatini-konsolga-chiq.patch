@@ -1,0 +1,37 @@
+From 2c5b5c8b062146eb16a0ff154ec45227ccef0837 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 19 Sep 2026 16:53:20 +0000
+Subject: [PATCH] Server ishga tushganda to'lov holatini konsolga chiqarish
+
+PAYMENT_PROVIDER_TOKEN yuklanganmi yoki yo'qmi - endi startup logida
+aniq ko'rinadi. Buni diagnostika uchun qo'shdim: "npm start" backend'ni
+"node --watch" bilan ishga tushiradi, u .env o'zgarishini kuzatmaydi -
+shuning uchun .env'ga token qo'shilgandan keyin serverni to'liq
+to'xtatib (Ctrl+C) qayta ishga tushirish shart, aks holda eski
+process'dagi bo'sh token qoladi.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01CCDFsxdUd5kMLM4dB9kaJ4
+---
+ src/index.js | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/index.js b/src/index.js
+index 3966a1b..a12eb68 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -133,6 +133,11 @@ async function start() {
+         ? `\u{1F4F1} Mini App: ${config.bot.webAppUrl}`
+         : '⚠️  WEBAPP_URL hali sozlanmagan',
+     );
++    console.log(
++      config.bot.paymentProviderToken
++        ? '\u{1F4B3} To‘lov: Payme yoqilgan (PAYMENT_PROVIDER_TOKEN topildi)'
++        : '\u{1F4B3} To‘lov: o‘chirilgan — PAYMENT_PROVIDER_TOKEN .env da yo‘q, naqd oqim ishlaydi',
++    );
+   });
+ 
+   if (mode === 'polling') {
+-- 
+2.43.0
+
