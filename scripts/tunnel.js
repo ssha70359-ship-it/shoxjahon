@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 
 import { ok, warn, paint } from './utils.js';
@@ -71,11 +72,79 @@ async function waitForCliTunnel(isDead, attempts = 20) {
 }
 
 /**
+ * Cloudflare "quick tunnel" — hisob ham, token ham kerak emas.
+ * Chiqishdan https://....trycloudflare.com manzilini o'qib oladi.
+ */
+export function startCloudflared(port, timeoutMs = 40000) {
+  return new Promise((resolve) => {
+    let bin;
+
+    try {
+      bin = createRequire(import.meta.url)('cloudflared').bin;
+    } catch {
+      return resolve({ error: 'cloudflared paketi topilmadi (npm install qiling)' });
+    }
+
+    if (!fs.existsSync(bin)) {
+      return resolve({ error: 'cloudflared dasturi yuklanmagan' });
+    }
+
+    let child;
+
+    try {
+      child = spawn(bin, ['tunnel', '--url', `http://localhost:${port}`, '--no-autoupdate'], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch (error) {
+      return resolve({ error: `cloudflared ishga tushmadi: ${error.message}` });
+    }
+
+    let buffer = '';
+    let settled = false;
+
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(result);
+    };
+
+    const timer = setTimeout(() => {
+      child.kill();
+      finish({ error: 'cloudflared javob bermadi' });
+    }, timeoutMs);
+
+    const scan = (chunk) => {
+      buffer += chunk;
+      const match = buffer.match(/https:\/\/[-a-z0-9]+\.trycloudflare\.com/i);
+      if (match) finish({ url: match[0], stop: () => child.kill() });
+    };
+
+    /** Xato sababini chiqishning oxirgi mazmunli qatoridan olamiz */
+    const lastLine = () => {
+      const line = buffer
+        .split(/\r?\n/)
+        .map((item) => item.replace(/^\S+\s+(INF|ERR|WRN)\s+/, '').trim())
+        .filter(Boolean)
+        .pop();
+
+      return line ? ` (${line.slice(0, 160)})` : '';
+    };
+
+    child.stdout.on('data', scan);
+    child.stderr.on('data', scan);
+    child.on('error', (error) => finish({ error: `cloudflared: ${error.message}` }));
+    child.on('exit', () => finish({ error: `cloudflared to‘xtab qoldi${lastLine()}` }));
+  });
+}
+
+/**
  * Mini App uchun https tunnel ochadi. Tartib bo'yicha uriniladi:
  *   1) Allaqachon ishlab turgan ngrok (siz boshqa terminalda ochgan bo'lsangiz)
  *   2) .env dagi NGROK_AUTHTOKEN
  *   3) "ngrok config add-authtoken" bilan saqlangan token
  *   4) Kompyuterdagi ngrok CLI
+ *   5) Cloudflare quick tunnel - hisob ham, token ham kerak emas
  * Hech biri bo'lmasa null qaytaradi va sababini aytadi.
  */
 export async function startTunnel(port, envAuthtoken) {
@@ -150,7 +219,19 @@ export async function startTunnel(port, envAuthtoken) {
     reasons.push(`ngrok CLI: ${error.message}`);
   }
 
+  // 5) Cloudflare quick tunnel - ngrok ishlamaganda ham ishlaydi
   for (const reason of reasons) warn(reason);
+
+  console.log(paint('dim', '  Cloudflare tunneli sinab ko\u2018rilmoqda (token kerak emas)...'));
+
+  const cloudflare = await startCloudflared(port);
+
+  if (cloudflare.url) {
+    ok(`Cloudflare tunnel ochildi: ${paint('cyan', cloudflare.url)}`);
+    return { url: cloudflare.url, stop: cloudflare.stop };
+  }
+
+  warn(cloudflare.error);
 
   return null;
 }

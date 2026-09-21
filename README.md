@@ -29,7 +29,7 @@ Shu bitta buyruq hamma narsani o'zi bajaradi:
 1. `.env` fayl yo'q bo'lsa — savollar berib yaratadi (Neon manzili, bot token, admin parol)
 2. Uch papkaning paketlarini o'rnatadi (faqat kerak bo'lsa)
 3. Prisma client yaratadi, jadvallarni bazaga yozadi, 23 ta mahsulotni qo'shadi
-4. ngrok tunnelini ochadi va `WEBAPP_URL` ni `.env` ga yozadi
+4. https tunnel ochadi (Cloudflare — token kerak emas; ngrok tokeni bo'lsa avval u sinaladi) va `WEBAPP_URL` ni `.env` ga yozadi
 5. **Bot menyu tugmasini Mini App'ga o'zi bog'laydi — BotFather'ga kirish shart emas**
 6. Backend, Mini App va Admin panelni bitta terminalda ishga tushiradi
 

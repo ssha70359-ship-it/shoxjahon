@@ -21,7 +21,7 @@ import {
   warn,
 } from './utils.js';
 import { ensureEnv } from './setup.js';
-import { findSavedAuthtoken, startTunnel } from './tunnel.js';
+import { startTunnel } from './tunnel.js';
 import { resetMenuButton, setupBot } from './telegram.js';
 
 const MINI_APP_PORT = 5173;
@@ -106,25 +106,18 @@ async function prepareTunnel(env) {
 
     warn('https tunnel ochilmadi — Mini App Telegram ichida ishlamaydi');
 
-    const hasToken = Boolean(env.NGROK_AUTHTOKEN?.trim() || findSavedAuthtoken());
-
+    // Bu yerga yetgan bo'lsak, ngrok ham, Cloudflare ham ishlamadi.
     console.log(
       paint(
         'dim',
-        hasToken
-          ? '\n  Authtoken topildi, lekin ngrok’ga ulanib bo‘lmadi. Sabablari:\n' +
-              '    • Internet yo‘q yoki VPN/antivirus ngrok’ni bloklayapti\n' +
-              '    • ngrok bepul rejada bir vaqtda faqat 1 ta sessiyaga ruxsat beradi —\n' +
-              '      ochiq qolgan ngrok oynalarini yoping (https://dashboard.ngrok.com/agents)\n' +
-              '    • Token eskirgan bo‘lsa yangisini oling va shuni bajaring:\n' +
-              '      npm run ngrok:token <yangi-token>'
-          : '\n  ngrok authtoken topilmadi. Tuzatish:\n' +
-              '    1. https://dashboard.ngrok.com/get-started/your-authtoken sahifasini oching\n' +
-              '    2. Tokenni nusxa oling\n' +
-              '    3. Shu buyruqni bering:  npm run ngrok:token <token>\n' +
-              '    4. npm start ni qayta ishga tushiring\n\n' +
-              '  Yoki boshqa terminalda "ngrok http 5173" deb qo‘yib, keyin npm start bering\n' +
-              '  — skript ishlab turgan ngrok’ni o‘zi topadi.',
+        '\n  Ikkala tunnel ham ochilmadi. Eng ko‘p uchraydigan sabablar:\n' +
+          '    • Internet yo‘q, yoki VPN/antivirus/korporativ tarmoq tunnelni bloklayapti\n' +
+          '    • Eski "npm start" hali ishlab turibdi — barcha terminallarni yoping\n' +
+          '      (Windows: taskkill /f /im node.exe)\n\n' +
+          '  ngrok ixtiyoriy — Cloudflare tunneliga token kerak emas. Lekin ngrok\n' +
+          '  ishlatmoqchi bo‘lsangiz: npm run ngrok:token <token>\n\n' +
+          '  Tunnelsiz ham ishlaydi: Mini App brauzerda http://localhost:5173\n' +
+          '  manzilida ochiladi (faqat Telegram ichida ishlamaydi).',
       ),
     );
     return null;

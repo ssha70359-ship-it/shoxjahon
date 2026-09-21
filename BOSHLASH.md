@@ -15,7 +15,7 @@ Oxirida sizda ishlaydigan Telegram bot, Mini App va admin panel bo'ladi.
 | Git | Loyihani yuklab oladi | Bepul |
 | Telegram akkaunt | Bot yaratish uchun | Bepul |
 | Neon akkaunt | Ma'lumotlar bazasi | Bepul |
-| ngrok akkaunt | Telegram uchun https manzil | Bepul |
+| ~~ngrok akkaunt~~ | Kerak emas — Cloudflare tunneli o'zi ishlaydi | — |
 
 ---
 
@@ -87,16 +87,15 @@ admin qiladi.
 
 > Nusxada `psql` so'zi yoki qo'shtirnoq bo'lsa ham muammo yo'q — loyiha o'zi tozalaydi.
 
-## 6-qadam. ngrok tokeni
+## 6-qadam. (o'tkazib yuboring)
 
-Telegram Mini App'ni faqat **https** manzilda ochadi. Kompyuteringiz esa
-`localhost` — Telegram uni ko'rmaydi. ngrok shu muammoni hal qiladi.
+Telegram Mini App'ni faqat **https** manzilda ochadi, kompyuteringiz esa
+`localhost`. Loyiha buni o'zi hal qiladi — **Cloudflare tunneli** ishlatadi,
+unga ro'yxatdan o'tish ham, token ham kerak emas.
 
-1. <https://dashboard.ngrok.com/signup> da ro'yxatdan o'ting
-2. Chap menyuda **Your Authtoken** → tokenni nusxalang
-
-> Bu qadamni o'tkazib yuborsangiz ham bo'ladi — loyiha ishlaydi, lekin Mini App
-> faqat brauzerda ochiladi, Telegram ichida emas. Keyin qo'shsangiz bo'ladi.
+> ngrok ishlatmoqchi bo'lsangiz ixtiyoriy: <https://dashboard.ngrok.com/signup>
+> dan token olib, `npm run ngrok:token <token>` bering. Ishlamasa loyiha
+> avtomatik Cloudflare'ga o'tadi.
 
 ## 7-qadam. Ishga tushirish
 
@@ -115,7 +114,7 @@ kiritasiz:
 | BotFather bergan Bot Token | 4-qadamdagi token |
 | Admin panel uchun parol | O'zingiz o'ylab toping (Enter = `admin123`) |
 | Telegram ID'ingiz | 4-qadamdagi raqam (Enter = bo'sh) |
-| ngrok authtoken | 6-qadamdagi token (Enter = keyin) |
+| ngrok authtoken | **Enter bosing** — kerak emas |
 
 Token to'g'ri bo'lsa ekranda `Bot topildi: @sizning_botingiz` chiqadi.
 
@@ -190,7 +189,7 @@ Tiramisu**. Ularga admin paneldan rasm qo'shsangiz, emoji o'rniga rasm chiqadi.
 | `git` topilmadi | 3-qadamdagi ZIP usulidan foydalaning. |
 | `Bazaga ulanib bo'lmadi` | Neon bazasi uxlab qolgan. neon.tech'ga kirib uyg'oting, keyin `npm start`. |
 | `Noto'g'ri qiymat` (token) | Tokenni probel va qo'shtirnoqsiz, to'liq nusxalang. |
-| `https tunnel ochilmadi` | ngrok tokeni yo'q. `npm run ngrok:token <token>` kiriting. |
+| `https tunnel ochilmadi` | Internet yoki VPN/antivirus tunnelni bloklayapti. Barcha terminallarni yoping (`taskkill /f /im node.exe`) va qayta urinib ko'ring. |
 | Tugma bosilganda eski sayt ochiladi | `npm start` ishlab turganda botga `/start` yuboring — tugma yangilanadi. |
 | Telegramda ngrok ogohlantirishi | Bir marta **Visit Site** bosing. |
 | Port band | Ctrl + C bilan to'g'ri yoping, terminalni qayta oching. |
