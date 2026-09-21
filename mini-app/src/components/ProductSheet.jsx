@@ -31,6 +31,10 @@ export default function ProductSheet({ product, onClose, onAdd }) {
       <div className="sheet">
         <div className="sheet-handle" />
 
+        <button className="sheet-close" onClick={onClose} aria-label="Yopish">
+          &times;
+        </button>
+
         <div className="sheet-scroll">
           {broken || !product.imageUrl ? (
             <div className="sheet-img" style={{ display: 'grid', placeItems: 'center', fontSize: 80 }}>
