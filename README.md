@@ -2,6 +2,10 @@
 
 Farhadskaya Bulochka (Family Bakery, est. 1996) uchun buyurtma va yetkazib berish tizimi.
 
+> 🆕 **Birinchi marta ishga tushiryapsizmi?** Kompyuteringizda hech narsa yo'q bo'lsa —
+> [**BOSHLASH.md**](BOSHLASH.md) ni oching. Node.js o'rnatishdan tortib botni
+> tekshirishgacha bosqichma-bosqich yozilgan.
+
 Katalog, narxlar va rasmlar Instagram menyusidan olingan — [docs/INSTAGRAM-TAHLIL.md](docs/INSTAGRAM-TAHLIL.md).
 Do'kon ma'lumotlari — filiallar, telefon, ish vaqti — `src/config/shop.js` faylida.
 
