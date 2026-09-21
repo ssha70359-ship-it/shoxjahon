@@ -37,6 +37,43 @@ export function notifySuccess() {
   }
 }
 
+/**
+ * Telegram "orqaga" tugmasini yoqadi va bosilganda `handler` ni chaqiradi.
+ *
+ * Bu tugma ko'rinib turganda Android'ning tizim "orqaga" tugmasi ham shu
+ * handlerga tushadi — ya'ni ilova yopilib ketmaydi. Tugma yashirin bo'lsa
+ * orqaga bosish Mini App'ni yopadi (Telegramning odatdagi xatti-harakati).
+ *
+ * Tozalash funksiyasini qaytaradi — useEffect'da to'g'ridan-to'g'ri ishlatiladi.
+ */
+export function showBackButton(handler) {
+  const back = tg?.BackButton;
+  if (!back) return () => {};
+
+  try {
+    back.onClick(handler);
+    back.show();
+  } catch {
+    return () => {};
+  }
+
+  return () => {
+    try {
+      back.offClick(handler);
+    } catch {
+      /* qo'llab-quvvatlanmaydi */
+    }
+  };
+}
+
+export function hideBackButton() {
+  try {
+    tg?.BackButton?.hide();
+  } catch {
+    /* qo'llab-quvvatlanmaydi */
+  }
+}
+
 export function closeApp() {
   try {
     tg?.close();

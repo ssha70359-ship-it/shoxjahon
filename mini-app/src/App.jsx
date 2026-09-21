@@ -10,7 +10,7 @@ import BottomNav from './components/BottomNav.jsx';
 import Toast from './components/Toast.jsx';
 
 import api from './lib/api.js';
-import { closeApp, notifySuccess } from './lib/telegram.js';
+import { closeApp, hideBackButton, notifySuccess, showBackButton } from './lib/telegram.js';
 
 const CART_KEY = 'pz_cart';
 const ONBOARD_KEY = 'pz_onboarded';
@@ -103,6 +103,41 @@ export default function App() {
   useEffect(() => {
     if (tab === 'profile') loadOrders();
   }, [tab, loadOrders]);
+
+  /**
+   * Telegram "orqaga" tugmasi.
+   *
+   * Tugmasiz orqaga bosish butun Mini App'ni yopadi. Shuning uchun ichkarida
+   * turgan har bir holat uchun o'z qaytish yo'lini beramiz:
+   * mahsulot oynasi -> katalog, ichki bo'lim -> bosh sahifa.
+   * Bosh sahifada tugma yashiriladi, shunda orqaga bosish ilovani yopadi.
+   */
+  useEffect(() => {
+    let back = null;
+
+    if (success) {
+      back = () => {
+        setSuccess(null);
+        setTab('home');
+      };
+    } else if (sheetProduct) {
+      back = () => setSheetProduct(null);
+    } else if (tab !== 'home') {
+      back = () => setTab('home');
+    }
+
+    if (!back) {
+      hideBackButton();
+      return undefined;
+    }
+
+    const cleanup = showBackButton(back);
+
+    return () => {
+      cleanup();
+      hideBackButton();
+    };
+  }, [success, sheetProduct, tab]);
 
   function addToCart(product, qty = 1) {
     setCart((current) => {
