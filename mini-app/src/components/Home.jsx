@@ -22,7 +22,7 @@ export default function Home({ user, products, onGoCatalog, onOpenProduct, onAdd
 
       <div className="hero">
         <h2>Yangi buyurtma berish</h2>
-        <p>Issiqqina pizza 30 daqiqada eshigingiz oldida</p>
+        <p>Yangi pishgan bulochkalar 7 000 so&#8216;mdan</p>
         <button
           className="btn"
           onClick={() => {
@@ -32,21 +32,21 @@ export default function Home({ user, products, onGoCatalog, onOpenProduct, onAdd
         >
           Katalogni ochish
         </button>
-        <div className="hero-emoji">{'\u{1F355}'}</div>
+        <div className="hero-emoji">{'\u{1F968}'}</div>
       </div>
 
       <div className="info-row">
         <div className="info-card">
-          <b>30 daq</b>
-          <span>O&#8216;rtacha yetkazish</span>
+          <b>7:00–19:00</b>
+          <span>Har kuni ochiq</span>
         </div>
         <div className="info-card">
-          <b>10 000+</b>
-          <span>Mamnun mijoz</span>
+          <b>est. 1996</b>
+          <span>30 yillik tajriba</span>
         </div>
         <div className="info-card">
-          <b>4.9 ★</b>
-          <span>Reyting</span>
+          <b>40K+</b>
+          <span>Obunachi</span>
         </div>
       </div>
 
@@ -54,7 +54,7 @@ export default function Home({ user, products, onGoCatalog, onOpenProduct, onAdd
         <>
           <div className="container">
             <div className="section-title" style={{ margin: '4px 0 12px' }}>
-              Mashhur pizzalar
+              Mashhur mahsulotlar
             </div>
           </div>
           <div className="grid">

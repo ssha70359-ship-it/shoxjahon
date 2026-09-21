@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { categoryEmoji } from '../lib/emoji.js';
+import { imgUrl } from '../lib/img.js';
 import { ingredients, money, num } from '../lib/format.js';
 import { haptic } from '../lib/telegram.js';
 
@@ -32,12 +34,12 @@ export default function ProductSheet({ product, onClose, onAdd }) {
         <div className="sheet-scroll">
           {broken || !product.imageUrl ? (
             <div className="sheet-img" style={{ display: 'grid', placeItems: 'center', fontSize: 80 }}>
-              {'\u{1F355}'}
+              {categoryEmoji(product.category)}
             </div>
           ) : (
             <img
               className="sheet-img"
-              src={product.imageUrl}
+              src={imgUrl(product.imageUrl)}
               alt={product.name}
               onError={() => setBroken(true)}
             />

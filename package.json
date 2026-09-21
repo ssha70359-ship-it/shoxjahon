@@ -1,9 +1,9 @@
 {
-  "name": "pizza-backend",
+  "name": "bulochka-backend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Pizza yetkazib berish - Telegram bot va API",
+  "description": "Farhadskaya Bulochka - Telegram bot va API",
   "scripts": {
     "start": "node scripts/dev.js",
     "setup": "node scripts/setup.js",

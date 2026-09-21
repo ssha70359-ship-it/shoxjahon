@@ -3,9 +3,9 @@ import { haptic } from '../lib/telegram.js';
 
 const SLIDES = [
   {
-    emoji: '\u{1F355}',
-    title: 'Sizni ochlik qiynayaptimi?',
-    text: 'Biz issiqqina pizzalarni tezkor yetkazamiz — o‘rtacha 30 daqiqada eshigingiz oldida.',
+    emoji: '\u{1F968}',
+    title: 'Farhadskaya Bulochka',
+    text: '1996-yildan buyon Toshkentni eng mazali bulochkalar bilan ta‘minlab kelamiz.',
   },
   {
     emoji: '\u{1F449}',
@@ -14,8 +14,8 @@ const SLIDES = [
   },
   {
     emoji: '\u{1F389}',
-    title: '10,000+ odam allaqachon biz bilan',
-    text: 'Har kuni minglab mijozlar bizning pizzalarimizni tanlaydi. Siz ham qo‘shiling!',
+    title: '40 000+ obunachi biz bilan',
+    text: 'Har kuni minglab mijozlar bizning bulochkalarimizni tanlaydi. Siz ham qo‘shiling!',
   },
 ];
 

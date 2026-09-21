@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import api from '../lib/api.js';
 import ProductForm from './ProductForm.jsx';
 import { num } from '../lib/format.js';
+import { imgUrl } from '../lib/img.js';
 
 export default function Products({ onUnauthorized }) {
   const [products, setProducts] = useState([]);
@@ -57,7 +58,7 @@ export default function Products({ onUnauthorized }) {
       ) : products.length === 0 ? (
         <div className="table-wrap">
           <div className="empty-state">
-            <div className="emoji">{'\u{1F355}'}</div>
+            <div className="emoji">{'\u{1F968}'}</div>
             Mahsulot yo&#8216;q. &laquo;Yangi mahsulot&raquo; tugmasini bosing.
           </div>
         </div>
@@ -85,14 +86,14 @@ export default function Products({ onUnauthorized }) {
                     {product.imageUrl ? (
                       <img
                         className="thumb"
-                        src={product.imageUrl}
+                        src={imgUrl(product.imageUrl)}
                         alt={product.name}
                         onError={(event) => {
                           event.currentTarget.style.display = 'none';
                         }}
                       />
                     ) : (
-                      <div className="thumb-empty">{'\u{1F355}'}</div>
+                      <div className="thumb-empty">{'\u{1F968}'}</div>
                     )}
                   </td>
 

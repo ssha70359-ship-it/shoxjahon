@@ -19,7 +19,7 @@ export default function App() {
     <div className="shell">
       <header className="topbar">
         <div className="brand">
-          {'\u{1F355}'} <span>Pizza Admin</span>
+          {'\u{1F968}'} <span>Bulochka Admin</span>
         </div>
 
         <nav className="tabs">

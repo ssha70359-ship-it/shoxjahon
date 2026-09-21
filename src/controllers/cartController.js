@@ -1,4 +1,5 @@
 import config from '../config/default.js';
+import { shop, isOpenNow } from '../config/shop.js';
 import ProductModel from '../models/Product.js';
 import OrderModel from '../models/Order.js';
 import UserModel from '../models/User.js';
@@ -25,7 +26,13 @@ export const cartController = {
 
       res.json({
         ok: true,
-        data: { products: items, categories, extraOffer: config.extraOffer },
+        data: {
+          products: items,
+          categories,
+          extraOffer: config.extraOffer,
+          shop,
+          isOpen: isOpenNow(),
+        },
       });
     } catch (error) {
       next(error);

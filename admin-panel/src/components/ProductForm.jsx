@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { imgUrl } from '../lib/img.js';
+
 const EMPTY = {
   name: '',
   description: '',
@@ -101,7 +103,7 @@ export default function ProductForm({ product, onClose, onSave }) {
         {form.imageUrl && (
           <div className="form-row">
             <img
-              src={form.imageUrl}
+              src={imgUrl(form.imageUrl)}
               alt="Ko'rinish"
               style={{ width: 90, height: 90, borderRadius: 12, objectFit: 'cover' }}
               onError={(event) => {

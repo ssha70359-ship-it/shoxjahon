@@ -2,7 +2,7 @@
 # Render -> New -> Blueprint -> repozitoriyani tanlang -> shu fayl o'qiladi.
 services:
   - type: web
-    name: pizza-backend
+    name: bulochka-backend
     runtime: node
     plan: free
     region: ohio

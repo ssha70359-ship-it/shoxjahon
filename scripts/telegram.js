@@ -62,7 +62,7 @@ export async function setupBot(token, webAppUrl) {
   await call(token, 'setChatMenuButton', {
     menu_button: {
       type: 'web_app',
-      text: '\u{1F355} Buyurtma berish',
+      text: '\u{1F968} Buyurtma berish',
       web_app: { url: webAppUrl },
     },
   });
@@ -84,6 +84,7 @@ export async function setupBot(token, webAppUrl) {
   await call(token, 'setMyCommands', {
     commands: [
       { command: 'start', description: 'Botni ishga tushirish' },
+      { command: 'manzil', description: 'Filiallar va ish vaqti' },
       { command: 'help', description: 'Yordam' },
     ],
   });
@@ -92,7 +93,7 @@ export async function setupBot(token, webAppUrl) {
   try {
     await call(token, 'setMyDescription', {
       description:
-        'Issiqqina pizzalarni 30 daqiqada yetkazib beramiz. Buyurtma berish uchun menyu tugmasini bosing.',
+        'Farhadskaya Bulochka — issiqqina bulochka va nonlar. Har kuni 7:00 – 19:00. Buyurtma berish uchun menyu tugmasini bosing.',
     });
   } catch {
     // muhim emas

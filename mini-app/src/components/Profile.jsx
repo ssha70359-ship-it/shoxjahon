@@ -1,7 +1,7 @@
 import { money, date, STATUS_LABEL } from '../lib/format.js';
 import { haptic } from '../lib/telegram.js';
 
-export default function Profile({ user, orders, loading, onReorder, onGoCatalog }) {
+export default function Profile({ user, orders, loading, shop, onReorder, onGoCatalog }) {
   const name = user?.firstName || 'Mijoz';
 
   return (
@@ -66,6 +66,54 @@ export default function Profile({ user, orders, loading, onReorder, onGoCatalog 
               </div>
             );
           })}
+
+        {shop && (
+          <>
+            <div className="section-title" style={{ marginTop: 24 }}>
+              {'\u{1F4CD}'} Filiallarimiz
+            </div>
+
+            {shop.branches.map((branch) => (
+              <div className="order-card" key={branch.id}>
+                <div className="order-head">
+                  <b>{branch.name}</b>
+                </div>
+                <div className="order-items">{branch.address}</div>
+              </div>
+            ))}
+
+            <div className="section-title" style={{ marginTop: 24 }}>
+              {'\u{2139}'} Biz haqimizda
+            </div>
+
+            <div className="order-card">
+              <div className="order-items">
+                <div>{'\u{1F551}'} {shop.hours.text}</div>
+                <div style={{ marginTop: 6 }}>
+                  {'\u{1F4DE}'}{' '}
+                  <a href={shop.phoneHref} style={{ color: 'inherit' }}>
+                    {shop.phone}
+                  </a>
+                </div>
+                <div style={{ marginTop: 6 }}>
+                  {'\u{1F4F7}'}{' '}
+                  <a
+                    href={shop.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: 'inherit' }}
+                  >
+                    Instagram
+                  </a>
+                </div>
+                <div style={{ marginTop: 6 }}>{'\u{1F69A}'} {shop.delivery.text}</div>
+                <div className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+                  {shop.delivery.note}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         <div style={{ height: 16 }} />
       </div>

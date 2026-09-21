@@ -49,7 +49,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [extraOffer, setExtraOffer] = useState({ name: 'Coca-Cola 0.5L', price: 5000 });
+  const [extraOffer, setExtraOffer] = useState({ name: 'Trubochka', price: 7000 });
+  const [shop, setShop] = useState(null);
 
   const [cart, setCart] = useState(loadCart);
   const [withExtra, setWithExtra] = useState(false);
@@ -75,6 +76,7 @@ export default function App() {
         setProducts(catalog.products);
         setCategories(catalog.categories);
         if (catalog.extraOffer) setExtraOffer(catalog.extraOffer);
+        if (catalog.shop) setShop(catalog.shop);
       } catch (error) {
         if (alive) setFatal(error.message);
       } finally {
@@ -224,7 +226,7 @@ export default function App() {
         <p>
           {success === 'payment'
             ? "To‘lovni yakunlash uchun Telegram chatga qayting va hisob-fakturani to‘lang."
-            : `Kuryerimiz tez orada siz bilan bog‘lanadi. Yoqimli ishtaha! ${'\u{1F355}'}`}
+            : `Kuryerimiz tez orada siz bilan bog‘lanadi. Yoqimli ishtaha! ${'\u{1F968}'}`}
         </p>
       </div>
     );
@@ -257,6 +259,7 @@ export default function App() {
         <Cart
           cart={cart}
           user={user}
+          shop={shop}
           extraOffer={extraOffer}
           withExtra={withExtra}
           onToggleExtra={() => setWithExtra((value) => !value)}
@@ -272,6 +275,7 @@ export default function App() {
           user={user}
           orders={orders}
           loading={ordersLoading}
+          shop={shop}
           onReorder={reorder}
           onGoCatalog={() => setTab('catalog')}
         />

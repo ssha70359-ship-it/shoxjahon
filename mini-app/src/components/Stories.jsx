@@ -3,37 +3,38 @@ import { haptic } from '../lib/telegram.js';
 
 const STORIES = [
   {
-    id: 'aksiya',
-    label: 'Aksiya',
-    emoji: '\u{1F525}',
-    title: '-20% chegirma',
-    text: 'Bugun barcha klassik pizzalarga 20% chegirma. Shoshiling!',
-    bg: 'linear-gradient(160deg,#ff3b30,#ff7a45)',
+    id: 'bulochka',
+    label: 'Bulochka',
+    emoji: '\u{1F96F}',
+    title: 'Hammasi 7 000 so‘mdan',
+    text: 'Serdechko, mayizli, makli, tvorogli, sosiskali, simit — barcha bulochkalar.',
+    bg: 'linear-gradient(160deg,#e8a33d,#c9762b)',
   },
   {
-    id: 'yangi',
-    label: 'Yangi',
-    emoji: '\u{1F195}',
-    title: 'Qazi pizza',
-    text: 'Milliy ta‘m endi pizzada. Yangi retsept bo‘yicha tayyorlandi.',
-    bg: 'linear-gradient(160deg,#1eb980,#0e8f63)',
+    id: 'kruassan',
+    label: 'Kruassan',
+    emoji: '\u{1F950}',
+    title: 'Ichi to‘ldirilgan',
+    text: 'Malina va shokolad 18 000 so‘mdan, mindal va fistashka 23 000 so‘mdan.',
+    bg: 'linear-gradient(160deg,#c2185b,#7b1040)',
   },
   {
-    id: 'tezkor',
-    label: 'Tezkor',
-    emoji: '\u{1F6F5}',
-    title: '30 daqiqa',
-    text: 'Buyurtmangiz 30 daqiqada yetib boradi, aks holda — bepul.',
+    id: 'sinnabon',
+    label: 'Sinnabon',
+    emoji: '\u{1F369}',
+    title: 'Sinnabon 12 000 so‘mdan',
+    text: 'Dolchinli xamir, krem-chiz va shokolad sousi bilan.',
+    bg: 'linear-gradient(160deg,#8b5cf6,#5b34c4)',
+  },
+  {
+    id: 'yetkazish',
+    label: 'Yetkazish',
+    emoji: '\u{1F69A}',
+    title: 'Yandex orqali',
+    text: 'Buyurtmalar Yandex orqali yetkaziladi. Yetkazish narxi alohida to‘lanadi.',
     bg: 'linear-gradient(160deg,#2f6bff,#6f4bff)',
   },
-  {
-    id: 'sovga',
-    label: 'Sovg‘a',
-    emoji: '\u{1F381}',
-    title: 'Har 5-buyurtma',
-    text: '5 ta buyurtmadan keyin sizga bepul ichimlik sovg‘a qilamiz.',
-    bg: 'linear-gradient(160deg,#ff9f0a,#ff6b00)',
-  },
+
 ];
 
 function StoryViewer({ index, onClose, onIndexChange }) {
