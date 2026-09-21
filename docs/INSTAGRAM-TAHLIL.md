@@ -1,16 +1,8 @@
 # 📊 Instagram tahlili — @farhadskaya_bulochka
 
-> Tahlil sanasi: 2026-09-21
-> Loyiha katalogi va `src/config/shop.js` shu ma'lumotlar asosida to'ldirilgan.
-
-## ⚠️ Ma'lumot ishonchliligi haqida
-
-Tahlil paytida ishlatilgan muhitda Instagram, Facebook, YouTube, 2GIS va Yandex Karta
-tarmoq siyosati bilan **bloklangan edi** (`EGRESS_BLOCKED`). Shu sababli profil
-to'g'ridan-to'g'ri ochilmadi va rasmlar yuklab olinmadi.
-
-Quyidagilar — **ochiq veb-qidiruv natijalaridan** yig'ilgan ma'lumotlar.
-Ishga tushirishdan oldin har bir qatorni o'zingiz tasdiqlang.
+> Manba: profil egasi yuborgan "Menyu", "Narxlar" va "Lokatsiya" storylari
+> (2024-yil fevral – 2025-yil dekabr) hamda ochiq veb-qidiruv.
+> Loyiha katalogi (`prisma/seed.js`) va `src/config/shop.js` shular asosida to'ldirilgan.
 
 ## Brend
 
@@ -18,55 +10,77 @@ Ishga tushirishdan oldin har bir qatorni o'zingiz tasdiqlang.
 |--------|--------|
 | Username | `@farhadskaya_bulochka` |
 | Profil nomi | Family_Bakery 🥨 |
-| Shior | Farhadskaya Bulochka №1 \|\| est1996 |
-| Bio | "Toshkentdagi eng mazali bulochkalar" |
+| Logotip yozuvi | Farhadskaya **BUL🥨CHKA** · EST. 1996 |
+| Shior | "Bolalikdagi hotiralaringizni his qiling" |
 | Obunachilar | ~40 000 |
-| Postlar | ~98 |
 
-## Kontakt va ish vaqti
+## Kontakt
 
-- **Telefon:** +998 98 141 7777
+- **Telefon:** +998 98 141 77 77 *(mahsulot yorlig'ida ham shu raqam)*
 - **Ish vaqti:** har kuni 7:00 – 19:00
-- **Yetkazib berish:** bor (manbalarda Yandex taxi orqali deb ko'rsatilgan)
-- **Boshqa kanallar:** Facebook sahifasi, YouTube kanali `@FarhadskayaBulochka`
+- **Instagram:** [@farhadskaya_bulochka](https://www.instagram.com/farhadskaya_bulochka)
 
-## Filiallar
+## Lokatsiya
 
-Manbalarda 3 ta filial + alohida non-bulochka do'koni tilga olinadi:
+Storydan tasdiqlangan:
 
-1. Farhadskaya ko'chasi, 6a/1 — Farhad bozori bekati (asosiy)
-2. Lutfiy ko'chasi, 21a
-3. Jararyk massivi, 7/1
-4. Uchtepa, 23-kvartal, 56
+| Filial | Manzil | Manba |
+|--------|--------|-------|
+| Pekarnya (ishlab chiqarish) | Uchtepa tumani, Chilonzor massivi, **23-kvartal, 56A** | "Локация" story, 17-may |
+| Asosiy do'kon | Farhod ko'chasi, **Farxod Dehqon bozori** yonida (Lutfiy ko'chasi kesishmasi) | "Локация" xarita story, 18.06.2023 |
 
-> Tuman nomlari manbalarda aniq ko'rsatilmagani uchun loyihaga kiritilmadi.
+Veb-qidiruvdan olingan, story bilan tasdiqlanmagan qo'shimcha manzillar:
+Lutfiy ko'chasi 21a · Jararyk massivi 7/1.
 
-## Assortiment
+## Narxlar (story: 22-iyul va 29-aprel)
 
-Postlar va katalog yozuvlaridan aniqlangan mahsulotlar:
+Barcha narxlar **"…so'mdan"** — boshlang'ich narx, hajmiga qarab oshadi.
 
-mayizli bulochka · javdar non · oq va qora non · Borodinskiy · chiabatta ·
-limonli olma pirogi · kunjutli pechenye · urug'li pechenye · zavarnoy keklar ·
-pitsa · xonim · samsa
+| Mahsulot | Narx |
+|----------|------|
+| Bulochkalar (hammasi) | 7 000 so'mdan |
+| Blinchik | 6 000 so'mdan |
+| Trubochka | 7 000 so'mdan |
+| Sinnabon | 12 000 so'mdan |
+| Brauni | 12 000 so'mdan |
+| Kruassan malina / shokolad | 18 000 so'mdan |
+| Pon shokolad | 18 000 so'mdan |
+| Medovik | 20 000 so'mdan |
+| Kruassan mindal / fistashka | 23 000 so'mdan |
+| Rogalik (uy pechenyesi) | 23 000 *(mahsulot yorlig'idan)* |
+| Oreshki | 25 000 so'mdan |
+| San Sebastián | 30 000 so'mdan |
+| Tiramisu | 30 000 so'mdan |
 
-## ❌ Topilmagan ma'lumotlar
+## Menyu (story rasmlaridan)
 
-| Nima | Sabab | Nima qilindi |
-|------|-------|--------------|
-| **Narxlar** | Hech qayerda ommaviy e'lon qilinmagan. Instagram'dagi "Меню📄" reel'i ochilmadi. | `prisma/seed.js` ga Toshkent bozoriga mos **taxminiy** narxlar qo'yildi. Admin paneldan o'zgartiriladi. |
-| **Mahsulot rasmlari** | Instagram bloklangan. | Vaqtincha Unsplash manzillari. Rasm yuklanmasa kategoriya emoji'si ko'rsatiladi (`mini-app/src/lib/emoji.js`). |
+**Bulochkalar** — Serdechko · Tvorogli · Mayizli · Makli · Shokoladli · Sosiskali ·
+Simit · Tvorogli vatrushka · Mayizli slayka
 
-## Manbalar
+**Kruassanlar** — malina · shokolad · mindal · fistashka · Pon shokolad
 
-- [Instagram — @farhadskaya_bulochka](https://www.instagram.com/farhadskaya_bulochka/)
-- [2GIS — "Фархадская булочка" qidiruvi](https://2gis.uz/tashkent/search/%D0%A4%D0%B0%D1%80%D1%85%D0%B0%D0%B4%D1%81%D0%BA%D0%B0%D1%8F%20%D0%B1%D1%83%D0%BB%D0%BE%D1%87%D0%BA%D0%B0)
-- [2GIS — Uchtepa 23-kvartal, 56 filiali](https://2gis.uz/tashkent/firm/70000001037291131)
-- [Facebook — Farhadskaya Bulochka](https://www.facebook.com/people/Farhadskaya-Bulochka/61561583670220/)
-- [YouTube — @FarhadskayaBulochka](https://www.youtube.com/@FarhadskayaBulochka)
-- [Yandex Karta — Lutfiy ko'chasi, 21a](https://yandex.com/maps/org/bakery/115861134633/)
+**Shirinliklar** — Sinnabon · Trubochka · Blinchik · Brauni · Medovik ·
+San Sebastián · Tiramisu
 
-## Keyingi qadamlar
+**Pechenye** — Rogalik · Oreshki
 
-1. Instagram'dagi **"Меню📄"** reel'idan aniq narxlarni ko'chirib, admin panelga kiriting.
-2. Har bir mahsulotning haqiqiy rasmini admin paneldan yuklang.
-3. `src/config/shop.js` dagi filial manzillarini tasdiqlang.
+## Buyurtma jarayoni (story: 29-aprel)
+
+Buyurtma uchun so'raladigan ma'lumotlar:
+**Ism · Telefon raqam · Lokatsiya · Shirinlik nomi va hajmi · To'lov cheki**
+
+Yetkazib berish **Yandex** orqali; **yetkazib berish narxi alohida to'lanadi**.
+
+> Mini App shu jarayonni avtomatlashtiradi: ism va telefon Telegramdan olinadi,
+> lokatsiya GPS orqali aniqlanadi, mahsulot savatchadan tanlanadi, to'lov esa
+> Payme (Telegram Payments) orqali amalga oshiriladi.
+
+## Mahsulot rasmlari
+
+18 ta rasm storylardan kesib olingan va `public/products/` papkasiga
+900×900 JPEG ko'rinishida saqlangan. Story foni, yozuvlar, narx raqamlari va
+stikerlar olib tashlangan; to'q fonli kesmalar bir xil qora fonga keltirilgan.
+
+Rasmi yo'q 5 ta mahsulot (Blinchik, Brauni, Medovik, San Sebastián, Tiramisu)
+uchun kategoriya emoji'si ko'rsatiladi — admin paneldan rasm qo'shsangiz
+avtomatik almashadi.

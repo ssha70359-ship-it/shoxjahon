@@ -107,6 +107,9 @@ export default function Profile({ user, orders, loading, shop, onReorder, onGoCa
                   </a>
                 </div>
                 <div style={{ marginTop: 6 }}>{'\u{1F69A}'} {shop.delivery.text}</div>
+                <div className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+                  {shop.delivery.note}
+                </div>
               </div>
             </div>
           </>

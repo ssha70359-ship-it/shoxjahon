@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import api from '../lib/api.js';
 import ProductForm from './ProductForm.jsx';
 import { num } from '../lib/format.js';
+import { imgUrl } from '../lib/img.js';
 
 export default function Products({ onUnauthorized }) {
   const [products, setProducts] = useState([]);
@@ -85,7 +86,7 @@ export default function Products({ onUnauthorized }) {
                     {product.imageUrl ? (
                       <img
                         className="thumb"
-                        src={product.imageUrl}
+                        src={imgUrl(product.imageUrl)}
                         alt={product.name}
                         onError={(event) => {
                           event.currentTarget.style.display = 'none';

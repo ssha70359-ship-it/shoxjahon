@@ -3,160 +3,181 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 /**
- * Farhadskaya Bulochka — boshlang'ich katalog.
+ * Farhadskaya Bulochka — haqiqiy katalog.
  *
- * Narxlar Toshkent bozoriga mo'ljallangan TAXMINIY qiymatlar.
- * Haqiqiy narxlarni admin paneldan ("Mahsulotlar" bo'limi) o'zgartiring.
+ * Manba: @farhadskaya_bulochka Instagram "Menyu" va "Narxlar" storylari.
+ * Narxlar e'lon qilinganidek "…so'mdan" (boshlang'ich narx) tarzida beriladi.
  *
+ * `imageUrl` — backend `public/` papkasidan uzatiladigan nisbiy yo'l.
  * `description` — tarkib, vergul bilan ajratiladi (Mini App shu bo'yicha ko'rsatadi).
  */
 const products = [
-  // ─────────────────────────── Bulochka ───────────────────────────
+  // ──────────────────── Bulochka — 7 000 so'mdan ────────────────────
   {
-    name: 'Mayizli bulochka',
-    description: 'Sut xamiri, Mayiz, Sariyog‘, Vanil, Shakar sepilgan',
-    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
-    oldPrice: 5000,
-    newPrice: 4000,
-    category: 'Bulochka',
-  },
-  {
-    name: 'Shakarli bulochka',
-    description: 'Sut xamiri, Sariyog‘, Shakar, Tuxum surtilgan',
-    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80',
-    newPrice: 3500,
-    category: 'Bulochka',
-  },
-  {
-    name: 'Kunjutli bulochka',
-    description: 'Sut xamiri, Kunjut, Sariyog‘, Tuz',
-    imageUrl: 'https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=800&q=80',
-    newPrice: 4000,
+    name: 'Serdechko',
+    description: 'Qatlamali xamir, Sariyog‘, Shakar sirop, Yurak shaklida',
+    imageUrl: '/products/serdechko.jpg',
+    newPrice: 7000,
     category: 'Bulochka',
   },
   {
     name: 'Tvorogli bulochka',
-    description: 'Sut xamiri, Tvorog, Smetana, Vanil, Shakar',
-    imageUrl: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=800&q=80',
-    newPrice: 5000,
+    description: 'Sut xamiri, Tvorog, Sariyog‘, Shakar sirop',
+    imageUrl: '/products/tvorogli.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Mayizli bulochka',
+    description: 'Sut xamiri, Mayiz, Sariyog‘, Shakar sirop',
+    imageUrl: '/products/mayizli.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Makli bulochka',
+    description: 'Sut xamiri, Ko‘knori (mak), Sariyog‘, Shakar sirop',
+    imageUrl: '/products/makli.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Shokoladli bulochka',
+    description: 'Sut xamiri, Shokolad, Sariyog‘, Shakar sirop',
+    imageUrl: '/products/shokoladli.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Sosiskali bulochka',
+    description: 'Sut xamiri, Sosiska, Kunjut',
+    imageUrl: '/products/sosiskali.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Simit',
+    description: 'Turk xamiri, Kunjut, Uzuk shaklida',
+    imageUrl: '/products/simit.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Tvorogli vatrushka',
+    description: 'Sut xamiri, Tvorog, Smetana, Vanil',
+    imageUrl: '/products/vatrushka.jpg',
+    newPrice: 7000,
+    category: 'Bulochka',
+  },
+  {
+    name: 'Mayizli slayka',
+    description: 'Yumshoq xamir, Mayiz, Vanilli krem, Shakar sirop',
+    imageUrl: '/products/mayizli-slayka.jpg',
+    newPrice: 7000,
     category: 'Bulochka',
   },
 
-  // ───────────────────────────── Non ──────────────────────────────
+  // ─────────────────────────── Kruassan ───────────────────────────
   {
-    name: 'Oq non',
-    description: 'Oliy nav un, Achitqi, Tuz, Suv',
-    imageUrl: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=800&q=80',
-    newPrice: 5000,
-    category: 'Non',
+    name: 'Malinali kruassan',
+    description: 'Qatlamali xamir, Malina qatlami, Quritilgan malina',
+    imageUrl: '/products/kruassan-malina.jpg',
+    newPrice: 18000,
+    category: 'Kruassan',
   },
   {
-    name: 'Qora non',
-    description: 'Javdar uni, Bug‘doy uni, Achitqi, Tuz',
-    imageUrl: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=800&q=80',
-    newPrice: 6000,
-    category: 'Non',
+    name: 'Shokoladli kruassan',
+    description: 'Qatlamali xamir, Shokolad qatlami',
+    imageUrl: '/products/kruassan-shokolad.jpg',
+    newPrice: 18000,
+    category: 'Kruassan',
   },
   {
-    name: 'Javdar noni',
-    description: 'To‘liq javdar uni, Xamirturush, Tuz, Suv',
-    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
-    newPrice: 8000,
-    category: 'Non',
+    name: 'Pon shokolad',
+    description: 'Qatlamali xamir, Shokolad tayoqchalari, Shakar sirop',
+    imageUrl: '/products/pon-shokolad.jpg',
+    newPrice: 18000,
+    category: 'Kruassan',
   },
   {
-    name: 'Borodinskiy',
-    description: 'Javdar uni, Koriandr, Solod, Shira, Tuz',
-    imageUrl: 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=800&q=80',
-    oldPrice: 12000,
-    newPrice: 10000,
-    category: 'Non',
+    name: 'Mindalli kruassan',
+    description: 'Qatlamali xamir, Mindal kremi, Mindal barglari',
+    imageUrl: '/products/kruassan-mindal.jpg',
+    newPrice: 23000,
+    category: 'Kruassan',
   },
   {
-    name: 'Chiabatta',
-    description: 'Italyan uni, Zaytun moyi, Xamirturush, Dengiz tuzi',
-    imageUrl: 'https://images.unsplash.com/photo-1585478259715-876acc5be8eb?w=800&q=80',
-    newPrice: 12000,
-    category: 'Non',
-  },
-
-  // ─────────────────────── Samsa va slayka ────────────────────────
-  {
-    name: 'Sosiskali slayka',
-    description: 'Qatlamali xamir, Mol go‘shti sosiska, Pishloq, Ketchup',
-    imageUrl: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80',
-    newPrice: 7000,
-    category: 'Samsa va slayka',
-  },
-  {
-    name: 'Go‘shtli samsa',
-    description: 'Qatlamali xamir, Mol go‘shti, Piyoz, Ziravorlar, Kunjut',
-    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=80',
-    oldPrice: 12000,
-    newPrice: 10000,
-    category: 'Samsa va slayka',
-  },
-  {
-    name: 'Kartoshkali samsa',
-    description: 'Qatlamali xamir, Kartoshka, Piyoz, Zira, Qalampir',
-    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=80',
-    newPrice: 8000,
-    category: 'Samsa va slayka',
-  },
-  {
-    name: 'Xonim',
-    description: 'Yupqa xamir, Kartoshka, Go‘sht, Piyoz, Smetana sousi',
-    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&q=80',
-    newPrice: 25000,
-    category: 'Samsa va slayka',
-  },
-  {
-    name: 'Uy pitsasi',
-    description: 'Xamir, Pomidor sousi, Mozzarella, Kolbasa, Bulg‘or qalampiri',
-    imageUrl: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=800&q=80',
-    oldPrice: 35000,
-    newPrice: 30000,
-    category: 'Samsa va slayka',
+    name: 'Fistashkali kruassan',
+    description: 'Qatlamali xamir, Fistashka kremi, Maydalangan fistashka',
+    imageUrl: '/products/kruassan-fistashka.jpg',
+    newPrice: 23000,
+    category: 'Kruassan',
   },
 
   // ─────────────────────────── Shirinlik ──────────────────────────
   {
-    name: 'Limonli olma pirogi',
-    description: 'Qumoq xamir, Olma, Limon, Dolchin, Shakar pudrasi',
-    imageUrl: 'https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?w=800&q=80',
-    oldPrice: 40000,
-    newPrice: 35000,
-    category: 'Shirinlik',
-  },
-  {
-    name: 'Zavarnoy kek',
-    description: 'Zavarnoy xamir, Vanilli krem, Shakar pudrasi',
-    imageUrl: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=800&q=80',
+    name: 'Blinchik',
+    description: 'Yupqa blin, Ichimlik to‘ldirma',
+    imageUrl: '',
     newPrice: 6000,
     category: 'Shirinlik',
   },
   {
-    name: 'Napoleon (bo‘lak)',
-    description: 'Qatlamali xamir, Zavarnoy krem, Sariyog‘, Vanil',
-    imageUrl: 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=800&q=80',
+    name: 'Trubochka',
+    description: 'Qatlamali xamir, Oqsilli krem',
+    imageUrl: '/products/trubochka.jpg',
+    newPrice: 7000,
+    category: 'Shirinlik',
+  },
+  {
+    name: 'Sinnabon',
+    description: 'Dolchinli xamir, Krem-chiz, Shokolad sousi',
+    imageUrl: '/products/sinnabon.jpg',
     newPrice: 12000,
+    category: 'Shirinlik',
+  },
+  {
+    name: 'Brauni',
+    description: 'Qora shokolad, Sariyog‘, Tuxum, Un',
+    imageUrl: '',
+    newPrice: 12000,
+    category: 'Shirinlik',
+  },
+  {
+    name: 'Medovik',
+    description: 'Asalli korj, Smetana kremi',
+    imageUrl: '',
+    newPrice: 20000,
+    category: 'Shirinlik',
+  },
+  {
+    name: 'San Sebastian',
+    description: 'Krem-chiz, Qaymoq, Tuxum, Kuydirilgan yuza',
+    imageUrl: '',
+    newPrice: 30000,
+    category: 'Shirinlik',
+  },
+  {
+    name: 'Tiramisu',
+    description: 'Savoyardi, Mascarpone, Espresso, Kakao',
+    imageUrl: '',
+    newPrice: 30000,
     category: 'Shirinlik',
   },
 
   // ─────────────────────────── Pechenye ───────────────────────────
   {
-    name: 'Kunjutli pechenye (1 kg)',
-    description: 'Un, Kunjut, Sariyog‘, Shakar, Tuxum',
-    imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80',
-    newPrice: 45000,
+    name: 'Rogalik',
+    description: 'Uy pechenyesi, Sariyog‘ xamiri, Shakar pudrasi',
+    imageUrl: '/products/rogalik.jpg',
+    newPrice: 23000,
     category: 'Pechenye',
   },
   {
-    name: 'Urug‘li pechenye (1 kg)',
-    description: 'Un, Kungaboqar urug‘i, Zig‘ir urug‘i, Sariyog‘, Shakar',
-    imageUrl: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80',
-    oldPrice: 55000,
-    newPrice: 48000,
+    name: 'Oreshki',
+    description: 'Uy pechenyesi, Quyultirilgan sut, Sariyog‘',
+    imageUrl: '/products/oreshki.jpg',
+    newPrice: 25000,
     category: 'Pechenye',
   },
 ];
@@ -168,7 +189,10 @@ async function main() {
     const existing = await prisma.product.findFirst({ where: { name: product.name } });
 
     if (existing) {
-      await prisma.product.update({ where: { id: existing.id }, data: product });
+      await prisma.product.update({
+        where: { id: existing.id },
+        data: { ...product, isActive: true },
+      });
       console.log(`   ♻️  Yangilandi: ${product.name}`);
     } else {
       await prisma.product.create({ data: product });
@@ -176,9 +200,19 @@ async function main() {
     }
   }
 
-  const total = await prisma.product.count();
-  console.log(`\u{1F389} Seed tugadi. Bazada jami ${total} ta mahsulot bor.`);
-  console.log('   \u{1F4A1} Narxlar taxminiy — admin paneldan aniq narxlarni kiriting.');
+  // Menyuda yo'q eski mahsulotlarni yashiramiz (o'chirmaymiz — tarix saqlanadi)
+  const names = products.map((item) => item.name);
+  const { count } = await prisma.product.updateMany({
+    where: { name: { notIn: names }, isActive: true },
+    data: { isActive: false },
+  });
+
+  if (count > 0) {
+    console.log(`   \u{1F648} ${count} ta eski mahsulot nofaol qilindi`);
+  }
+
+  console.log(`\u{1F389} Seed tugadi. Menyuda ${products.length} ta mahsulot bor.`);
+  console.log('   \u{1F4A1} Narxlar "…so‘mdan" — boshlang‘ich narx (Instagram menyusi bo‘yicha).');
 }
 
 main()

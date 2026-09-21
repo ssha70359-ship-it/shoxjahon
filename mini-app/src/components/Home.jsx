@@ -22,7 +22,7 @@ export default function Home({ user, products, onGoCatalog, onOpenProduct, onAdd
 
       <div className="hero">
         <h2>Yangi buyurtma berish</h2>
-        <p>Yangi pishgan bulochka va nonlar eshigingiz oldida</p>
+        <p>Yangi pishgan bulochkalar 7 000 so&#8216;mdan</p>
         <button
           className="btn"
           onClick={() => {
@@ -45,8 +45,8 @@ export default function Home({ user, products, onGoCatalog, onOpenProduct, onAdd
           <span>30 yillik tajriba</span>
         </div>
         <div className="info-card">
-          <b>4 ta</b>
-          <span>Filial</span>
+          <b>40K+</b>
+          <span>Obunachi</span>
         </div>
       </div>
 

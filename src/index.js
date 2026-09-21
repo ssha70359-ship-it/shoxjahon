@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import express from 'express';
 import cors from 'cors';
@@ -17,6 +19,10 @@ app.set('trust proxy', 1);
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+
+// Mahsulot rasmlari: public/products/*.jpg -> /products/*.jpg
+const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
+app.use(express.static(publicDir, { maxAge: '7d' }));
 
 app.get('/', (req, res) => {
   res.json({ ok: true, service: 'Bulochka API', version: '1.0.0' });

@@ -1,48 +1,51 @@
 /**
  * Farhadskaya Bulochka — do'kon ma'lumotlari.
  *
- * Manba: ochiq internet ma'lumotlari (Instagram @farhadskaya_bulochka,
- * 2GIS, Yandex Karta). Aniqlik uchun o'zingiz tekshirib chiqing —
- * filial qo'shish/o'chirish uchun shu faylni tahrirlang.
+ * Manba: @farhadskaya_bulochka Instagram "Lokatsiya" va "Menyu" storylari.
+ * Filial qo'shish yoki manzilni o'zgartirish uchun shu faylni tahrirlang.
  */
 export const shop = {
   name: 'Farhadskaya Bulochka',
   tagline: 'Family Bakery \u{1F968} — est. 1996',
-  slogan: 'Toshkentdagi eng mazali bulochkalar',
+  slogan: 'Bolalikdagi hotiralaringizni his qiling',
 
-  phone: '+998 98 141 7777',
+  phone: '+998 98 141 77 77',
   phoneHref: 'tel:+998981417777',
   instagram: 'https://www.instagram.com/farhadskaya_bulochka',
 
   /** Har kuni 7:00 dan 19:00 gacha */
   hours: { open: 7, close: 19, text: 'Har kuni 7:00 – 19:00' },
 
-  /** Filiallar — Mini App "Profil" bo'limida va botda ko'rsatiladi */
+  /** Narxlar Instagram menyusida "…so'mdan" deb beriladi */
+  priceNote: 'Narxlar boshlang‘ich — hajmiga qarab o‘zgarishi mumkin',
+
+  /** Filiallar — Mini App "Profil" bo'limida va botning /manzil buyrug'ida */
   branches: [
     {
-      id: 'farhad',
-      name: 'Farhad bozori (asosiy)',
-      address: "Farhadskaya ko'chasi, 6a/1",
+      id: 'farhod',
+      name: 'Farhod bozori (asosiy)',
+      address: 'Farhod ko‘chasi, Farxod Dehqon bozori yonida',
     },
     {
       id: 'lutfiy',
       name: 'Lutfiy',
-      address: "Lutfiy ko'chasi, 21a",
+      address: 'Lutfiy ko‘chasi, 21a',
+    },
+    {
+      id: 'pekarnya',
+      name: 'Pekarnya (ishlab chiqarish)',
+      address: 'Uchtepa tumani, Chilonzor massivi, 23-kvartal, 56A',
     },
     {
       id: 'jararyk',
       name: 'Jararyk',
       address: 'Jararyk massivi, 7/1',
     },
-    {
-      id: 'uchtepa',
-      name: 'Uchtepa 23-kvartal',
-      address: 'Uchtepa, 23-kvartal, 56',
-    },
   ],
 
   delivery: {
-    text: 'Yetkazib berish Toshkent bo‘ylab',
+    text: 'Yetkazib berish Yandex orqali',
+    note: 'Yetkazib berish narxi alohida to‘lanadi',
     minutes: 40,
   },
 };

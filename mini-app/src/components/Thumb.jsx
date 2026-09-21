@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { categoryEmoji } from '../lib/emoji.js';
+import { imgUrl } from '../lib/img.js';
 
 /** Rasm yuklanmasa o'rniga emoji ko'rsatadi */
 export default function Thumb({ src, alt, category, className = '', size = 62, radius = 14 }) {
@@ -26,5 +27,7 @@ export default function Thumb({ src, alt, category, className = '', size = 62, r
     );
   }
 
-  return <img className={className} src={src} alt={alt} onError={() => setBroken(true)} />;
+  return (
+    <img className={className} src={imgUrl(src)} alt={alt} onError={() => setBroken(true)} />
+  );
 }

@@ -118,7 +118,8 @@ export const botController = {
         `\u{1F551} ${shop.hours.text}\n` +
         `${status}\n` +
         `\u{1F4DE} ${shop.phone}\n` +
-        `\u{1F69A} ${shop.delivery.text}`,
+        `\u{1F69A} ${shop.delivery.text}\n` +
+        `\u{1F4B8} ${shop.delivery.note}`,
       { parse_mode: 'HTML', ...mainKeyboard() },
     );
   },

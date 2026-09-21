@@ -2,8 +2,8 @@
 
 Farhadskaya Bulochka (Family Bakery, est. 1996) uchun buyurtma va yetkazib berish tizimi.
 
+Katalog, narxlar va rasmlar Instagram menyusidan olingan — [docs/INSTAGRAM-TAHLIL.md](docs/INSTAGRAM-TAHLIL.md).
 Do'kon ma'lumotlari — filiallar, telefon, ish vaqti — `src/config/shop.js` faylida.
-Mahsulot narxlari **taxminiy**; aniq narxlarni admin paneldan kiriting.
 
 | Qism | Texnologiya | Manzil |
 |------|-------------|--------|
@@ -24,7 +24,7 @@ Shu bitta buyruq hamma narsani o'zi bajaradi:
 
 1. `.env` fayl yo'q bo'lsa — savollar berib yaratadi (Neon manzili, bot token, admin parol)
 2. Uch papkaning paketlarini o'rnatadi (faqat kerak bo'lsa)
-3. Prisma client yaratadi, jadvallarni bazaga yozadi, 19 ta mahsulotni qo'shadi
+3. Prisma client yaratadi, jadvallarni bazaga yozadi, 23 ta mahsulotni qo'shadi
 4. ngrok tunnelini ochadi va `WEBAPP_URL` ni `.env` ga yozadi
 5. **Bot menyu tugmasini Mini App'ga o'zi bog'laydi — BotFather'ga kirish shart emas**
 6. Backend, Mini App va Admin panelni bitta terminalda ishga tushiradi
@@ -102,6 +102,7 @@ Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
 
 ```
 shoxrux/
+├── public/products/                # Mahsulot rasmlari (backend uzatadi)
 ├── src/
 │   ├── config/default.js           # Sozlamalar va o'zgaruvchilar
 │   ├── config/shop.js              # Filiallar, telefon, ish vaqti
@@ -115,7 +116,7 @@ shoxrux/
 ├── prisma/
 │   ├── schema.prisma
 │   ├── migrations/
-│   └── seed.js                     # 19 ta mahsulot (5 kategoriya)
+│   └── seed.js                     # 23 ta mahsulot (4 kategoriya)
 ├── scripts/                        # Avtomatlashtirish (npm start shu yerdan)
 │   ├── dev.js                      # Hamma narsani ishga tushiruvchi
 │   ├── setup.js                    # .env yaratuvchi
@@ -161,6 +162,9 @@ shoxrux/
   qo'lda hech narsa ko'chirish kerak emas.
 - `ALLOW_DEV_USER=true` — brauzerdan test qilish uchun. Haqiqiy foydalanishda `false` qiling.
 - Mahsulot **tarkibi** `description` maydonidan vergul bilan ajratib olinadi.
+- Mahsulot rasmi bazada nisbiy yo'l sifatida saqlanadi (`/products/simit.jpg`) va
+  backend `public/` papkasidan uzatiladi. Tashqi `https://...` manzil ham ishlaydi.
+- Narxlar Instagram menyusidagidek **boshlang'ich** narx ("…so'mdan").
 
 ---
 

@@ -3,37 +3,38 @@ import { haptic } from '../lib/telegram.js';
 
 const STORIES = [
   {
-    id: 'issiq',
-    label: 'Issiq',
-    emoji: '\u{1F950}',
-    title: 'Endigina pechdan',
-    text: 'Bulochkalarimiz kun bo‘yi yangilanadi — har doim issiqqina va yumshoq.',
+    id: 'bulochka',
+    label: 'Bulochka',
+    emoji: '\u{1F96F}',
+    title: 'Hammasi 7 000 so‘mdan',
+    text: 'Serdechko, mayizli, makli, tvorogli, sosiskali, simit — barcha bulochkalar.',
     bg: 'linear-gradient(160deg,#e8a33d,#c9762b)',
   },
   {
-    id: 'mayiz',
-    label: 'Xit',
-    emoji: '\u{1F347}',
-    title: 'Mayizli bulochka',
-    text: 'Eng ko‘p buyurtma qilinadigan mahsulotimiz. Bir marta tatib ko‘ring!',
+    id: 'kruassan',
+    label: 'Kruassan',
+    emoji: '\u{1F950}',
+    title: 'Ichi to‘ldirilgan',
+    text: 'Malina va shokolad 18 000 so‘mdan, mindal va fistashka 23 000 so‘mdan.',
+    bg: 'linear-gradient(160deg,#c2185b,#7b1040)',
+  },
+  {
+    id: 'sinnabon',
+    label: 'Sinnabon',
+    emoji: '\u{1F369}',
+    title: 'Sinnabon 12 000 so‘mdan',
+    text: 'Dolchinli xamir, krem-chiz va shokolad sousi bilan.',
     bg: 'linear-gradient(160deg,#8b5cf6,#5b34c4)',
   },
   {
-    id: 'non',
-    label: 'Non',
-    emoji: '\u{1F35E}',
-    title: 'Har kuni yangi non',
-    text: 'Oq non, qora non, javdar, Borodinskiy va chiabatta — hammasi o‘z pechimizda.',
-    bg: 'linear-gradient(160deg,#1eb980,#0e8f63)',
-  },
-  {
-    id: 'filial',
-    label: 'Filial',
-    emoji: '\u{1F4CD}',
-    title: '4 ta filial',
-    text: 'Farhad bozori, Lutfiy, Jararyk va Uchtepa 23-kvartal. Har kuni 7:00 – 19:00.',
+    id: 'yetkazish',
+    label: 'Yetkazish',
+    emoji: '\u{1F69A}',
+    title: 'Yandex orqali',
+    text: 'Buyurtmalar Yandex orqali yetkaziladi. Yetkazish narxi alohida to‘lanadi.',
     bg: 'linear-gradient(160deg,#2f6bff,#6f4bff)',
   },
+
 ];
 
 function StoryViewer({ index, onClose, onIndexChange }) {

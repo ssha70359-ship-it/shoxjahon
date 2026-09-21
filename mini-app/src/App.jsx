@@ -49,7 +49,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [extraOffer, setExtraOffer] = useState({ name: 'Coca-Cola 0.5L', price: 5000 });
+  const [extraOffer, setExtraOffer] = useState({ name: 'Trubochka', price: 7000 });
   const [shop, setShop] = useState(null);
 
   const [cart, setCart] = useState(loadCart);
@@ -259,6 +259,7 @@ export default function App() {
         <Cart
           cart={cart}
           user={user}
+          shop={shop}
           extraOffer={extraOffer}
           withExtra={withExtra}
           onToggleExtra={() => setWithExtra((value) => !value)}

@@ -59,12 +59,12 @@ export const config = {
   // Brauzerdan (Telegramsiz) test qilishga ruxsat
   allowDevUser: process.env.ALLOW_DEV_USER === 'true',
 
-  // Savatchadagi qo'shimcha taklif (upsell)
+  // Savatchadagi qo'shimcha taklif (upsell) - menyudagi mahsulot
   extraOffer: {
-    id: 'extra-cola',
-    name: 'Coca-Cola 0.5L',
-    price: 5000,
-    imageUrl: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80',
+    id: 'extra-trubochka',
+    name: 'Trubochka',
+    price: 7000,
+    imageUrl: '/products/trubochka.jpg',
   },
 
   messages: {

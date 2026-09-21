@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { categoryEmoji } from '../lib/emoji.js';
+import { imgUrl } from '../lib/img.js';
 import { ingredients, money, num } from '../lib/format.js';
 import { haptic } from '../lib/telegram.js';
 
@@ -38,7 +39,7 @@ export default function ProductSheet({ product, onClose, onAdd }) {
           ) : (
             <img
               className="sheet-img"
-              src={product.imageUrl}
+              src={imgUrl(product.imageUrl)}
               alt={product.name}
               onError={() => setBroken(true)}
             />

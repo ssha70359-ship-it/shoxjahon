@@ -14,6 +14,11 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
       },
+      // mahsulot rasmlari backenddan keladi
+      '/products': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
     },
   },
 });

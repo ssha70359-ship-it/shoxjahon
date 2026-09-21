@@ -6,6 +6,7 @@ import Thumb from './Thumb.jsx';
 export default function Cart({
   cart,
   user,
+  shop,
   extraOffer,
   withExtra,
   onToggleExtra,
@@ -194,6 +195,14 @@ export default function Cart({
           <span>Jami to&#8216;lov</span>
           <b>{money(total)}</b>
         </div>
+
+        {shop && (
+          <p className="muted" style={{ margin: '8px 2px 0', fontSize: 13, lineHeight: 1.5 }}>
+            {'\u{1F69A}'} {shop.delivery.text}. {shop.delivery.note}.
+            <br />
+            {'\u{1F4A1}'} {shop.priceNote}.
+          </p>
+        )}
 
         {error && <div className="error-box">{error}</div>}
 
