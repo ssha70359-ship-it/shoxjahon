@@ -1,6 +1,9 @@
-# 🍕 Pizza Delivery — Telegram Mini App + Admin Panel
+# 🥨 Farhadskaya Bulochka — Telegram Mini App + Admin Panel
 
-Localhost'da to'liq ishlaydigan pizza yetkazib berish tizimi.
+Farhadskaya Bulochka (Family Bakery, est. 1996) uchun buyurtma va yetkazib berish tizimi.
+
+Do'kon ma'lumotlari — filiallar, telefon, ish vaqti — `src/config/shop.js` faylida.
+Mahsulot narxlari **taxminiy**; aniq narxlarni admin paneldan kiriting.
 
 | Qism | Texnologiya | Manzil |
 |------|-------------|--------|
@@ -21,7 +24,7 @@ Shu bitta buyruq hamma narsani o'zi bajaradi:
 
 1. `.env` fayl yo'q bo'lsa — savollar berib yaratadi (Neon manzili, bot token, admin parol)
 2. Uch papkaning paketlarini o'rnatadi (faqat kerak bo'lsa)
-3. Prisma client yaratadi, jadvallarni bazaga yozadi, 4 ta pizzani qo'shadi
+3. Prisma client yaratadi, jadvallarni bazaga yozadi, 19 ta mahsulotni qo'shadi
 4. ngrok tunnelini ochadi va `WEBAPP_URL` ni `.env` ga yozadi
 5. **Bot menyu tugmasini Mini App'ga o'zi bog'laydi — BotFather'ga kirish shart emas**
 6. Backend, Mini App va Admin panelni bitta terminalda ishga tushiradi
@@ -90,7 +93,7 @@ Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
 | `npm run server` | Backend (serverda ishlatiladi) |
 | `npm run build` | Prisma client + migratsiya (deploy uchun) |
 | `npm run db:migrate` | Jadvallarni bazaga yozish |
-| `npm run db:seed` | Boshlang'ich pizzalarni qo'shish |
+| `npm run db:seed` | Boshlang'ich katalogni qo'shish |
 | `npm run db:studio` | Bazani brauzerda ko'rish |
 
 ---
@@ -101,6 +104,7 @@ Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
 shoxrux/
 ├── src/
 │   ├── config/default.js           # Sozlamalar va o'zgaruvchilar
+│   ├── config/shop.js              # Filiallar, telefon, ish vaqti
 │   ├── core/bot.js                 # Bot instansiyasi
 │   ├── database/connection.js      # PostgreSQL (Prisma) ulanishi
 │   ├── models/                     # User.js, Product.js, Order.js
@@ -111,7 +115,7 @@ shoxrux/
 ├── prisma/
 │   ├── schema.prisma
 │   ├── migrations/
-│   └── seed.js                     # 4 ta pizza
+│   └── seed.js                     # 19 ta mahsulot (5 kategoriya)
 ├── scripts/                        # Avtomatlashtirish (npm start shu yerdan)
 │   ├── dev.js                      # Hamma narsani ishga tushiruvchi
 │   ├── setup.js                    # .env yaratuvchi

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { categoryEmoji } from '../lib/emoji.js';
 import { num } from '../lib/format.js';
 import { haptic } from '../lib/telegram.js';
 
@@ -12,7 +13,7 @@ export default function ProductCard({ product, onOpen, onAdd }) {
   return (
     <div className="card" onClick={() => onOpen(product)}>
       {broken || !product.imageUrl ? (
-        <div className="card-img-fallback">{'\u{1F355}'}</div>
+        <div className="card-img-fallback">{categoryEmoji(product.category)}</div>
       ) : (
         <img
           className="card-img"

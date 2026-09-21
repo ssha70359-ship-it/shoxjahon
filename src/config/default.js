@@ -69,7 +69,7 @@ export const config = {
 
   messages: {
     orderAccepted:
-      '✅ Buyurtmangiz muvaffaqiyatli qabul qilindi! Kuryerimiz tez orada bog‘lanadi \u{1F355}',
+      '✅ Buyurtmangiz muvaffaqiyatli qabul qilindi! Kuryerimiz tez orada bog‘lanadi \u{1F968}',
   },
 };
 

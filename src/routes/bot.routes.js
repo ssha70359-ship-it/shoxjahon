@@ -6,6 +6,7 @@ import botController from '../controllers/botController.js';
 export function registerBotRoutes() {
   bot.start(botController.start);
   bot.help(botController.help);
+  bot.command('manzil', botController.branches);
   bot.command('admin', botController.admin);
 
   bot.on(message('contact'), botController.contact);

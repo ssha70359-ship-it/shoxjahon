@@ -25,7 +25,7 @@ export default function Login({ onSuccess }) {
   return (
     <div className="login">
       <form className="login-box" onSubmit={submit}>
-        <div className="logo">{'\u{1F355}'}</div>
+        <div className="logo">{'\u{1F968}'}</div>
         <h1>Admin Panel</h1>
         <p>Davom etish uchun parolni kiriting</p>
 

@@ -1,4 +1,5 @@
 import config from '../config/default.js';
+import { shop, isOpenNow } from '../config/shop.js';
 import UserModel from '../models/User.js';
 import OrderModel from '../models/Order.js';
 import { sendMessageToUser, parseOrderPayload } from '../core/bot.js';
@@ -19,7 +20,7 @@ function mainKeyboard() {
   return {
     reply_markup: {
       keyboard: [
-        [{ text: '\u{1F355} Buyurtma berish', web_app: { url } }],
+        [{ text: '\u{1F968} Buyurtma berish', web_app: { url } }],
         [{ text: '\u{1F4DE} Telefon raqamni yuborish', request_contact: true }],
       ],
       resize_keyboard: true,
@@ -40,7 +41,7 @@ async function syncMenuButton(ctx) {
 
   const menuButton =
     url && url.startsWith('https://')
-      ? { type: 'web_app', text: '\u{1F355} Buyurtma berish', web_app: { url } }
+      ? { type: 'web_app', text: '\u{1F968} Buyurtma berish', web_app: { url } }
       : { type: 'commands' };
 
   try {
@@ -70,10 +71,11 @@ export const botController = {
 
     const text =
       `Salom, <b>${from.first_name}</b>! \u{1F44B}\n\n` +
-      'Bizning pizzeriyaga xush kelibsiz \u{1F355}\n' +
-      'Issiqqina pizzalarni 30 daqiqada yetkazib beramiz.\n\n' +
+      '<b>Farhadskaya Bulochka</b> — Family Bakery \u{1F968}\n' +
+      'Issiqqina bulochka va nonlarni uyingizgacha yetkazib beramiz.\n' +
+      'Har kuni 7:00 – 19:00 \u{23F0}\n\n' +
       (hasWebApp
-        ? 'Buyurtma berish uchun pastdagi <b>\u{1F355} Buyurtma berish</b> tugmasini bosing.'
+        ? 'Buyurtma berish uchun pastdagi <b>\u{1F968} Buyurtma berish</b> tugmasini bosing.'
         : '⚠️ Mini App hali sozlanmagan. Kompyuterda <code>npm start</code> ni qayta ishga tushiring.');
 
     const extra = { parse_mode: 'HTML', ...mainKeyboard() };
@@ -84,7 +86,7 @@ export const botController = {
     if (hasWebApp) {
       await ctx.reply('Yoki shu tugma orqali oching \u{1F447}', {
         reply_markup: {
-          inline_keyboard: [[{ text: '\u{1F355} Pizza buyurtma qilish', web_app: { url } }]],
+          inline_keyboard: [[{ text: '\u{1F968} Buyurtma qilish', web_app: { url } }]],
         },
       });
     }
@@ -95,8 +97,28 @@ export const botController = {
     await ctx.reply(
       'ℹ️ <b>Yordam</b>\n\n' +
         '/start — Botni qayta ishga tushirish\n' +
+        '/manzil — Filiallar, telefon va ish vaqti\n' +
         '/help — Yordam\n\n' +
-        'Buyurtma berish uchun pastdagi tugmadan foydalaning \u{1F355}',
+        'Buyurtma berish uchun pastdagi tugmadan foydalaning \u{1F968}',
+      { parse_mode: 'HTML', ...mainKeyboard() },
+    );
+  },
+
+  /** /manzil — filiallar, telefon va ish vaqti */
+  async branches(ctx) {
+    const list = shop.branches
+      .map((branch, index) => `${index + 1}. <b>${branch.name}</b>\n   ${branch.address}`)
+      .join('\n\n');
+
+    const status = isOpenNow() ? '\u{1F7E2} Hozir ochiq' : '\u{1F534} Hozir yopiq';
+
+    await ctx.reply(
+      `\u{1F4CD} <b>${shop.name}</b> — filiallarimiz\n\n` +
+        `${list}\n\n` +
+        `\u{1F551} ${shop.hours.text}\n` +
+        `${status}\n` +
+        `\u{1F4DE} ${shop.phone}\n` +
+        `\u{1F69A} ${shop.delivery.text}`,
       { parse_mode: 'HTML', ...mainKeyboard() },
     );
   },
@@ -186,7 +208,7 @@ export const botController = {
         '✅ To‘lov muvaffaqiyatli qabul qilindi!\n\n' +
           `<b>Buyurtma №${order.id}</b>\n` +
           `Jami: <b>${order.total.toLocaleString('ru-RU')} so‘m</b>\n\n` +
-          'Kuryerimiz tez orada bog‘lanadi \u{1F355}',
+          'Kuryerimiz tez orada bog‘lanadi \u{1F968}',
         { parse_mode: 'HTML' },
       );
     } catch (error) {

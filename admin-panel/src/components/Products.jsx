@@ -57,7 +57,7 @@ export default function Products({ onUnauthorized }) {
       ) : products.length === 0 ? (
         <div className="table-wrap">
           <div className="empty-state">
-            <div className="emoji">{'\u{1F355}'}</div>
+            <div className="emoji">{'\u{1F968}'}</div>
             Mahsulot yo&#8216;q. &laquo;Yangi mahsulot&raquo; tugmasini bosing.
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function Products({ onUnauthorized }) {
                         }}
                       />
                     ) : (
-                      <div className="thumb-empty">{'\u{1F355}'}</div>
+                      <div className="thumb-empty">{'\u{1F968}'}</div>
                     )}
                   </td>
 

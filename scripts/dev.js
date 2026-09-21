@@ -34,7 +34,7 @@ let shuttingDown = false;
 
 function banner() {
   console.log(
-    paint('cyan', '\n  \u{1F355}  PIZZA DELIVERY') +
+    paint('cyan', '\n  \u{1F968}  FARHADSKAYA BULOCHKA') +
       paint('dim', '  —  bot + mini app + admin panel\n'),
   );
 }
@@ -85,7 +85,7 @@ async function prepareDatabase() {
   }
 
   await run('node', ['prisma/seed.js'], { silent: true });
-  ok('Boshlang‘ich pizzalar bazaga qo‘shildi');
+  ok('Boshlang‘ich mahsulotlar bazaga qo‘shildi');
 }
 
 async function prepareTunnel(env) {
@@ -184,7 +184,7 @@ function summary(env, bot) {
   if (bot) {
     console.log(
       `\n  ${paint('green', 'Tayyor!')} Telegramda botni oching va ` +
-        paint('bold', '\u{1F355} Buyurtma berish') +
+        paint('bold', '\u{1F968} Buyurtma berish') +
         ' tugmasini bosing.',
     );
   }

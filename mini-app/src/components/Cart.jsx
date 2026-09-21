@@ -95,7 +95,7 @@ export default function Cart({
         <div className="empty">
           <div className="emoji">{'\u{1F6D2}'}</div>
           <h3>Savatchangiz bo&#8216;sh</h3>
-          <p>Katalogdan o&#8216;zingizga yoqqan pizzani tanlang</p>
+          <p>Katalogdan o&#8216;zingizga yoqqan mahsulotni tanlang</p>
           <button className="btn" onClick={onGoCatalog}>
             Katalogga o&#8216;tish
           </button>
@@ -113,7 +113,7 @@ export default function Cart({
       <div className="container">
         {cart.map((item) => (
           <div className="cart-item" key={item.id}>
-            <Thumb src={item.imageUrl} alt={item.name} />
+            <Thumb src={item.imageUrl} alt={item.name} category={item.category} />
             <div className="info">
               <b>{item.name}</b>
               <span>{money(item.price * item.qty)}</span>

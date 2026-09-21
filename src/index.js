@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/', (req, res) => {
-  res.json({ ok: true, service: 'Pizza API', version: '1.0.0' });
+  res.json({ ok: true, service: 'Bulochka API', version: '1.0.0' });
 });
 
 app.get('/api/health', (req, res) => {
@@ -96,7 +96,7 @@ async function syncMenuButton() {
       await bot.telegram.setChatMenuButton({
         menu_button: {
           type: 'web_app',
-          text: '\u{1F355} Buyurtma berish',
+          text: '\u{1F968} Buyurtma berish',
           web_app: { url },
         },
       });

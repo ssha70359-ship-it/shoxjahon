@@ -42,7 +42,7 @@ Shuning uchun **aynan shu ketma-ketlikda** boring:
 
 | Maydon | Qiymat |
 |---|---|
-| **Name** | `pizza-backend` (istalgan nom) |
+| **Name** | `bulochka-backend` (istalgan nom) |
 | **Region** | `Ohio (US East)` — bazangiz shu yerda, tezroq ishlaydi |
 | **Branch** | `main` |
 | **Root Directory** | **bo'sh qoldiring** |
@@ -80,11 +80,11 @@ Loglarda shu qatorlarni ko'rishingiz kerak:
 
 ```
 🗄️  PostgreSQL (Neon) bazasiga ulandi
-🤖 Bot webhook rejimida: https://pizza-backend-xxxx.onrender.com/telegram/...
-🚀 API server: https://pizza-backend-xxxx.onrender.com
+🤖 Bot webhook rejimida: https://bulochka-backend-xxxx.onrender.com/telegram/...
+🚀 API server: https://bulochka-backend-xxxx.onrender.com
 ```
 
-Brauzerda oching: `https://pizza-backend-xxxx.onrender.com/api/health`
+Brauzerda oching: `https://bulochka-backend-xxxx.onrender.com/api/health`
 → `{"ok":true,"time":"..."}` chiqishi kerak.
 
 **Shu manzilni nusxa oling** — keyingi qadamda kerak bo'ladi.
@@ -109,7 +109,7 @@ Brauzerda oching: `https://pizza-backend-xxxx.onrender.com/api/health`
 
 | Maydon | Qiymat |
 |---|---|
-| **Project Name** | `pizza-mini-app` |
+| **Project Name** | `bulochka-mini-app` |
 | **Framework Preset** | `Vite` (o'zi topadi) |
 | **Root Directory** | **`mini-app`** ← **Edit** bosib o'zgartiring, eng muhim qadam! |
 | Build Command | `npm run build` (avtomatik) |
@@ -119,7 +119,7 @@ Brauzerda oching: `https://pizza-backend-xxxx.onrender.com/api/health`
 
 | Key | Value |
 |---|---|
-| `VITE_API_URL` | `https://pizza-backend-xxxx.onrender.com` ← 1-qadamdagi manzil |
+| `VITE_API_URL` | `https://bulochka-backend-xxxx.onrender.com` ← 1-qadamdagi manzil |
 
 > Oxirida `/` qo'ymang. To'g'ri: `https://...onrender.com`
 
@@ -127,7 +127,7 @@ Brauzerda oching: `https://pizza-backend-xxxx.onrender.com/api/health`
 
 ## 2.3. Manzilni olish
 
-Deploy tugagach `https://pizza-mini-app-xxxx.vercel.app` ko'rinishidagi manzil beriladi.
+Deploy tugagach `https://bulochka-mini-app-xxxx.vercel.app` ko'rinishidagi manzil beriladi.
 **Uni nusxa oling.**
 
 > Brauzerda ochsangiz «Avtorizatsiya xatosi. Ilovani Telegram orqali oching» chiqadi —
@@ -137,20 +137,20 @@ Deploy tugagach `https://pizza-mini-app-xxxx.vercel.app` ko'rinishidagi manzil b
 
 # 3-QADAM — Render'ga Mini App manzilini berish
 
-1. Render → `pizza-backend` → chap menyuda **Environment**
+1. Render → `bulochka-backend` → chap menyuda **Environment**
 2. **Add Environment Variable**:
 
 | Key | Value |
 |---|---|
-| `WEBAPP_URL` | `https://pizza-mini-app-xxxx.vercel.app` ← 2-qadamdagi manzil |
+| `WEBAPP_URL` | `https://bulochka-mini-app-xxxx.vercel.app` ← 2-qadamdagi manzil |
 
 3. **Save Changes** → servis o'zi qayta ishga tushadi
 
 Loglarda ko'rinadi:
 
 ```
-📱 Mini App: https://pizza-mini-app-xxxx.vercel.app
-📱 Menyu tugmasi bog'landi: https://pizza-mini-app-xxxx.vercel.app
+📱 Mini App: https://bulochka-mini-app-xxxx.vercel.app
+📱 Menyu tugmasi bog'landi: https://bulochka-mini-app-xxxx.vercel.app
 ```
 
 BotFather'ga kirish **shart emas** — bot menyu tugmasini o'zi yangilaydi.
@@ -164,13 +164,13 @@ BotFather'ga kirish **shart emas** — bot menyu tugmasini o'zi yangilaydi.
 
 | Maydon | Qiymat |
 |---|---|
-| **Project Name** | `pizza-admin` |
+| **Project Name** | `bulochka-admin` |
 | **Root Directory** | **`admin-panel`** ← Edit bosib o'zgartiring |
-| `VITE_API_URL` | `https://pizza-backend-xxxx.onrender.com` |
+| `VITE_API_URL` | `https://bulochka-backend-xxxx.onrender.com` |
 
 3. **Deploy**
 
-Manzil: `https://pizza-admin-xxxx.vercel.app` — parol bilan kirasiz.
+Manzil: `https://bulochka-admin-xxxx.vercel.app` — parol bilan kirasiz.
 
 > 🔒 Bu sahifa internetga ochiq. **Kuchli parol** qo'ying. Parolni birma-bir terib
 > topishga urinish 15 daqiqada 8 martadan keyin bloklanadi.
@@ -180,10 +180,10 @@ Manzil: `https://pizza-admin-xxxx.vercel.app` — parol bilan kirasiz.
 # 5-QADAM — Telegramda tekshirish
 
 1. Botga `/start` yuboring
-2. **🍕 Buyurtma berish** tugmasini bosing → Mini App ochiladi
-3. Pizza tanlang → savatchaga qo'shing → buyurtmani tasdiqlang
+2. **🥨 Buyurtma berish** tugmasini bosing → Mini App ochiladi
+3. Mahsulot tanlang → savatchaga qo'shing → buyurtmani tasdiqlang
 4. Bot javob berishi kerak: «Buyurtmangiz muvaffaqiyatli qabul qilindi!»
-5. `https://pizza-admin-xxxx.vercel.app` ni oching → buyurtma jadvalda ko'rinsin
+5. `https://bulochka-admin-xxxx.vercel.app` ni oching → buyurtma jadvalda ko'rinsin
 
 Beshtasi ham o'tsa — loyiha to'liq internetda ishlayapti. 🎉
 
@@ -201,7 +201,7 @@ ishlamay qoladi.
 (`/newbot` → masalan `janob_shox_test_bot`) va kompyuteringizdagi `.env` faylga
 o'sha yangi tokenni yozing. Shunda ikkalasi bir-biriga xalaqit bermaydi.
 
-Agar shunday bo'lib qolsa, tuzatish oson: Render → `pizza-backend` →
+Agar shunday bo'lib qolsa, tuzatish oson: Render → `bulochka-backend` →
 **Manual Deploy** → **Deploy latest commit** → webhook qayta o'rnatiladi.
 
 ## 2. Render bepul tarifi 15 daqiqadan keyin uxlaydi
@@ -217,7 +217,7 @@ Yechimlar:
 
 ## 3. Baza allaqachon to'la
 
-Neon bazangizda 4 ta pizza va eski buyurtmalar bor — Render o'sha bazaga ulanadi,
+Neon bazangizda mahsulotlar va eski buyurtmalar bor — Render o'sha bazaga ulanadi,
 qayta seed qilish shart emas.
 
 Agar kerak bo'lsa, kompyuteringizdan turib production bazani to'ldirishingiz mumkin

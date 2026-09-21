@@ -43,7 +43,7 @@ export async function sendOrderInvoice(telegramId, order) {
 
   const description =
     items.map((item) => `${item.name} × ${item.qty}`).join(', ').slice(0, 255) ||
-    'Pizza buyurtmasi';
+    'Bulochka buyurtmasi';
 
   const prices = items.map((item) => ({
     label: `${item.name} × ${item.qty}`,
