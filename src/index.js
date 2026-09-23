@@ -157,6 +157,12 @@ async function start() {
         ? `\u{1F4B3} To‘lov: Naqd + ${cards.join(' + ')}`
         : '\u{1F4B3} To‘lov: faqat naqd — karta uchun: npm run payment:token click|payme <token>',
     );
+    // Bittasi ulanmagan bo'lsa Mini App'da ko'rinmaydi - sababini aniq aytamiz
+    for (const [name, key] of [['Click', 'click'], ['Payme', 'payme']]) {
+      if (cards.length && !config.payments[key]) {
+        console.log(`   ${name} ulanmagan (Mini App'da ko‘rinmaydi) — npm run payment:token ${key} <token>`);
+      }
+    }
   });
 
   if (mode === 'polling') {
