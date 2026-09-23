@@ -12,6 +12,7 @@ import registerBotRoutes from './routes/bot.routes.js';
 import clientRoutes from './routes/client.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import { uzsLimits } from './services/payments.js';
+import UserModel from './models/User.js';
 
 const app = express();
 
@@ -99,22 +100,52 @@ async function connectBot() {
   return 'polling';
 }
 
+/**
+ * Ilgari har bir mijozga alohida (chat) menyu tugmasi eski tunnel manzili
+ * bilan yozilgan edi - manzil o'zgargach ular "502 Bad gateway" ochardi.
+ * Hammasini umumiy tugmaga qaytaramiz. Telegram limiti uchun sekin yuboriladi.
+ */
+async function resetChatMenuButtons() {
+  let ids = [];
+  try {
+    ids = await UserModel.allTelegramIds();
+  } catch (error) {
+    console.error('⚠️  Mijozlar ro‘yxati olinmadi:', error.message);
+    return;
+  }
+
+  let done = 0;
+  for (const chatId of ids) {
+    try {
+      await bot.telegram.setChatMenuButton({ chatId, menuButton: { type: 'default' } });
+      done += 1;
+    } catch {
+      // mijoz botni bloklagan bo'lishi mumkin - o'tkazib yuboramiz
+    }
+    await new Promise((resolve) => setTimeout(resolve, 60));
+  }
+
+  if (ids.length) console.log(`\u{1F504} ${done}/${ids.length} mijozning menyu tugmasi yangilandi`);
+}
+
 /** Server ko'tarilgach botning menyu tugmasini Mini App'ga bog'laydi */
 async function syncMenuButton() {
   const url = config.bot.webAppUrl;
 
   try {
     if (url?.startsWith('https://')) {
+      // Telegraf camelCase kutadi: { menuButton } (menu_button yuborilmay qolardi)
       await bot.telegram.setChatMenuButton({
-        menu_button: {
+        menuButton: {
           type: 'web_app',
           text: '\u{1F968} Buyurtma berish',
           web_app: { url },
         },
       });
       console.log(`\u{1F4F1} Menyu tugmasi bog‘landi: ${url}`);
+      resetChatMenuButtons();
     } else {
-      await bot.telegram.setChatMenuButton({ menu_button: { type: 'commands' } });
+      await bot.telegram.setChatMenuButton({ menuButton: { type: 'commands' } });
       console.warn('⚠️  WEBAPP_URL yo‘q — menyu tugmasi tozalandi');
     }
   } catch (error) {

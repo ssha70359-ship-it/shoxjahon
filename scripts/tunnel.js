@@ -92,7 +92,8 @@ export function startCloudflared(port, timeoutMs = 40000) {
     let child;
 
     try {
-      child = spawn(bin, ['tunnel', '--url', `http://localhost:${port}`, '--no-autoupdate'], {
+      // 127.0.0.1 - "localhost" Windows'da IPv6 (::1) ga ketib, 502 berishi mumkin
+      child = spawn(bin, ['tunnel', '--url', `http://127.0.0.1:${port}`, '--no-autoupdate'], {
         stdio: ['ignore', 'pipe', 'pipe'],
       });
     } catch (error) {
@@ -117,7 +118,9 @@ export function startCloudflared(port, timeoutMs = 40000) {
     const scan = (chunk) => {
       buffer += chunk;
       const match = buffer.match(/https:\/\/[-a-z0-9]+\.trycloudflare\.com/i);
-      if (match) finish({ url: match[0], stop: () => child.kill() });
+      if (match) {
+        finish({ url: match[0], stop: () => child.kill(), onExit: (cb) => child.once('exit', cb) });
+      }
     };
 
     /** Xato sababini chiqishning oxirgi mazmunli qatoridan olamiz */
@@ -219,7 +222,7 @@ async function tryCloudflare(port, reasons) {
 
   if (cloudflare.url) {
     ok(`Cloudflare tunnel ochildi: ${paint('cyan', cloudflare.url)}`);
-    return { url: cloudflare.url, stop: cloudflare.stop };
+    return { url: cloudflare.url, stop: cloudflare.stop, onExit: cloudflare.onExit };
   }
 
   reasons.push(cloudflare.error);

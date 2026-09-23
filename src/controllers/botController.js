@@ -5,48 +5,49 @@ import OrderModel from '../models/Order.js';
 import { sendMessageToUser, sendToAdmins, parseOrderPayload } from '../core/bot.js';
 import { METHODS, toMinorUnits } from '../services/payments.js';
 
-/** Mini App tugmasi bo'lgan klaviatura */
+/** Pastki klaviaturadagi tugma matni - bosilganda joriy manzil bilan tugma yuboriladi */
+export const ORDER_BUTTON_TEXT = '\u{1F968} Buyurtma berish';
+
+/**
+ * Pastki (reply) klaviatura.
+ *
+ * Unda web_app tugmasi YO'Q: Telegram bunday tugmani mijoz telefonida eski
+ * manzil bilan saqlab qoladi, tunnel manzili o'zgarganda esa u "502 Bad
+ * gateway" ochadi. Oddiy matnli tugma bosilganda bot har safar joriy
+ * manzilli inline tugma yuboradi (orderButton).
+ */
 function mainKeyboard() {
   const url = config.bot.webAppUrl;
+  const rows = [[{ text: '\u{1F4DE} Telefon raqamni yuborish', request_contact: true }]];
 
-  if (!url || !url.startsWith('https://')) {
-    return {
-      reply_markup: {
-        keyboard: [[{ text: '\u{1F4DE} Telefon raqamni yuborish', request_contact: true }]],
-        resize_keyboard: true,
-      },
-    };
-  }
+  if (url?.startsWith('https://')) rows.unshift([{ text: ORDER_BUTTON_TEXT }]);
 
+  return { reply_markup: { keyboard: rows, resize_keyboard: true } };
+}
+
+/** Joriy Mini App manzilli inline tugma */
+function orderButton() {
+  const url = config.bot.webAppUrl;
   return {
     reply_markup: {
-      keyboard: [
-        [{ text: '\u{1F968} Buyurtma berish', web_app: { url } }],
-        [{ text: '\u{1F4DE} Telefon raqamni yuborish', request_contact: true }],
-      ],
-      resize_keyboard: true,
+      inline_keyboard: [[{ text: '\u{1F968} Buyurtma qilish', web_app: { url } }]],
     },
   };
 }
 
 /**
- * Shu suhbatning "Menu" tugmasini joriy Mini App manziliga bog'laydi.
- * Chat uchun qo'yilgan tugma BotFather'dagi umumiy sozlamadan ustun turadi,
- * shuning uchun eski manzil (masalan example.com) ochilib qolmaydi.
+ * Shu suhbatning "Menu" tugmasini botning umumiy tugmasiga qaytaradi.
+ *
+ * Chatga alohida manzil yozmaymiz: aks holda tunnel manzili o'zgarganda
+ * mijozda eski manzil qolib ketadi. Umumiy tugmani server har ishga
+ * tushganda joriy manzilga o'rnatadi.
  */
 async function syncMenuButton(ctx) {
-  const url = config.bot.webAppUrl;
   const chatId = ctx.chat?.id;
-
   if (!chatId) return;
 
-  const menuButton =
-    url && url.startsWith('https://')
-      ? { type: 'web_app', text: '\u{1F968} Buyurtma berish', web_app: { url } }
-      : { type: 'commands' };
-
   try {
-    await ctx.telegram.setChatMenuButton({ chat_id: chatId, menu_button: menuButton });
+    await ctx.telegram.setChatMenuButton({ chatId, menuButton: { type: 'default' } });
   } catch (error) {
     console.error('⚠️  Menyu tugmasi yangilanmadi:', error.message);
   }
@@ -108,11 +109,7 @@ export const botController = {
 
     // Qo'shimcha ishonchli yo'l: xabar ichidagi tugma har doim joriy manzilni oladi
     if (hasWebApp) {
-      await ctx.reply('Yoki shu tugma orqali oching \u{1F447}', {
-        reply_markup: {
-          inline_keyboard: [[{ text: '\u{1F968} Buyurtma qilish', web_app: { url } }]],
-        },
-      });
+      await ctx.reply('Yoki shu tugma orqali oching \u{1F447}', orderButton());
     }
   },
 
@@ -177,9 +174,16 @@ export const botController = {
     );
   },
 
-  /** Boshqa matnlar */
+  /** Boshqa matnlar (shu jumladan pastki "Buyurtma berish" tugmasi) */
   async fallback(ctx) {
-    await ctx.reply('Buyurtma berish uchun pastdagi tugmani bosing \u{1F447}', mainKeyboard());
+    await syncMenuButton(ctx);
+
+    if (config.bot.webAppUrl?.startsWith('https://')) {
+      await ctx.reply('Menyuni ochish uchun bosing \u{1F447}', orderButton());
+      return;
+    }
+
+    await ctx.reply('⚠️ Buyurtma qabul qilish vaqtincha ishlamayapti. Birozdan so‘ng urinib ko‘ring.', mainKeyboard());
   },
 
   /** Telegram to'lov tasdig'idan oldin (10 soniya ichida javob berish shart) */

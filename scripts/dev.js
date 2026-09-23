@@ -4,6 +4,7 @@
  *
  *   npm start
  */
+import net from 'node:net';
 import path from 'node:path';
 
 import {
@@ -136,21 +137,137 @@ async function prepareTunnel(env) {
   }
 }
 
-function startServers() {
-  step('Serverlar ishga tushirilmoqda');
+const vite = (dir) => path.join(dir, 'node_modules', 'vite', 'bin', 'vite.js');
+const services = {};
+
+/**
+ * Fon jarayonini ishga tushiradi va kutilmaganda o'chsa qayta ko'taradi.
+ * Aks holda tunnel ishlab turadi-yu, Mini App o'chiq qoladi (502 Bad gateway).
+ */
+function supervise(name, color, args, cwd, env = {}) {
+  const start = () => {
+    const child = runBackground(name, color, args, cwd, env);
+    const startedAt = Date.now();
+    services[name] = child;
+    children.push(child);
+
+    child.once('exit', (code) => {
+      if (shuttingDown || child.replaced) return;
+
+      // Darhol yiqilsa (masalan port band) - qayta urinish foydasiz
+      if (Date.now() - startedAt < 5000) {
+        fail(`[${name}] ishga tushmadi (kod ${code}). Yuqoridagi xabarni o‘qing.`);
+        return;
+      }
+
+      warn(`[${name}] to‘xtab qoldi — 2 soniyadan so‘ng qayta ishga tushiriladi`);
+      setTimeout(start, 2000);
+    });
+  };
+
+  start();
+}
+
+async function restartService(name, color, args, cwd, env) {
+  const old = services[name];
+  if (old) {
+    old.replaced = true;
+    await stopProcess(old);
+  }
+  supervise(name, color, args, cwd, env);
+}
+
+const backendArgs = ['--watch', 'src/index.js'];
+
+function startFrontends() {
+  step('Mini App va admin panel ishga tushirilmoqda');
 
   const miniAppDir = path.join(ROOT, 'mini-app');
   const adminDir = path.join(ROOT, 'admin-panel');
 
-  const vite = (dir) => path.join(dir, 'node_modules', 'vite', 'bin', 'vite.js');
+  // --strictPort: port band bo'lsa jimgina boshqa portga o'tib ketmasin
+  // (tunnel 5173 ga qaraydi - aks holda mijozlar 502 ko'radi)
+  supervise('mini-app', 'magenta', [vite(miniAppDir), '--port', String(MINI_APP_PORT), '--strictPort'], miniAppDir);
+  supervise('admin', 'blue', [vite(adminDir), '--port', String(ADMIN_PORT), '--strictPort'], adminDir);
+}
 
-  children.push(
-    runBackground('backend', 'green', ['--watch', 'src/index.js'], ROOT, {
-      WEBAPP_URL: webAppUrl,
-    }),
+function startBackend() {
+  return restartService('backend', 'green', backendArgs, ROOT, { WEBAPP_URL: webAppUrl });
+}
+
+/** Mini App haqiqatan javob berayotganini kutadi (tunnel undan keyin ochiladi) */
+async function waitForMiniApp(timeoutMs = 60000) {
+  const until = Date.now() + timeoutMs;
+
+  while (Date.now() < until) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${MINI_APP_PORT}/`, { signal: AbortSignal.timeout(2000) });
+      if (response.ok) return true;
+    } catch {
+      // hali ko'tarilmagan
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  return false;
+}
+
+/** Port bo'shligini tekshiradi */
+function isPortFree(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => server.close(() => resolve(true)));
+    server.listen(port);
+  });
+}
+
+async function checkPorts(env) {
+  const ports = [
+    [MINI_APP_PORT, 'Mini App'],
+    [ADMIN_PORT, 'Admin panel'],
+    [Number(env.PORT) || 5000, 'Backend'],
+  ];
+
+  const busy = [];
+  for (const [port, name] of ports) {
+    if (!(await isPortFree(port))) busy.push(`${port} (${name})`);
+  }
+
+  if (busy.length === 0) return;
+
+  fail(`Port band: ${busy.join(', ')}`);
+  console.log(
+    paint(
+      'dim',
+      '  Odatda eski "npm start" hali ishlab turgan bo‘ladi (yopilgan terminal ham).\n' +
+        '  Hamma eski jarayonlarni yoping va qayta ishga tushiring:\n\n' +
+        '    Windows (PowerShell):\n' +
+        '      taskkill /f /im node.exe\n' +
+        '      taskkill /f /im cloudflared.exe\n' +
+        '    Mac/Linux: pkill -f vite; pkill -f cloudflared\n\n' +
+        '  Keyin:  npm start\n',
+    ),
   );
-  children.push(runBackground('mini-app', 'magenta', [vite(miniAppDir)], miniAppDir));
-  children.push(runBackground('admin', 'blue', [vite(adminDir)], adminDir));
+  process.exit(1);
+}
+
+/**
+ * Tunnel uzilib qolsa (Cloudflare quick tunnel ba'zan uziladi) yangisini
+ * ochadi, botni yangi manzilga bog'laydi va backendni qayta ishga tushiradi.
+ */
+function watchTunnel(env) {
+  tunnel?.onExit?.(async () => {
+    if (shuttingDown) return;
+
+    warn('Tunnel uzildi — yangisi ochilmoqda...');
+    const bot = await prepareTunnel(env);
+    if (tunnel) {
+      await startBackend();
+      watchTunnel(env);
+      if (bot) ok(`Mini App yangi manzilda: ${paint('cyan', tunnel.url)}`);
+    }
+  });
 }
 
 function summary(env, bot) {
@@ -194,6 +311,10 @@ async function shutdown(code = 0) {
   await Promise.all(children.map(stopProcess));
   if (tunnel) await tunnel.stop();
 
+  // Kompyuter o'chiq paytda mijozlar "502 Bad gateway" ko'rmasin
+  const token = readEnv().BOT_TOKEN;
+  if (token && tunnel) await resetMenuButton(token).catch(() => {});
+
   ok('Hamma jarayon to‘xtatildi');
   process.exit(code);
 }
@@ -212,17 +333,27 @@ async function main() {
   }
 
   await installDependencies();
+  await checkPorts(env);
   await prepareDatabase();
 
-  const bot = await prepareTunnel(env);
+  // Avval Mini App, u javob bergach tunnel - aks holda birinchi mijoz 502 ko'radi
+  startFrontends();
+  if (!(await waitForMiniApp())) {
+    warn(`Mini App ${MINI_APP_PORT}-portda javob bermayapti — yuqoridagi [mini-app] xabarlarini o‘qing`);
+  }
 
-  startServers();
+  const bot = await prepareTunnel(env);
+  await startBackend();
+  watchTunnel(env);
 
   setTimeout(() => summary(readEnv(), bot), 4000);
 }
 
 process.on('SIGINT', () => shutdown(0));
 process.on('SIGTERM', () => shutdown(0));
+// Windows: terminal oynasi yopilganda
+process.on('SIGHUP', () => shutdown(0));
+process.on('SIGBREAK', () => shutdown(0));
 
 main().catch((error) => {
   fail(error.message);

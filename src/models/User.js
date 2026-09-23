@@ -37,6 +37,11 @@ export const UserModel = {
   count() {
     return prisma.user.count();
   },
+
+  /** Barcha mijozlarning Telegram ID lari (menyu tugmasini yangilash uchun) */
+  allTelegramIds() {
+    return prisma.user.findMany({ select: { telegramId: true } }).then((rows) => rows.map((r) => r.telegramId));
+  },
 };
 
 export default UserModel;
