@@ -15,6 +15,28 @@ const KEYS = { click: 'CLICK_PROVIDER_TOKEN', payme: 'PAYME_PROVIDER_TOKEN' };
 const provider = String(process.argv[2] || '').toLowerCase();
 const token = process.argv.slice(3).join(' ').trim().replace(/^["']|["']$/g, '').trim();
 
+/** .env dan kalit qiymatini o'qiydi (bo'sh bo'lsa '') */
+function readEnv(key) {
+  if (!fs.existsSync(ENV_PATH)) return '';
+  const line = fs
+    .readFileSync(ENV_PATH, 'utf8')
+    .split(/\r?\n/)
+    .find((l) => l.trim().startsWith(`${key}=`));
+  return (line?.split('=').slice(1).join('=') || '').trim().replace(/^["']|["']$/g, '').trim();
+}
+
+// Argumentsiz ishga tushirilsa - qaysi to'lov ulangani ko'rsatiladi
+if (!provider) {
+  step('To‘lov holati');
+  for (const [name, key] of Object.entries(KEYS)) {
+    const alias = name === 'payme' ? readEnv('PAYMENT_PROVIDER_TOKEN') : '';
+    if (readEnv(key) || alias) ok(`${name}: ulangan`);
+    else fail(`${name}: ulanmagan — npm run payment:token ${name} <token>`);
+  }
+  console.log('');
+  process.exit(0);
+}
+
 step('To‘lov tokeni saqlanmoqda');
 
 if (!KEYS[provider] || !token) {

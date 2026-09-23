@@ -34,6 +34,7 @@ Payme uchun ham xuddi shunday: `Payments` → **Payme**.
 `.env` faylni qo'lda tahrirlash shart emas:
 
 ```bash
+npm run payment:token              # qaysi to‘lov ulanganini ko‘rish
 npm run payment:token click 398062629:TEST:sizning_tokeningiz
 npm run payment:token payme 387026696:TEST:sizning_tokeningiz
 ```
