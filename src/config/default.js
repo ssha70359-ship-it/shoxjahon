@@ -22,11 +22,17 @@ export const config = {
   bot: {
     token: required('BOT_TOKEN'),
 
-    // Mini App manzili (Vercel yoki ngrok)
-    webAppUrl: process.env.WEBAPP_URL || '',
-
     // Backendning o'z ommaviy manzili. Render uni avtomatik beradi.
     publicUrl: (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/$/, ''),
+
+    // Mini App manzili. Serverda (Render) Mini App backend bilan bitta domenda
+    // turadi, shuning uchun alohida yozish shart emas. Kompyuterda - tunnel.
+    webAppUrl: (
+      process.env.WEBAPP_URL ||
+      process.env.PUBLIC_URL ||
+      process.env.RENDER_EXTERNAL_URL ||
+      ''
+    ).replace(/\/$/, ''),
 
     // Serverda webhook, kompyuterda long polling.
     // Render'da RENDER_EXTERNAL_URL bor, shuning uchun o'zi webhook'ga o'tadi.
@@ -57,7 +63,11 @@ export const config = {
 
   admin: {
     password: process.env.ADMIN_PASSWORD || 'admin123',
-    panelUrl: process.env.ADMIN_PANEL_URL || 'http://localhost:5174',
+    panelUrl:
+      process.env.ADMIN_PANEL_URL ||
+      (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL
+        ? `${(process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL).replace(/\/$/, '')}/admin/`
+        : 'http://localhost:5174'),
     ids: (process.env.ADMIN_IDS || '')
       .split(',')
       .map((id) => id.trim())

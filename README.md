@@ -81,11 +81,11 @@ manzil (masalan `example.com`) ochilib qolmaydi.
 
 ## 🌍 Internetga chiqarish
 
-Vercel (frontend) + Render (backend) uchun bosqichma-bosqich qo'llanma:
+Render'ga (bepul) bitta xizmat qilib joylash — bot, API, Mini App va admin panel bir manzilda:
 **[DEPLOY.md](DEPLOY.md)**
 
-Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
-**webhook** rejimiga o'tadi (ngrok kerak emas).
+Qisqacha: `render.yaml` tayyor. Render → New → Blueprint → repozitoriya → tokenlarni kiritasiz.
+Mini App manzili, menyu tugmasi va webhook o'zi sozlanadi.
 
 ---
 

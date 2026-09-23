@@ -12,6 +12,8 @@
     "dev": "node --watch src/index.js",
     "server": "node src/index.js",
     "build": "prisma generate && prisma migrate deploy",
+    "build:web": "npm install --include=dev --prefix mini-app && npm run build --prefix mini-app && npm install --include=dev --prefix admin-panel && npm run build --prefix admin-panel",
+    "build:render": "npm run build:web && npm run build && node prisma/seed.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",

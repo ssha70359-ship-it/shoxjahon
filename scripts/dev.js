@@ -23,7 +23,7 @@ import {
 } from './utils.js';
 import { ensureEnv } from './setup.js';
 import { startTunnel } from './tunnel.js';
-import { resetMenuButton, setupBot } from './telegram.js';
+import { getWebhookUrl, resetMenuButton, setupBot } from './telegram.js';
 
 const MINI_APP_PORT = 5173;
 const ADMIN_PORT = 5174;
@@ -212,6 +212,40 @@ async function waitForMiniApp(timeoutMs = 60000) {
   return false;
 }
 
+/**
+ * Bot serverda (Render) webhook bilan ishlayotgan bo'lsa, kompyuterda ishga
+ * tushirish uni o'chirib qo'yadi: bot tokeni bitta, lokal bot webhook'ni
+ * o'chirib long polling'ga o'tadi. Shuning uchun avval ogohlantiramiz.
+ */
+async function guardProductionBot(env) {
+  if (process.argv.includes('--force')) return;
+
+  let url = '';
+  try {
+    url = await getWebhookUrl(env.BOT_TOKEN);
+  } catch {
+    return; // internet yo'q - keyingi qadamlar o'zi aytadi
+  }
+
+  // Tunnel manzillari - bu kompyuterning o'zi (eski, yopilmagan ishga tushirish)
+  if (!url || /trycloudflare|ngrok|loca\.lt/i.test(url)) return;
+
+  fail('Bot hozir serverda ishlayapti:');
+  console.log(
+    paint(
+      'dim',
+      `  ${new URL(url).origin}\n\n` +
+        '  Kompyuterda ishga tushirsangiz, serverdagi bot to‘xtab qoladi\n' +
+        '  (bot tokeni bitta, ikkalasi bir vaqtda ishlay olmaydi).\n\n' +
+        '  Sinash uchun BotFather’da alohida test bot oching va .env dagi\n' +
+        '  BOT_TOKEN ni o‘shaniki bilan almashtiring.\n\n' +
+        '  Baribir ishga tushirish kerak bo‘lsa:  npm start -- --force\n' +
+        '  (keyin serverdagi botni qaytarish: Render -> Manual Deploy -> Deploy latest commit)\n',
+    ),
+  );
+  process.exit(1);
+}
+
 /** Port bo'shligini tekshiradi */
 function isPortFree(port) {
   return new Promise((resolve) => {
@@ -332,6 +366,7 @@ async function main() {
     process.exit(1);
   }
 
+  await guardProductionBot(env);
   await installDependencies();
   await checkPorts(env);
   await prepareDatabase();

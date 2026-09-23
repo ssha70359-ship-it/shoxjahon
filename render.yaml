@@ -1,13 +1,20 @@
 # Render.com uchun tayyor sozlama (Blueprint).
 # Render -> New -> Blueprint -> repozitoriyani tanlang -> shu fayl o'qiladi.
+#
+# Bitta xizmat hammasini beradi:
+#   https://<nom>.onrender.com/         -> Mini App
+#   https://<nom>.onrender.com/admin/   -> Admin panel
+#   https://<nom>.onrender.com/api/...  -> API, Telegram webhook
+# Mini App manzili (WEBAPP_URL) va webhook avtomatik o'rnatiladi.
 services:
   - type: web
-    name: bulochka-backend
+    name: farhadskaya-bulochka
     runtime: node
     plan: free
-    region: ohio
+    region: ohio # Neon bazasi ham us-east-2 (Ohio) da - tezroq
 
-    buildCommand: npm install && npm run build
+    # --include=dev: prisma va vite devDependencies'da (NODE_ENV=production bo'lsa ham o'rnatilsin)
+    buildCommand: npm install --include=dev && npm run build:render
     startCommand: npm run server
 
     healthCheckPath: /api/health
@@ -22,14 +29,12 @@ services:
       - key: ALLOW_DEV_USER
         value: "false"
 
-      # Quyidagilarni Render panelida qo'lda to'ldirasiz
+      # Quyidagilarni Render o'zi so'raydi - kompyuteringizdagi .env dan nusxa oling
       - key: DATABASE_URL
         sync: false
       - key: DIRECT_URL
         sync: false
       - key: BOT_TOKEN
-        sync: false
-      - key: WEBAPP_URL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false

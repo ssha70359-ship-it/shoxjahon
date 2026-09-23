@@ -40,6 +40,12 @@ async function call(token, method, body) {
   return payload.result;
 }
 
+/** Bot hozir qaysi webhook manziliga ulangan (bo'sh = long polling) */
+export async function getWebhookUrl(token) {
+  const info = await call(token, 'getWebhookInfo');
+  return info?.url || '';
+}
+
 /** Bot haqida ma'lumot (token to'g'riligini tekshiradi) */
 export function getMe(token) {
   return call(token, 'getMe');

@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,11 +23,12 @@ app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
-// Mahsulot rasmlari: public/products/*.jpg -> /products/*.jpg
-const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
-app.use(express.static(publicDir, { maxAge: '7d' }));
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-app.get('/', (req, res) => {
+// Mahsulot rasmlari: public/products/*.jpg -> /products/*.jpg
+app.use(express.static(path.join(ROOT, 'public'), { maxAge: '7d' }));
+
+app.get('/api', (req, res) => {
   res.json({ ok: true, service: 'Bulochka API', version: '1.0.0' });
 });
 
@@ -44,8 +46,46 @@ const PRISMA_ERRORS = {
   P2003: [400, 'Bog‘liq yozuv topilmadi'],
 };
 
+/**
+ * Serverda (Render) Mini App va admin panel ham shu yerdan beriladi:
+ *   /        -> mini-app/dist
+ *   /admin/  -> admin-panel/dist
+ * Build qilinmagan bo'lsa (kompyuterda) - o'tkazib yuboriladi, u yerda Vite ishlaydi.
+ */
+function serveFrontends() {
+  const sites = [
+    { mount: '/admin', dir: path.join(ROOT, 'admin-panel', 'dist') },
+    { mount: '/', dir: path.join(ROOT, 'mini-app', 'dist') },
+  ];
+
+  for (const { mount, dir } of sites) {
+    const index = path.join(dir, 'index.html');
+    if (!fs.existsSync(index)) continue;
+
+    // /assets/* fayl nomida hash bor - uzoq keshlash xavfsiz. index.html - har doim yangi.
+    app.use(
+      mount,
+      express.static(dir, {
+        index: false,
+        setHeaders(res, file) {
+          res.setHeader('Cache-Control', file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable' : 'no-cache');
+        },
+      }),
+    );
+
+    app.get(mount === '/' ? '/' : [mount, `${mount}/*`], (req, res) => {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(index);
+    });
+
+    console.log(`\u{1F310} ${mount === '/' ? 'Mini App' : 'Admin panel'}: ${mount === '/' ? '/' : `${mount}/`}`);
+  }
+}
+
 /** 404 va xato ushlagichlar oxirida turishi kerak (webhook'dan ham keyin) */
 function registerFallbackHandlers() {
+  serveFrontends();
+
   app.use((req, res) => {
     res.status(404).json({ ok: false, message: 'Bunday yo‘l topilmadi' });
   });

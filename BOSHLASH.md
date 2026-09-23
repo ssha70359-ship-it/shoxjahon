@@ -202,8 +202,8 @@ Tiramisu**. Ularga admin paneldan rasm qo'shsangiz, emoji o'rniga rasm chiqadi.
 
 ## Internetga chiqarish
 
-Kompyuteringiz o'chsa bot ham to'xtaydi. Doimiy ishlashi uchun Vercel (frontend)
-va Render (backend) ga joylashtirish kerak — bosqichma-bosqich qo'llanma:
+Kompyuteringiz o'chsa bot ham to'xtaydi. Doimiy ishlashi uchun Render'ga
+joylashtirish kerak (bepul) — bosqichma-bosqich qo'llanma:
 **[DEPLOY.md](DEPLOY.md)**.
 
 Loyiha tuzilishi va API haqida: **[README.md](README.md)**.
