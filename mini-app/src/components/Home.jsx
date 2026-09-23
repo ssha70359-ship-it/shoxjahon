@@ -44,10 +44,6 @@ export default function Home({ user, products, onGoCatalog, onOpenProduct, onAdd
           <b>est. 1996</b>
           <span>30 yillik tajriba</span>
         </div>
-        <div className="info-card">
-          <b>40K+</b>
-          <span>Obunachi</span>
-        </div>
       </div>
 
       {popular.length > 0 && (
