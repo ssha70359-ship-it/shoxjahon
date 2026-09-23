@@ -3,15 +3,22 @@ import { getInitData } from './telegram.js';
 const BASE = import.meta.env.VITE_API_URL || '';
 
 async function request(path, options = {}) {
-  const response = await fetch(`${BASE}/api/client${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'x-telegram-init-data': getInitData(),
-      'ngrok-skip-browser-warning': 'true',
-      ...options.headers,
-    },
-  });
+  let response;
+
+  try {
+    response = await fetch(`${BASE}/api/client${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-telegram-init-data': getInitData(),
+        'ngrok-skip-browser-warning': 'true',
+        ...options.headers,
+      },
+    });
+  } catch {
+    // So'rov umuman bormadi: internet yo'q yoki server (kompyuter) o'chiq
+    throw new Error('Internet yoki server bilan aloqa yo‘q. Birozdan so‘ng qayta urinib ko‘ring.');
+  }
 
   let payload = null;
   try {
@@ -21,7 +28,14 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok || !payload?.ok) {
-    throw new Error(payload?.message || 'Server bilan bog‘lanib bo‘lmadi');
+    if (payload?.message) throw new Error(payload.message);
+
+    // JSON emas - server emas, oradagi tunnel/proxy javob berdi
+    throw new Error(
+      response.status >= 500
+        ? `Server vaqtincha javob bermayapti (xato ${response.status}). Qayta urinib ko‘ring.`
+        : `Server bilan bog‘lanib bo‘lmadi (xato ${response.status}).`,
+    );
   }
 
   return payload.data;

@@ -138,18 +138,8 @@ export function startCloudflared(port, timeoutMs = 40000) {
   });
 }
 
-/**
- * Mini App uchun https tunnel ochadi. Tartib bo'yicha uriniladi:
- *   1) Allaqachon ishlab turgan ngrok (siz boshqa terminalda ochgan bo'lsangiz)
- *   2) .env dagi NGROK_AUTHTOKEN
- *   3) "ngrok config add-authtoken" bilan saqlangan token
- *   4) Kompyuterdagi ngrok CLI
- *   5) Cloudflare quick tunnel - hisob ham, token ham kerak emas
- * Hech biri bo'lmasa null qaytaradi va sababini aytadi.
- */
-export async function startTunnel(port, envAuthtoken) {
-  const reasons = [];
-
+/** ngrok orqali tunnel: tayyor tunnel -> SDK (token bilan) -> CLI */
+async function startNgrok(port, envAuthtoken, reasons) {
   // 1) Tayyor tunnel
   const running = await findRunningTunnel();
   if (running) {
@@ -157,7 +147,7 @@ export async function startTunnel(port, envAuthtoken) {
     return { url: running, stop: () => {} };
   }
 
-  // 2-3) Token: avval .env, keyin ngrok'ning o'z configi
+  // 2) Token: avval .env, keyin ngrok'ning o'z configi
   let authtoken = envAuthtoken?.trim() || null;
   let source = '.env';
 
@@ -188,10 +178,10 @@ export async function startTunnel(port, envAuthtoken) {
       reasons.push(`ngrok SDK: ${error.message}`);
     }
   } else {
-    reasons.push('authtoken topilmadi (.env da ham, ngrok configida ham)');
+    reasons.push('ngrok authtoken topilmadi (.env da ham, ngrok configida ham)');
   }
 
-  // 4) CLI
+  // 3) CLI
   try {
     const child = spawn(
       'ngrok',
@@ -219,10 +209,11 @@ export async function startTunnel(port, envAuthtoken) {
     reasons.push(`ngrok CLI: ${error.message}`);
   }
 
-  // 5) Cloudflare quick tunnel - ngrok ishlamaganda ham ishlaydi
-  for (const reason of reasons) warn(reason);
+  return null;
+}
 
-  console.log(paint('dim', '  Cloudflare tunneli sinab ko\u2018rilmoqda (token kerak emas)...'));
+async function tryCloudflare(port, reasons) {
+  console.log(paint('dim', '  Cloudflare tunneli ochilmoqda (token kerak emas)...'));
 
   const cloudflare = await startCloudflared(port);
 
@@ -231,7 +222,38 @@ export async function startTunnel(port, envAuthtoken) {
     return { url: cloudflare.url, stop: cloudflare.stop };
   }
 
-  warn(cloudflare.error);
+  reasons.push(cloudflare.error);
+  return null;
+}
 
+/**
+ * Mini App uchun https tunnel ochadi.
+ *
+ * Odatda avval Cloudflare: ngrok'ning bepul tarifi har bir yangi mijozga
+ * "You are about to visit..." ogohlantirish sahifasini ko'rsatadi va uni
+ * o'chirib bo'lmaydi (Telegram sahifani o'zi ochadi, sarlavha qo'sha olmaymiz).
+ * Cloudflare ishlamasa - ngrok. .env da TUNNEL="ngrok" bo'lsa - teskarisi.
+ *
+ * Hech biri ochilmasa null qaytaradi va sabablarini aytadi.
+ */
+export async function startTunnel(port, envAuthtoken, preferred = 'cloudflare') {
+  const reasons = [];
+  const order =
+    String(preferred).toLowerCase() === 'ngrok'
+      ? [() => startNgrok(port, envAuthtoken, reasons), () => tryCloudflare(port, reasons)]
+      : [() => tryCloudflare(port, reasons), () => startNgrok(port, envAuthtoken, reasons)];
+
+  for (const attempt of order) {
+    const tunnel = await attempt();
+    if (tunnel) {
+      for (const reason of reasons) warn(reason);
+      if (/ngrok/i.test(tunnel.url)) {
+        warn('ngrok bepul tarifi: yangi mijozlar avval ngrok ogohlantirish sahifasini ko‘radi');
+      }
+      return tunnel;
+    }
+  }
+
+  for (const reason of reasons) warn(reason);
   return null;
 }

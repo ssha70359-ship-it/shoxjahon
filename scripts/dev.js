@@ -1,6 +1,6 @@
 /**
  * Bitta buyruq bilan hamma narsani ishga tushiradi:
- * paketlar -> baza -> ngrok -> bot sozlamalari -> 3 ta server
+ * paketlar -> baza -> tunnel (Cloudflare, bo'lmasa ngrok) -> bot sozlamalari -> 3 ta server
  *
  *   npm start
  */
@@ -91,7 +91,7 @@ async function prepareDatabase() {
 async function prepareTunnel(env) {
   step('Telegram uchun https manzil olinmoqda');
 
-  tunnel = await startTunnel(MINI_APP_PORT, env.NGROK_AUTHTOKEN);
+  tunnel = await startTunnel(MINI_APP_PORT, env.NGROK_AUTHTOKEN, env.TUNNEL || 'cloudflare');
 
   if (!tunnel) {
     // Eski tunnel manzili har doim o'lik bo'ladi - uni tozalaymiz, shunda bot
