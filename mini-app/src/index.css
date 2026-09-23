@@ -4,8 +4,15 @@
   --line: #ededf1;
   --text: #0e0f12;
   --text-2: #8b909a;
-  --accent: #ff3b30;
-  --accent-soft: #fff0ef;
+  /* Farhadskaya Bulochka brend rangi (logotipdagi pushti) */
+  --accent: #e2237a;
+  --accent-soft: #fdeaf3;
+  --accent-glow: rgba(226, 35, 122, 0.28);
+  --click: #0a9be0;
+  --payme: #1fb3ab;
+  --ok: #1eb980;
+  --warn: #ff9500;
+  --danger: #e5484d;
   --green: #1eb980;
   --radius: 18px;
   --radius-sm: 12px;
@@ -1205,4 +1212,367 @@ img {
   margin: 0;
   line-height: 1.55;
   max-width: 280px;
+}
+
+
+/* ================= TO'LOV ================= */
+
+/* --- usul tanlash --- */
+.pay-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pay-option {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 13px 14px;
+  text-align: left;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.12s;
+}
+
+.pay-option:active {
+  transform: scale(0.985);
+}
+
+.pay-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 4px rgba(226, 35, 122, 0.08);
+}
+
+.pay-option.disabled {
+  opacity: 0.55;
+}
+
+.pay-option.disabled .pay-text small {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.pay-badge {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.pay-badge.click {
+  background: linear-gradient(140deg, #22b8f2, var(--click));
+}
+
+.pay-badge.payme {
+  background: linear-gradient(140deg, #3fd3c8, var(--payme));
+}
+
+.pay-badge.cash {
+  background: #e9f8f1;
+  font-size: 23px;
+  box-shadow: none;
+}
+
+.pay-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pay-text b {
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.pay-text small {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.35;
+}
+
+.pay-radio {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #d4d6dc;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.pay-option.selected .pay-radio {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+/* --- hisob xulosasi --- */
+.summary {
+  margin-top: 18px;
+  padding: 12px 16px 14px;
+  background: var(--muted);
+  border-radius: 18px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 0;
+  font-size: 14.5px;
+  color: var(--text-2);
+}
+
+.summary-row span:last-child {
+  color: var(--text);
+}
+
+.summary-row span.muted {
+  color: var(--text-2);
+}
+
+.summary-row.total {
+  margin-top: 6px;
+  padding-top: 11px;
+  border-top: 1.5px dashed #dcdee4;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.summary-row.total b {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.summary-note {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+
+/* --- yopishqoq tugma (savatcha) --- */
+.checkout-spacer {
+  height: 86px;
+}
+
+.checkout-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  padding: 14px 16px 10px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 72%, rgba(255, 255, 255, 0));
+}
+
+.checkout-bar .btn {
+  justify-content: space-between;
+  padding: 0 8px 0 20px;
+  box-shadow: 0 10px 26px var(--accent-glow);
+}
+
+.btn-sum {
+  font-size: 14.5px;
+  font-weight: 800;
+  padding: 8px 12px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- to'lov holati ekrani --- */
+.status-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  animation: fade 0.25s ease;
+}
+
+.status-screen .spinner {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 16px;
+}
+
+.status-icon {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 46px;
+  font-weight: 800;
+  animation: pop 0.45s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+.status-icon.ok {
+  background: linear-gradient(140deg, #2fd497, #12a36d);
+  box-shadow: 0 16px 36px rgba(30, 185, 128, 0.34);
+}
+
+.status-icon.ok::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 3px solid rgba(30, 185, 128, 0.28);
+  animation: ring 1.8s ease-out infinite;
+}
+
+.status-icon.wait {
+  background: linear-gradient(140deg, #ffbd4a, var(--warn));
+  box-shadow: 0 16px 36px rgba(255, 149, 0, 0.3);
+}
+
+.status-icon.warn {
+  background: linear-gradient(140deg, #ff7b7f, var(--danger));
+  box-shadow: 0 16px 36px rgba(229, 72, 77, 0.3);
+}
+
+@keyframes ring {
+  from {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+.status-screen h2 {
+  margin: 0 0 8px;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.status-text {
+  max-width: 310px;
+  margin: 0 auto 24px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.receipt {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 24px;
+  padding: 6px 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 11px 0;
+  font-size: 14.5px;
+}
+
+.receipt-row span {
+  color: var(--text-2);
+}
+
+.receipt-row b {
+  font-weight: 650;
+}
+
+.receipt-row + .receipt-row {
+  border-top: 1px solid var(--line);
+}
+
+.receipt-row.total {
+  border-top: 1.5px dashed #dcdee4;
+}
+
+.receipt-row.total b {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.status-actions {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-click {
+  background: linear-gradient(140deg, #22b8f2, var(--click));
+  box-shadow: 0 10px 24px rgba(10, 155, 224, 0.26);
+}
+
+.btn-payme {
+  background: linear-gradient(140deg, #3fd3c8, var(--payme));
+  box-shadow: 0 10px 24px rgba(31, 179, 171, 0.26);
+}
+
+.link-btn {
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+/* --- profil: to'lov holati --- */
+.pay-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.pay-chip.paid {
+  background: #e9f8f1;
+  color: #0f8a5f;
+}
+
+.pay-chip.unpaid {
+  background: #fff4e5;
+  color: #b86e00;
+}
+
+.pay-chip.cash {
+  background: var(--muted);
+  color: var(--text-2);
+}
+
+.order-foot button.pay-now {
+  color: #fff;
+  background: var(--accent);
+  padding: 9px 20px;
+  box-shadow: 0 6px 16px var(--accent-glow);
 }

@@ -6,6 +6,9 @@ Farhadskaya Bulochka (Family Bakery, est. 1996) uchun buyurtma va yetkazib beris
 > [**BOSHLASH.md**](BOSHLASH.md) ni oching. Node.js o'rnatishdan tortib botni
 > tekshirishgacha bosqichma-bosqich yozilgan.
 
+💳 **Click va Payme** — mijoz Mini App ichida karta bilan to'laydi. Ulash:
+[**docs/TOLOV.md**](docs/TOLOV.md).
+
 Katalog, narxlar va rasmlar Instagram menyusidan olingan — [docs/INSTAGRAM-TAHLIL.md](docs/INSTAGRAM-TAHLIL.md).
 Do'kon ma'lumotlari — filiallar, telefon, ish vaqti — `src/config/shop.js` faylida.
 
@@ -93,6 +96,7 @@ Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
 | `npm start` | Hamma narsani ishga tushiradi (asosiy buyruq) |
 | `npm run setup` | Faqat `.env` faylni qaytadan yaratadi |
 | `npm run ngrok:token <token>` | ngrok authtokenni `.env` ga yozadi |
+| `npm run payment:token click\|payme <token>` | Click/Payme tokenini `.env` ga yozadi |
 | `npm run dev` | Faqat backend (bot + API) |
 | `npm run server` | Backend (serverda ishlatiladi) |
 | `npm run build` | Prisma client + migratsiya (deploy uchun) |
@@ -143,7 +147,8 @@ shoxrux/
 | GET | `/api/client/me` | Profil |
 | GET | `/api/client/products` | Mahsulotlar + kategoriyalar |
 | GET | `/api/client/orders` | Buyurtmalar tarixi |
-| POST | `/api/client/orders` | Yangi buyurtma |
+| POST | `/api/client/orders` | Yangi buyurtma (`paymentMethod`: NAQD / CLICK / PAYME) |
+| POST | `/api/client/orders/:id/pay` | To'lanmagan buyurtmani to'lash yoki usulini almashtirish |
 | POST | `/api/client/phone` | Telefon saqlash |
 
 ### Admin (`x-admin-password` header)

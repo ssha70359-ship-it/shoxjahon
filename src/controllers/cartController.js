@@ -4,7 +4,13 @@ import ProductModel from '../models/Product.js';
 import OrderModel from '../models/Order.js';
 import UserModel from '../models/User.js';
 import botController from './botController.js';
-import { sendOrderInvoice } from '../core/bot.js';
+import {
+  METHODS,
+  assertPayable,
+  createInvoiceLink,
+  isMethod,
+  paymentOptions,
+} from '../services/payments.js';
 
 export const cartController = {
   /** GET /api/client/me */
@@ -32,6 +38,7 @@ export const cartController = {
           extraOffer: config.extraOffer,
           shop,
           isOpen: isOpenNow(),
+          payments: paymentOptions(),
         },
       });
     } catch (error) {
@@ -61,6 +68,11 @@ export const cartController = {
   async createOrder(req, res, next) {
     try {
       const { items = [], location, lat, lng, phone, comment, withExtra } = req.body;
+      const paymentMethod = req.body.paymentMethod || 'NAQD';
+
+      if (!isMethod(paymentMethod)) {
+        return res.status(400).json({ ok: false, message: 'Noma’lum to‘lov usuli' });
+      }
 
       if (!Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ ok: false, message: 'Savatcha bo‘sh' });
@@ -117,6 +129,10 @@ export const cartController = {
         });
       }
 
+      // Karta usuli yoqilganmi va summa Telegram chegarasiga sig'adimi -
+      // buyurtma yaratilishidan OLDIN, aks holda to'lab bo'lmaydigan buyurtma qoladi
+      await assertPayable(paymentMethod, total);
+
       const cleanPhone = String(phone).trim();
 
       // Telefon raqamni profilga ham saqlaymiz
@@ -131,29 +147,87 @@ export const cartController = {
         lng: lng ? Number(lng) : null,
         phone: cleanPhone,
         comment: comment ? String(comment).trim() : null,
+        paymentMethod,
       });
 
-      const paymentRequired = Boolean(config.bot.paymentProviderToken);
-
-      if (paymentRequired) {
-        // Mijozga Payme hisob-fakturasi. Buyurtma "successful_payment" kelgach TOLANGAN bo'ladi.
-        sendOrderInvoice(req.user.telegramId, order).catch((error) =>
-          console.error('Hisob-faktura yuborishda xato:', error.message),
-        );
-      } else {
-        // To'lov sozlanmagan - eski "naqd/kuryerga" oqimi
+      if (!METHODS[paymentMethod].card) {
+        // Naqd: buyurtma darhol qabul qilinadi
         botController
           .notifyOrderAccepted(req.user.telegramId, order)
           .catch((error) => console.error('Xabar yuborishda xato:', error.message));
+        botController
+          .notifyAdmins(order)
+          .catch((error) => console.error('Adminga xabar yuborishda xato:', error.message));
+
+        return res.status(201).json({ ok: true, data: order, message: config.messages.orderAccepted });
       }
 
-      res.status(201).json({
-        ok: true,
-        data: { ...order, paymentRequired },
-        message: paymentRequired
-          ? 'Buyurtma qabul qilindi! To‘lovni yakunlash uchun Telegram chatga qayting.'
-          : config.messages.orderAccepted,
-      });
+      // Karta: Mini App ichida ochiladigan hisob-faktura. Adminlar to'lov kelgach xabar oladi.
+      let invoiceUrl = null;
+      let invoiceError = null;
+
+      try {
+        invoiceUrl = await createInvoiceLink(order, paymentMethod);
+      } catch (error) {
+        // Buyurtma saqlandi - mijoz keyinroq "To'lash" orqali qayta urinishi mumkin
+        console.error('Hisob-faktura yaratilmadi:', error.message);
+        invoiceError = error.expose ? error.message : 'To‘lov oynasini ochib bo‘lmadi. Qayta urinib ko‘ring.';
+      }
+
+      res.status(201).json({ ok: true, data: { ...order, invoiceUrl, invoiceError } });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * POST /api/client/orders/:id/pay  { method }
+   * To'lanmagan buyurtmani qayta to'lash yoki usulini almashtirish
+   * (masalan Click bekor qilindi -> Payme yoki Naqd).
+   */
+  async payOrder(req, res, next) {
+    try {
+      const method = req.body?.method;
+
+      if (!isMethod(method)) {
+        return res.status(400).json({ ok: false, message: 'Noma’lum to‘lov usuli' });
+      }
+
+      const order = await OrderModel.findById(req.params.id);
+
+      if (!order || order.userId !== req.user.id) {
+        return res.status(404).json({ ok: false, message: 'Buyurtma topilmadi' });
+      }
+
+      if (order.paymentStatus === 'TOLANGAN') {
+        return res.status(409).json({ ok: false, message: 'Bu buyurtma allaqachon to‘langan' });
+      }
+
+      if (order.status !== 'KUTILMOQDA') {
+        return res.status(409).json({ ok: false, message: 'Bu buyurtmani endi to‘lab bo‘lmaydi' });
+      }
+
+      await assertPayable(method, order.total);
+
+      const updated =
+        order.paymentMethod === method ? order : await OrderModel.setPaymentMethod(order.id, method);
+
+      if (!METHODS[method].card) {
+        // Faqat kartadan naqdga o'tganda xabar beramiz - qayta so'rov kelsa ham takrorlanmaydi
+        if (order.paymentMethod !== 'NAQD') {
+          botController
+            .notifyOrderAccepted(req.user.telegramId, updated)
+            .catch((error) => console.error('Xabar yuborishda xato:', error.message));
+          botController
+            .notifyAdmins(updated)
+            .catch((error) => console.error('Adminga xabar yuborishda xato:', error.message));
+        }
+
+        return res.json({ ok: true, data: { ...updated, invoiceUrl: null } });
+      }
+
+      const invoiceUrl = await createInvoiceLink(updated, method);
+      res.json({ ok: true, data: { ...updated, invoiceUrl } });
     } catch (error) {
       next(error);
     }

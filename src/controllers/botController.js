@@ -2,7 +2,8 @@ import config from '../config/default.js';
 import { shop, isOpenNow } from '../config/shop.js';
 import UserModel from '../models/User.js';
 import OrderModel from '../models/Order.js';
-import { sendMessageToUser, parseOrderPayload } from '../core/bot.js';
+import { sendMessageToUser, sendToAdmins, parseOrderPayload } from '../core/bot.js';
+import { METHODS, toMinorUnits } from '../services/payments.js';
 
 /** Mini App tugmasi bo'lgan klaviatura */
 function mainKeyboard() {
@@ -49,6 +50,29 @@ async function syncMenuButton(ctx) {
   } catch (error) {
     console.error('⚠️  Menyu tugmasi yangilanmadi:', error.message);
   }
+}
+
+const sum = (value) => `${Number(value).toLocaleString('ru-RU')} so‘m`;
+
+/**
+ * Mijoz yozgan matnni (manzil, izoh, ism) HTML xabarga xavfsiz qo'yish.
+ * Aks holda "<" belgisi Telegram'da xabarni buzadi va admin buyurtmani ko'rmaydi.
+ */
+const esc = (value) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+function itemLines(order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  return items.map((item) => `  • ${esc(item.name)} × ${item.qty} — ${sum(item.sum)}`).join('\n');
+}
+
+function paymentLine(order) {
+  const method = METHODS[order.paymentMethod] || METHODS.NAQD;
+  const status = order.paymentStatus === 'TOLANGAN' ? '✅ to‘langan' : '⏳ to‘lanmagan';
+  return method.card ? `\u{1F4B3} ${method.title} · ${status}` : '\u{1F4B5} Naqd · kuryerga';
 }
 
 export const botController = {
@@ -163,22 +187,29 @@ export const botController = {
     const query = ctx.preCheckoutQuery;
 
     try {
-      const orderId = parseOrderPayload(query.invoice_payload);
-      if (!orderId) {
+      const parsed = parseOrderPayload(query.invoice_payload);
+      if (!parsed) {
         return ctx.answerPreCheckoutQuery(false, 'Buyurtma topilmadi. Qaytadan urinib ko‘ring.');
       }
 
-      const order = await OrderModel.findById(orderId);
+      const order = await OrderModel.findById(parsed.orderId);
       if (!order) {
         return ctx.answerPreCheckoutQuery(false, 'Bunday buyurtma topilmadi.');
+      }
+
+      if (String(order.user?.telegramId) !== String(query.from.id)) {
+        return ctx.answerPreCheckoutQuery(false, 'Bu buyurtma sizga tegishli emas.');
       }
 
       if (order.paymentStatus === 'TOLANGAN') {
         return ctx.answerPreCheckoutQuery(false, 'Bu buyurtma allaqachon to‘langan.');
       }
 
-      const expectedAmount = Math.round(order.total * 100);
-      if (query.total_amount !== expectedAmount) {
+      if (order.status === 'BEKOR_QILINDI') {
+        return ctx.answerPreCheckoutQuery(false, 'Bu buyurtma bekor qilingan.');
+      }
+
+      if (query.total_amount !== toMinorUnits(order.total)) {
         return ctx.answerPreCheckoutQuery(false, 'Buyurtma summasi mos kelmadi. Qaytadan buyurtma bering.');
       }
 
@@ -197,39 +228,69 @@ export const botController = {
   async successfulPayment(ctx) {
     try {
       const payment = ctx.message.successful_payment;
-      const orderId = parseOrderPayload(payment.invoice_payload);
-      if (!orderId) return;
+      const parsed = parseOrderPayload(payment.invoice_payload);
+      if (!parsed) return;
 
-      const order = await OrderModel.markPaid(orderId, {
+      const { order, firstTime } = await OrderModel.markPaid(parsed.orderId, {
         telegramChargeId: payment.telegram_payment_charge_id,
         providerChargeId: payment.provider_payment_charge_id,
+        method: parsed.method,
       });
 
+      // Telegram bir xil to'lovni qayta yuborsa - ikkinchi marta xabar bermaymiz
+      if (!order || !firstTime) return;
+
       await ctx.reply(
-        '✅ To‘lov muvaffaqiyatli qabul qilindi!\n\n' +
+        '✅ <b>To‘lov qabul qilindi!</b>\n\n' +
           `<b>Buyurtma №${order.id}</b>\n` +
-          `Jami: <b>${order.total.toLocaleString('ru-RU')} so‘m</b>\n\n` +
-          'Kuryerimiz tez orada bog‘lanadi \u{1F968}',
+          `${itemLines(order)}\n\n` +
+          `Jami: <b>${sum(order.total)}</b>\n` +
+          `${paymentLine(order)}\n\n` +
+          'Buyurtmangiz tayyorlanmoqda. Kuryer tez orada bog‘lanadi \u{1F968}',
         { parse_mode: 'HTML' },
       );
+
+      await botController.notifyAdmins(order);
     } catch (error) {
       console.error('⚠️  successful_payment xatosi:', error.message);
     }
   },
 
+  /** Yangi buyurtma haqida adminlarga (naqd - darhol, karta - to'langach) */
+  async notifyAdmins(order) {
+    if (config.admin.ids.length === 0) return 0;
+
+    const customer = order.user
+      ? `${esc(order.user.firstName)}${order.user.username ? ` (@${esc(order.user.username)})` : ''}`
+      : 'Mijoz';
+
+    const map =
+      Number.isFinite(order.lat) && Number.isFinite(order.lng)
+        ? `\n\u{1F5FA} <a href="https://maps.google.com/?q=${Number(order.lat)},${Number(order.lng)}">Xaritada ochish</a>`
+        : '';
+
+    const text =
+      `\u{1F195} <b>Yangi buyurtma №${order.id}</b>\n\n` +
+      `${itemLines(order)}\n\n` +
+      `Jami: <b>${sum(order.total)}</b>\n` +
+      `${paymentLine(order)}\n\n` +
+      `\u{1F464} ${customer}\n` +
+      `\u{1F4DE} ${esc(order.phone || '—')}\n` +
+      `\u{1F4CD} ${esc(order.location)}${map}` +
+      (order.comment ? `\n\u{1F4AC} ${esc(order.comment)}` : '');
+
+    return sendToAdmins(text, { disable_web_page_preview: true });
+  },
+
   /** Buyurtma qabul qilingani haqida mijozga xabar */
   async notifyOrderAccepted(telegramId, order) {
-    const items = Array.isArray(order.items) ? order.items : [];
-    const list = items
-      .map((item) => `  • ${item.name} × ${item.qty}`)
-      .join('\n');
-
     const text =
       `${config.messages.orderAccepted}\n\n` +
       `<b>Buyurtma №${order.id}</b>\n` +
-      `${list}\n\n` +
-      `Jami: <b>${order.total.toLocaleString('ru-RU')} so‘m</b>\n` +
-      `Manzil: ${order.location}`;
+      `${itemLines(order)}\n\n` +
+      `Jami: <b>${sum(order.total)}</b>\n` +
+      `${paymentLine(order)}\n` +
+      `Manzil: ${esc(order.location)}`;
 
     return sendMessageToUser(telegramId, text);
   },

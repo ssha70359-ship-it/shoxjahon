@@ -35,3 +35,9 @@ services:
         sync: false
       - key: ADMIN_IDS
         sync: false
+
+      # Karta orqali to'lov (ixtiyoriy) - BotFather -> Payments. Bo'sh = faqat naqd
+      - key: CLICK_PROVIDER_TOKEN
+        sync: false
+      - key: PAYME_PROVIDER_TOKEN
+        sync: false

@@ -74,6 +74,38 @@ export function hideBackButton() {
   }
 }
 
+export function notifyError() {
+  try {
+    tg?.HapticFeedback?.notificationOccurred('error');
+  } catch {
+    /* qo'llab-quvvatlanmaydi */
+  }
+}
+
+/**
+ * Karta orqali to'lash mumkinmi: Mini App Telegram ichida ochilgan va
+ * openInvoice mavjud bo'lishi kerak (brauzerda sinashda ishlamaydi).
+ */
+export function canPayInApp() {
+  return Boolean(tg?.initData && typeof tg.openInvoice === 'function');
+}
+
+/**
+ * Hisob-fakturani Mini App ustida ochadi - mijoz chatga chiqmasdan to'laydi.
+ * Natija: 'paid' | 'cancelled' | 'failed' | 'pending' | 'unsupported'
+ */
+export function openInvoice(url) {
+  return new Promise((resolve) => {
+    if (!canPayInApp() || !url) return resolve('unsupported');
+
+    try {
+      tg.openInvoice(url, (status) => resolve(status || 'failed'));
+    } catch {
+      resolve('failed');
+    }
+  });
+}
+
 export function closeApp() {
   try {
     tg?.close();

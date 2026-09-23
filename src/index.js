@@ -11,6 +11,7 @@ import bot from './core/bot.js';
 import registerBotRoutes from './routes/bot.routes.js';
 import clientRoutes from './routes/client.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import { uzsLimits } from './services/payments.js';
 
 const app = express();
 
@@ -50,6 +51,11 @@ function registerFallbackHandlers() {
 
   // eslint-disable-next-line no-unused-vars
   app.use((error, req, res, next) => {
+    // Mijozga ko'rsatish mumkin bo'lgan xato (masalan to'lov chegarasi)
+    if (error?.expose && error.status) {
+      return res.status(error.status).json({ ok: false, message: error.message });
+    }
+
     const known = PRISMA_ERRORS[error?.code];
 
     if (known) {
@@ -139,10 +145,17 @@ async function start() {
         ? `\u{1F4F1} Mini App: ${config.bot.webAppUrl}`
         : '⚠️  WEBAPP_URL hali sozlanmagan',
     );
+    const cards = [
+      config.payments.click && 'Click',
+      config.payments.payme && 'Payme',
+    ].filter(Boolean);
+
+    // Karta chegaralarini oldindan olib qo'yamiz - birinchi mijoz kutmasin
+    if (cards.length) uzsLimits().catch(() => {});
     console.log(
-      config.bot.paymentProviderToken
-        ? '\u{1F4B3} To‘lov: Payme yoqilgan (PAYMENT_PROVIDER_TOKEN topildi)'
-        : '\u{1F4B3} To‘lov: o‘chirilgan — PAYMENT_PROVIDER_TOKEN .env da yo‘q, naqd oqim ishlaydi',
+      cards.length
+        ? `\u{1F4B3} To‘lov: Naqd + ${cards.join(' + ')}`
+        : '\u{1F4B3} To‘lov: faqat naqd — karta uchun: npm run payment:token click|payme <token>',
     );
   });
 

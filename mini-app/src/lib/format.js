@@ -30,3 +30,12 @@ export const STATUS_LABEL = {
   YETKAZILDI: 'Yetkazildi',
   BEKOR_QILINDI: 'Bekor qilindi',
 };
+
+export const PAYMENT_LABEL = {
+  NAQD: 'Naqd',
+  CLICK: 'Click',
+  PAYME: 'Payme',
+};
+
+/** Karta orqali to'lanadigan usullar */
+export const CARD_METHODS = ['CLICK', 'PAYME'];

@@ -10,7 +10,14 @@ import BottomNav from './components/BottomNav.jsx';
 import Toast from './components/Toast.jsx';
 
 import api from './lib/api.js';
-import { closeApp, hideBackButton, notifySuccess, showBackButton } from './lib/telegram.js';
+import PaymentStatus from './components/PaymentStatus.jsx';
+import {
+  hideBackButton,
+  notifyError,
+  notifySuccess,
+  openInvoice,
+  showBackButton,
+} from './lib/telegram.js';
 
 const CART_KEY = 'pz_cart';
 const ONBOARD_KEY = 'pz_onboarded';
@@ -60,7 +67,9 @@ export default function App() {
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(null);
+  // To'lov oqimi: { state, order, message, busy } | null
+  const [payment, setPayment] = useState(null);
+  const [payments, setPayments] = useState([]);
 
   useEffect(() => saveCart(cart), [cart]);
 
@@ -77,6 +86,7 @@ export default function App() {
         setCategories(catalog.categories);
         if (catalog.extraOffer) setExtraOffer(catalog.extraOffer);
         if (catalog.shop) setShop(catalog.shop);
+        if (Array.isArray(catalog.payments)) setPayments(catalog.payments);
       } catch (error) {
         if (alive) setFatal(error.message);
       } finally {
@@ -115,9 +125,9 @@ export default function App() {
   useEffect(() => {
     let back = null;
 
-    if (success) {
+    if (payment && payment.state !== 'processing') {
       back = () => {
-        setSuccess(null);
+        setPayment(null);
         setTab('home');
       };
     } else if (sheetProduct) {
@@ -137,7 +147,7 @@ export default function App() {
       cleanup();
       hideBackButton();
     };
-  }, [success, sheetProduct, tab]);
+  }, [payment, sheetProduct, tab]);
 
   function addToCart(product, qty = 1) {
     setCart((current) => {
@@ -197,22 +207,71 @@ export default function App() {
     setTab('cart');
   }
 
+  /** Hisob-fakturani Mini App ichida ochadi va natijani ekranga chiqaradi */
+  async function payWithInvoice(order, invoiceUrl) {
+    setPayment({ state: 'processing', order });
+
+    const status = await openInvoice(invoiceUrl);
+
+    if (status === 'paid') notifySuccess();
+    else if (status !== 'pending') notifyError();
+
+    setPayment({
+      state: status === 'unsupported' ? 'failed' : status,
+      order,
+      message:
+        status === 'unsupported'
+          ? 'Karta orqali to‘lov faqat Telegram ichida ishlaydi.'
+          : undefined,
+    });
+
+    if (status === 'paid' || status === 'pending') loadOrders();
+  }
+
   async function submitOrder(payload) {
     setSubmitting(true);
 
     try {
-      const result = await api.createOrder(payload);
+      const order = await api.createOrder(payload);
 
-      notifySuccess();
       setCart([]);
       setWithExtra(false);
-      setSuccess(result?.paymentRequired ? 'payment' : 'cod');
 
-      setTimeout(closeApp, 2600);
+      if (order.paymentMethod === 'NAQD') {
+        notifySuccess();
+        setPayment({ state: 'cash', order });
+        loadOrders();
+      } else if (order.invoiceUrl) {
+        await payWithInvoice(order, order.invoiceUrl);
+      } else {
+        // Buyurtma saqlandi, lekin hisob-faktura ochilmadi - qayta urinish ekrani
+        notifyError();
+        setPayment({ state: 'failed', order, message: order.invoiceError });
+      }
     } catch (error) {
       setToast(error.message);
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  /** To'lanmagan buyurtmani qayta to'lash yoki usulini almashtirish */
+  async function retryPayment(order, method) {
+    setPayment((current) => (current ? { ...current, busy: true } : current));
+
+    try {
+      const updated = await api.payOrder(order.id, method);
+
+      if (method === 'NAQD') {
+        notifySuccess();
+        setPayment({ state: 'cash', order: updated });
+        loadOrders();
+      } else {
+        await payWithInvoice(updated, updated.invoiceUrl);
+      }
+    } catch (error) {
+      notifyError();
+      setPayment({ state: 'failed', order, message: error.message });
     }
   }
 
@@ -253,17 +312,21 @@ export default function App() {
     );
   }
 
-  if (success) {
+  if (payment) {
     return (
-      <div className="success">
-        <div className="check">{success === 'payment' ? '\u{1F4B3}' : '✅'}</div>
-        <h2>{success === 'payment' ? 'Buyurtma yaratildi!' : 'Buyurtma qabul qilindi!'}</h2>
-        <p>
-          {success === 'payment'
-            ? "To‘lovni yakunlash uchun Telegram chatga qayting va hisob-fakturani to‘lang."
-            : `Kuryerimiz tez orada siz bilan bog‘lanadi. Yoqimli ishtaha! ${'\u{1F968}'}`}
-        </p>
-      </div>
+      <PaymentStatus
+        payment={payment}
+        methods={payments.filter((option) => option.enabled)}
+        onRetry={(method) => retryPayment(payment.order, method)}
+        onHome={() => {
+          setPayment(null);
+          setTab('home');
+        }}
+        onOrders={() => {
+          setPayment(null);
+          setTab('profile');
+        }}
+      />
     );
   }
 
@@ -295,6 +358,7 @@ export default function App() {
           cart={cart}
           user={user}
           shop={shop}
+          payments={payments}
           extraOffer={extraOffer}
           withExtra={withExtra}
           onToggleExtra={() => setWithExtra((value) => !value)}
@@ -312,6 +376,7 @@ export default function App() {
           loading={ordersLoading}
           shop={shop}
           onReorder={reorder}
+          onPay={(order) => setPayment({ state: 'cancelled', order, message: 'Bu buyurtma hali to‘lanmagan.' })}
           onGoCatalog={() => setTab('catalog')}
         />
       )}

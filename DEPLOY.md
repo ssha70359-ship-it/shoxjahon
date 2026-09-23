@@ -65,6 +65,8 @@ Pastdagi **Advanced** → **Add Environment Variable** bo'limida quyidagilarni q
 | `BOT_TOKEN` | BotFather bergan token |
 | `ADMIN_PASSWORD` | **Kuchli parol qo'ying** (`admin123` emas!) |
 | `ADMIN_IDS` | `1002799987` |
+| `CLICK_PROVIDER_TOKEN` | Click tokeni (ixtiyoriy, [docs/TOLOV.md](docs/TOLOV.md)) |
+| `PAYME_PROVIDER_TOKEN` | Payme tokeni (ixtiyoriy) |
 | `ALLOW_DEV_USER` | `false` |
 | `NODE_ENV` | `production` |
 | `NODE_VERSION` | `22` |

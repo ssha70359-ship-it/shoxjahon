@@ -4,8 +4,8 @@
   --line: #e9eaee;
   --text: #0e0f12;
   --text-2: #868b95;
-  --accent: #ff3b30;
-  --accent-soft: #fff0ef;
+  --accent: #e2237a;
+  --accent-soft: #fdeaf3;
   --green: #1eb980;
   --blue: #2f6bff;
   --radius: 14px;
@@ -303,14 +303,20 @@ tbody tr:hover {
   color: #128a5f;
 }
 
-.badge.payment-KUTILMOQDA {
-  background: var(--accent-soft);
-  color: var(--accent);
+/* To'lov: naqd - kulrang, karta to'langan - yashil, to'lanmagan - to'q sariq */
+.badge.pay-cash {
+  background: #eef0f3;
+  color: var(--text-2);
 }
 
-.badge.payment-TOLANGAN {
+.badge.pay-paid {
   background: #e7f8f1;
   color: #128a5f;
+}
+
+.badge.pay-unpaid {
+  background: #fff1e0;
+  color: #c26a00;
 }
 
 .tag {

@@ -32,6 +32,8 @@ export const api = {
   getProducts: () => request('/products'),
   getMyOrders: () => request('/orders'),
   createOrder: (body) => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
+  payOrder: (id, method) =>
+    request(`/orders/${id}/pay`, { method: 'POST', body: JSON.stringify({ method }) }),
   savePhone: (phone) => request('/phone', { method: 'POST', body: JSON.stringify({ phone }) }),
 };
 

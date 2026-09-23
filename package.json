@@ -8,6 +8,7 @@
     "start": "node scripts/dev.js",
     "setup": "node scripts/setup.js",
     "ngrok:token": "node scripts/token.js",
+    "payment:token": "node scripts/payment-token.js",
     "dev": "node --watch src/index.js",
     "server": "node src/index.js",
     "build": "prisma generate && prisma migrate deploy",

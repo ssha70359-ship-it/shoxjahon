@@ -1,7 +1,7 @@
-import { money, date, STATUS_LABEL } from '../lib/format.js';
+import { money, date, STATUS_LABEL, PAYMENT_LABEL, CARD_METHODS } from '../lib/format.js';
 import { haptic } from '../lib/telegram.js';
 
-export default function Profile({ user, orders, loading, shop, onReorder, onGoCatalog }) {
+export default function Profile({ user, orders, loading, shop, onReorder, onPay, onGoCatalog }) {
   const name = user?.firstName || 'Mijoz';
 
   return (
@@ -35,6 +35,9 @@ export default function Profile({ user, orders, loading, shop, onReorder, onGoCa
         {!loading &&
           orders.map((order) => {
             const items = Array.isArray(order.items) ? order.items : [];
+            const card = CARD_METHODS.includes(order.paymentMethod);
+            const paid = order.paymentStatus === 'TOLANGAN';
+            const unpaidCard = card && !paid && order.status === 'KUTILMOQDA';
 
             return (
               <div className="order-card" key={order.id}>
@@ -50,18 +53,34 @@ export default function Profile({ user, orders, loading, shop, onReorder, onGoCa
                     </div>
                   ))}
                   <div style={{ marginTop: 4 }}>{date(order.createdAt)}</div>
+                  <div className={`pay-chip ${paid ? 'paid' : card ? 'unpaid' : 'cash'}`}>
+                    {card ? '\u{1F4B3}' : '\u{1F4B5}'} {PAYMENT_LABEL[order.paymentMethod] || 'Naqd'}
+                    {card ? (paid ? ' · to‘langan' : ' · to‘lanmagan') : ' · kuryerga'}
+                  </div>
                 </div>
 
                 <div className="order-foot">
                   <b>{money(order.total)}</b>
-                  <button
-                    onClick={() => {
-                      haptic();
-                      onReorder(order);
-                    }}
-                  >
-                    Yana shundan buyurtma qilish
-                  </button>
+                  {unpaidCard ? (
+                    <button
+                      className="pay-now"
+                      onClick={() => {
+                        haptic();
+                        onPay(order);
+                      }}
+                    >
+                      To‘lash
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        haptic();
+                        onReorder(order);
+                      }}
+                    >
+                      Yana shundan buyurtma qilish
+                    </button>
+                  )}
                 </div>
               </div>
             );

@@ -42,9 +42,17 @@ export const config = {
       process.env.WEBHOOK_SECRET ||
       crypto.createHash('sha256').update(`${process.env.BOT_TOKEN}:webhook`).digest('hex').slice(0, 40),
 
-    // Payme (Telegram Payments) provayder tokeni. Bo'sh bo'lsa, buyurtma
-    // to'lovsiz ("naqd/kuryerga") rejimda qabul qilinadi.
-    paymentProviderToken: process.env.PAYMENT_PROVIDER_TOKEN || '',
+  },
+
+  /**
+   * Karta orqali to'lov (Telegram Payments). Tokenlar BotFather'dan olinadi:
+   * /mybots -> bot -> Payments -> CLICK Uzbekistan / Payme.
+   * Token bo'sh bo'lsa o'sha usul Mini App'da ko'rinmaydi. Naqd doim ishlaydi.
+   */
+  payments: {
+    click: (process.env.CLICK_PROVIDER_TOKEN || '').trim(),
+    // PAYMENT_PROVIDER_TOKEN - eski nomi (ilgari faqat Payme bor edi)
+    payme: (process.env.PAYME_PROVIDER_TOKEN || process.env.PAYMENT_PROVIDER_TOKEN || '').trim(),
   },
 
   admin: {

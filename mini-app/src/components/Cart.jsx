@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { money, num } from '../lib/format.js';
+import { money, num, PAYMENT_LABEL } from '../lib/format.js';
 import { haptic, requestPhone } from '../lib/telegram.js';
+import PaymentOptions, { resolveMethod } from './PaymentOptions.jsx';
 import Thumb from './Thumb.jsx';
 
 export default function Cart({
   cart,
   user,
   shop,
+  payments = [],
   extraOffer,
   withExtra,
   onToggleExtra,
@@ -21,9 +23,16 @@ export default function Cart({
   const [coords, setCoords] = useState(null);
   const [geoBusy, setGeoBusy] = useState(false);
   const [error, setError] = useState('');
+  const [selectedMethod, setSelectedMethod] = useState(null);
 
   const itemsTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = itemsTotal + (withExtra ? extraOffer.price : 0);
+
+  // Serverda yoqilgan usullar. Hech biri kelmasa ham naqd doim bor.
+  const options = payments.filter((option) => option.enabled);
+  const methodOptions = options.length ? options : [{ id: 'NAQD', title: 'Naqd', subtitle: 'Kuryerga', card: false }];
+  const paymentMethod = resolveMethod(methodOptions, selectedMethod, total);
+  const isCard = paymentMethod !== 'NAQD';
 
   async function fillPhoneFromTelegram() {
     haptic();
@@ -84,6 +93,7 @@ export default function Cart({
       lat: coords?.lat ?? null,
       lng: coords?.lng ?? null,
       withExtra,
+      paymentMethod,
     });
   }
 
@@ -191,26 +201,53 @@ export default function Cart({
           />
         </div>
 
-        <div className="total-row">
-          <span>Jami to&#8216;lov</span>
-          <b>{money(total)}</b>
-        </div>
+        <div className="section-title">To‘lov usuli</div>
 
-        {shop && (
-          <p className="muted" style={{ margin: '8px 2px 0', fontSize: 13, lineHeight: 1.5 }}>
-            {'\u{1F69A}'} {shop.delivery.text}. {shop.delivery.note}.
-            <br />
-            {'\u{1F4A1}'} {shop.priceNote}.
-          </p>
-        )}
+        <PaymentOptions
+          options={methodOptions}
+          value={paymentMethod}
+          total={total}
+          onChange={setSelectedMethod}
+        />
+
+        <div className="summary">
+          <div className="summary-row">
+            <span>Mahsulotlar</span>
+            <span>{money(itemsTotal)}</span>
+          </div>
+          {withExtra && (
+            <div className="summary-row">
+              <span>{extraOffer.name}</span>
+              <span>{money(extraOffer.price)}</span>
+            </div>
+          )}
+          <div className="summary-row">
+            <span>Yetkazib berish</span>
+            <span className="muted">{shop ? 'Yandex · alohida' : 'Alohida'}</span>
+          </div>
+          <div className="summary-row total">
+            <span>Jami</span>
+            <b>{money(total)}</b>
+          </div>
+          {shop && <p className="summary-note">{'\u{1F4A1}'} {shop.priceNote}.</p>}
+        </div>
 
         {error && <div className="error-box">{error}</div>}
 
-        <button className="btn" onClick={submit} disabled={submitting}>
-          {submitting ? 'Yuborilmoqda...' : `Buyurtmani tasdiqlash — ${money(total)}`}
-        </button>
+        <div className="checkout-spacer" />
+      </div>
 
-        <div style={{ height: 16 }} />
+      <div className="checkout-bar">
+        <button className="btn" onClick={submit} disabled={submitting}>
+          {submitting ? (
+            'Kuting…'
+          ) : (
+            <>
+              <span>{isCard ? `${PAYMENT_LABEL[paymentMethod]} orqali to‘lash` : 'Buyurtma berish'}</span>
+              <span className="btn-sum">{money(total)}</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

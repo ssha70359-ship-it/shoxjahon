@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import api from '../lib/api.js';
 import Stats from './Stats.jsx';
-import { money, date, STATUS_LABEL, STATUSES, PAYMENT_STATUS_LABEL } from '../lib/format.js';
+import { money, date, STATUS_LABEL, STATUSES, paymentBadge } from '../lib/format.js';
 
 const REFRESH_MS = 15000;
 
@@ -147,8 +147,8 @@ export default function Orders({ onUnauthorized }) {
                     </td>
 
                     <td>
-                      <div className={`badge payment-${order.paymentStatus}`}>
-                        {PAYMENT_STATUS_LABEL[order.paymentStatus] || order.paymentStatus}
+                      <div className={`badge ${paymentBadge(order).className}`}>
+                        {paymentBadge(order).text}
                       </div>
                     </td>
 
