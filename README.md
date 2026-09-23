@@ -150,6 +150,7 @@ shoxrux/
 | POST | `/api/client/orders` | Yangi buyurtma (`paymentMethod`: NAQD / CLICK / PAYME) |
 | POST | `/api/client/orders/:id/pay` | To'lanmagan buyurtmani to'lash yoki usulini almashtirish |
 | POST | `/api/client/phone` | Telefon saqlash |
+| GET | `/api/client/geocode?lat=&lng=` | Koordinatadan manzil (OpenStreetMap) |
 
 ### Admin (`x-admin-password` header)
 | Metod | Yo'l | Vazifasi |

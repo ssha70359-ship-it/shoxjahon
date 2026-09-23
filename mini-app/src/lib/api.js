@@ -34,6 +34,7 @@ export const api = {
   createOrder: (body) => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
   payOrder: (id, method) =>
     request(`/orders/${id}/pay`, { method: 'POST', body: JSON.stringify({ method }) }),
+  geocode: (lat, lng) => request(`/geocode?lat=${lat}&lng=${lng}`),
   savePhone: (phone) => request('/phone', { method: 'POST', body: JSON.stringify({ phone }) }),
 };
 

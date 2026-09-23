@@ -1,8 +1,34 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { money, num, PAYMENT_LABEL } from '../lib/format.js';
-import { haptic, requestPhone } from '../lib/telegram.js';
+import api from '../lib/api.js';
+import {
+  getLocation,
+  haptic,
+  notifyError,
+  notifySuccess,
+  openLink,
+  openLocationSettings,
+  requestPhone,
+} from '../lib/telegram.js';
 import PaymentOptions, { resolveMethod } from './PaymentOptions.jsx';
 import Thumb from './Thumb.jsx';
+
+const MAP_POINT = 'Xaritada belgilangan joy';
+
+const GEO_ERRORS = {
+  denied: {
+    message: 'Joylashuvga ruxsat berilmagan. Ruxsat bering yoki manzilni qo‘lda yozing.',
+  },
+  unavailable: {
+    message: 'Joylashuv aniqlanmadi. Telefonda GPS (Joylashuv) yoqilganini tekshiring.',
+  },
+  timeout: {
+    message: 'Joylashuv juda uzoq aniqlandi. Ochiq joyda qayta urinib ko‘ring yoki manzilni yozing.',
+  },
+  unsupported: {
+    message: 'Bu qurilmada joylashuvni aniqlab bo‘lmaydi. Manzilni qo‘lda yozing.',
+  },
+};
 
 export default function Cart({
   cart,
@@ -21,7 +47,10 @@ export default function Cart({
   const [location, setLocation] = useState('');
   const [comment, setComment] = useState('');
   const [coords, setCoords] = useState(null);
-  const [geoBusy, setGeoBusy] = useState(false);
+  // idle | locating | address | done | error
+  const [geo, setGeo] = useState({ status: 'idle' });
+  // Avtomatik yozilgan manzil - mijoz o'zgartirmagan bo'lsa qayta aniqlashda almashtiriladi
+  const autoText = useRef('');
   const [error, setError] = useState('');
   const [selectedMethod, setSelectedMethod] = useState(null);
 
@@ -42,32 +71,44 @@ export default function Cart({
     else setError('Raqamni Telegram orqali olib bo\u2018lmadi. Qo\u2018lda kiriting.');
   }
 
-  function detectLocation() {
+  async function detectLocation() {
     haptic();
-    setGeoBusy(true);
+    setError('');
+    setGeo({ status: 'locating' });
 
-    if (!navigator.geolocation) {
-      setGeoBusy(false);
-      setError('Brauzer joylashuvni aniqlay olmadi. Manzilni qo‘lda yozing.');
+    const result = await getLocation();
+
+    if (result.error) {
+      notifyError();
+      setGeo({ status: 'error', ...GEO_ERRORS[result.error], canOpenSettings: result.canOpenSettings });
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoords({ lat: latitude, lng: longitude });
-        setLocation(
-          (current) =>
-            current || `Joylashuv: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
-        );
-        setGeoBusy(false);
-      },
-      () => {
-        setGeoBusy(false);
-        setError('Joylashuvga ruxsat berilmadi. Manzilni qo‘lda yozing.');
-      },
-      { timeout: 10000 },
-    );
+    setCoords({ lat: result.lat, lng: result.lng });
+    setGeo({ status: 'address' });
+
+    const address = await api
+      .geocode(result.lat.toFixed(6), result.lng.toFixed(6))
+      .then((data) => data?.address || null)
+      .catch(() => null);
+
+    // Mijoz o'zi yozgan manzilni o'chirib yubormaymiz
+    const text = address || MAP_POINT;
+    const previous = autoText.current;
+    autoText.current = text;
+    setLocation((current) => (current === '' || current === previous ? text : current));
+
+    notifySuccess();
+    setGeo({ status: 'done', address });
+  }
+
+  function clearDetected() {
+    haptic();
+    setCoords(null);
+    const previous = autoText.current;
+    autoText.current = '';
+    setLocation((current) => (current === previous ? '' : current));
+    setGeo({ status: 'idle' });
   }
 
   function submit() {
@@ -186,9 +227,49 @@ export default function Cart({
         </div>
 
         <div className="field">
-          <button className="geo-btn" onClick={detectLocation} disabled={geoBusy}>
-            {geoBusy ? 'Aniqlanmoqda...' : '\u{1F4CD} Joylashuvni avtomatik aniqlash'}
+          <button
+            className="geo-btn"
+            onClick={detectLocation}
+            disabled={geo.status === 'locating' || geo.status === 'address'}
+          >
+            {geo.status === 'locating'
+              ? 'Joylashuv aniqlanmoqda…'
+              : geo.status === 'address'
+                ? 'Manzil topilmoqda…'
+                : geo.status === 'done'
+                  ? '\u{1F504} Joylashuvni qayta aniqlash'
+                  : '\u{1F4CD} Joylashuvni avtomatik aniqlash'}
           </button>
+
+          {geo.status === 'done' && coords && (
+            <div className="geo-note ok">
+              <span>
+                {'\u2705'} Joylashuv aniqlandi
+                {!geo.address && ' · uy va kvartirani yozib qo‘ying'}
+              </span>
+              <span className="geo-actions">
+                <button
+                  onClick={() => openLink(`https://maps.google.com/?q=${coords.lat},${coords.lng}`)}
+                >
+                  Xaritada
+                </button>
+                <button onClick={clearDetected} aria-label="Joylashuvni olib tashlash">
+                  {'\u2715'}
+                </button>
+              </span>
+            </div>
+          )}
+
+          {geo.status === 'error' && (
+            <div className="geo-note error">
+              <span>{geo.message}</span>
+              {geo.canOpenSettings ? (
+                <button onClick={openLocationSettings}>Ruxsat berish</button>
+              ) : (
+                <button onClick={detectLocation}>Qayta urinish</button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="field">

@@ -12,5 +12,6 @@ router.get('/orders', cartController.myOrders);
 router.post('/orders', cartController.createOrder);
 router.post('/orders/:id/pay', cartController.payOrder);
 router.post('/phone', cartController.savePhone);
+router.get('/geocode', cartController.geocode);
 
 export default router;

@@ -11,6 +11,7 @@ import {
   isMethod,
   paymentOptions,
 } from '../services/payments.js';
+import { isValidCoords, reverseGeocode } from '../services/geocode.js';
 
 export const cartController = {
   /** GET /api/client/me */
@@ -56,6 +57,25 @@ export const cartController = {
 
       const user = await UserModel.updatePhone(req.user.telegramId, String(phone).trim());
       res.json({ ok: true, data: user });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/client/geocode?lat=..&lng=..
+   * Koordinatadan manzil. Topilmasa address: null (bu xato emas).
+   */
+  async geocode(req, res, next) {
+    try {
+      const lat = Number(req.query.lat);
+      const lng = Number(req.query.lng);
+
+      if (!isValidCoords(lat, lng)) {
+        return res.status(400).json({ ok: false, message: 'Koordinatalar noto‘g‘ri' });
+      }
+
+      res.json({ ok: true, data: { address: await reverseGeocode(lat, lng) } });
     } catch (error) {
       next(error);
     }
