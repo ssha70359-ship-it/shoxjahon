@@ -4,6 +4,35 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+/**
+ * Render/hosting panellariga qiymat ko'pincha .env dan qo'shtirnoq bilan
+ * nusxalanadi: BOT_TOKEN="123:ABC". Bunday qo'shtirnoq va bo'sh joylarni olib
+ * tashlaymiz - aks holda token "404 Not Found", manzil esa "noto'g'ri" bo'ladi.
+ */
+for (const [key, value] of Object.entries(process.env)) {
+  const match = /^\s*(["'])([\s\S]*)\1\s*$/.exec(value || '');
+  const clean = match ? match[2].trim() : value;
+  if (clean !== value) process.env[key] = clean;
+}
+
+/** Faqat https manzil yaroqli (Telegram Mini App shuni talab qiladi) */
+const httpsUrl = (value) => (/^https:\/\/\S+$/i.test(String(value || '').trim()) ? value.trim() : '');
+
+const onServer = Boolean(process.env.RENDER_EXTERNAL_URL || process.env.PUBLIC_URL);
+
+/**
+ * WEBAPP_URL. Serverda kompyuterdagi vaqtinchalik tunnel manzili (ngrok,
+ * trycloudflare) .env dan nusxalanib qolgan bo'lsa - u o'lik, e'tiborsiz qoldiramiz.
+ */
+function webAppUrlFromEnv() {
+  const url = httpsUrl(process.env.WEBAPP_URL);
+  if (onServer && /ngrok|trycloudflare\.com|loca\.lt/i.test(url)) {
+    console.warn(`⚠️  WEBAPP_URL (${url}) kompyuterdagi tunnel manzili — serverning o‘z manzili ishlatiladi`);
+    return '';
+  }
+  return url;
+}
+
 function required(key) {
   const value = process.env[key];
   if (!value) {
@@ -27,10 +56,11 @@ export const config = {
 
     // Mini App manzili. Serverda (Render) Mini App backend bilan bitta domenda
     // turadi, shuning uchun alohida yozish shart emas. Kompyuterda - tunnel.
+    // WEBAPP_URL noto'g'ri bo'lsa (bo'sh, http, eski yozuv) serverning o'z manzili olinadi.
     webAppUrl: (
-      process.env.WEBAPP_URL ||
-      process.env.PUBLIC_URL ||
-      process.env.RENDER_EXTERNAL_URL ||
+      webAppUrlFromEnv() ||
+      httpsUrl(process.env.PUBLIC_URL) ||
+      httpsUrl(process.env.RENDER_EXTERNAL_URL) ||
       ''
     ).replace(/\/$/, ''),
 
