@@ -20,9 +20,6 @@
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio"
   },
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "dependencies": {
     "@ngrok/ngrok": "^1.7.0",
     "@prisma/client": "^6.3.1",
