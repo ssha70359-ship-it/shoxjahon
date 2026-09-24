@@ -95,7 +95,7 @@ export const botController = {
     await syncMenuButton(ctx);
 
     const text =
-      `Salom, <b>${from.first_name}</b>! \u{1F44B}\n\n` +
+      `Salom, <b>${esc(from.first_name)}</b>! \u{1F44B}\n\n` +
       '<b>Farhadskaya Bulochka</b> — Family Bakery \u{1F968}\n' +
       'Issiqqina bulochka va nonlarni uyingizgacha yetkazib beramiz.\n' +
       'Har kuni 7:00 – 19:00 \u{23F0}\n\n' +
@@ -158,7 +158,7 @@ export const botController = {
       phone,
     });
 
-    await ctx.reply(`✅ Rahmat! Raqamingiz saqlandi: <b>${phone}</b>`, {
+    await ctx.reply(`✅ Rahmat! Raqamingiz saqlandi: <b>${esc(phone)}</b>`, {
       parse_mode: 'HTML',
       ...mainKeyboard(),
     });
