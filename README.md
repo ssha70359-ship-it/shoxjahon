@@ -5,6 +5,10 @@ Farhadskaya Bulochka (Family Bakery, est. 1996) uchun buyurtma va yetkazib beris
 Katalog, narxlar va rasmlar Instagram menyusidan olingan — [docs/INSTAGRAM-TAHLIL.md](docs/INSTAGRAM-TAHLIL.md).
 Do'kon ma'lumotlari — filiallar, telefon, ish vaqti — `src/config/shop.js` faylida.
 
+> 🍕 **Olov Pizza** — alohida pitsa Mini App (jonli konstruktor, yarim-yarim, "Davra" guruh
+> buyurtmasi, jonli kuzatuv, tilim kartasi) `pizza-app/` papkasida:
+> [pizza-app/README.md](pizza-app/README.md)
+
 | Qism | Texnologiya | Manzil |
 |------|-------------|--------|
 | Backend (Bot + API) | Node.js, Express, Telegraf, Prisma | `http://localhost:5000` |

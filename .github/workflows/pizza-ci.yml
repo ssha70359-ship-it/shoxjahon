@@ -1,0 +1,54 @@
+# Olov Pizza (pizza-app/) uchun CI: testlar va Mini App yig'ilishi.
+# Faqat pizza-app/ o'zgarganda ishga tushadi.
+
+name: Pizza CI
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "pizza-app/**"
+      - ".github/workflows/pizza-ci.yml"
+  pull_request:
+    paths:
+      - "pizza-app/**"
+      - ".github/workflows/pizza-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pizza-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: pizza-app
+
+jobs:
+  test:
+    name: Testlar va build (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["22", "24"]
+
+    steps:
+      - name: Kodni yuklab olish
+        uses: actions/checkout@v4
+
+      - name: Node.js o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: pizza-app/package-lock.json
+
+      - name: Paketlar
+        run: npm ci
+
+      - name: Testlar
+        run: npm test
+
+      - name: Mini App build
+        run: npm run build

@@ -1,0 +1,30 @@
+{
+  "name": "olov-pizza",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Olov Pizza — Telegram bot va Mini App (konstruktor, yarim-yarim, Davra, jonli kuzatuv)",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:server": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 --watch server/index.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "start": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 server/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 --test \"test/*.test.js\"",
+    "check": "npm test && npm run build"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@ngrok/ngrok": "^1.7.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.7"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
