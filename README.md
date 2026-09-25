@@ -6,7 +6,8 @@ Katalog, narxlar va rasmlar Instagram menyusidan olingan — [docs/INSTAGRAM-TAH
 Do'kon ma'lumotlari — filiallar, telefon, ish vaqti — `src/config/shop.js` faylida.
 
 > 🍕 **Olov Pizza** — alohida pitsa Mini App (jonli konstruktor, yarim-yarim, "Davra" guruh
-> buyurtmasi, jonli kuzatuv, tilim kartasi) `pizza-app/` papkasida:
+> buyurtmasi, jonli kuzatuv, tilim kartasi) `pizza-app/` papkasida — TypeScript, Express,
+> Telegraf, Prisma (SQLite), Zod, React + Vite:
 > [pizza-app/README.md](pizza-app/README.md)
 
 | Qism | Texnologiya | Manzil |

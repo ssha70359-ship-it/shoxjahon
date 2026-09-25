@@ -11,10 +11,12 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: "22"
+        value: '22'
       - key: NODE_ENV
         value: production
       # PUBLIC_URL shart emas — Render o'zi RENDER_EXTERNAL_URL beradi
+      - key: DATABASE_URL
+        value: file:./pizza.db
       - key: BOT_TOKEN
         sync: false
       - key: ADMIN_CHAT_ID
@@ -31,4 +33,4 @@ services:
     #   name: pizza-data
     #   mountPath: /var/data
     #   sizeGB: 1
-    # va envVars ga: - key: DATABASE_FILE / value: /var/data/pizza.db
+    # va DATABASE_URL ni o'zgartiring: file:/var/data/pizza.db

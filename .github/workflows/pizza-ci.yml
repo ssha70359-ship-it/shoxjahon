@@ -25,7 +25,7 @@ defaults:
 
 jobs:
   test:
-    name: Testlar va build (Node ${{ matrix.node-version }})
+    name: Typecheck, lint, test, build (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
 
     strategy:
@@ -44,11 +44,20 @@ jobs:
           cache: npm
           cache-dependency-path: pizza-app/package-lock.json
 
-      - name: Paketlar
+      - name: Paketlar (postinstall → prisma generate)
         run: npm ci
 
-      - name: Testlar
+      - name: TypeScript tekshiruvi
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier
+        run: npm run format:check
+
+      - name: Testlar (Prisma migratsiyalari bilan)
         run: npm test
 
-      - name: Mini App build
+      - name: Build (server + Mini App)
         run: npm run build

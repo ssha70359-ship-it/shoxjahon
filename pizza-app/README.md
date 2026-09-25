@@ -1,165 +1,239 @@
 # 🔥 Olov Pizza — Telegram bot + Mini App
 
-Pitsaxona uchun Telegram Mini App. Oddiy "katalog va savat" emas: pitsa ko'z oldingizda
-yig'iladi, do'stlar bilan bitta buyurtma berasiz, buyurtmani pechdan eshigingizgacha jonli
-kuzatasiz.
+Pitsaxona uchun Telegram Mini App: jonli konstruktor, yarim-yarim pitsa, "Davra" (do'stlar
+bilan bitta buyurtma), buyurtmani pechdan eshigingizgacha jonli kuzatish, tilim kartasi.
 
 ![Olov Pizza ekranlari](docs/screens.png)
 
-## Nimasi bilan boshqalardan ajralib turadi
+## Texnologiyalar
 
-| Xususiyat | Nima qiladi |
-|-----------|-------------|
-| 🎨 **Jonli konstruktor** | Pitsa rasmlari fotosurat emas: har biri masalliqlaridan SVG ko'rinishida chiziladi. Masalliq qo'shsangiz, u pitsaga "tushib" joylashadi, sous rangi o'zgaradi, o'lcham tanlansa pitsa kattalashadi |
-| ◐ **Yarim-yarim** | Bitta pitsada ikki xil ta'm. Har bir yarmiga alohida sous va masalliq. Narx qimmatroq yarmi bo'yicha, qo'shimchalar yarim narxda |
-| 👥 **Davra** (birga buyurtma) | Havolani chatga tashlaysiz, har kim o'z pitsasini o'zi tanlaydi, hammasi jonli ko'rinib turadi. Host bitta tugma bilan buyurtma beradi, **kim qancha to'lashi avtomatik hisoblanadi** |
-| 🔥 **Jonli kuzatuv** | Chek → xamir yoyilyapti → **aynan siz buyurtma qilgan pitsa pechda** → kuryer yo'lda → konfetti. Holat oshxona tugmani bosgan zahoti yangilanadi (SSE) |
-| 🍕 **Tilim kartasi** | Har bir pitsa — bitta tilim. 8 tilim = bepul pitsa. Karta pitsa ko'rinishida to'lib boradi |
-| 🎲 **Silkiting** | Tanlay olmayapsizmi? Telefonni silkiting — ruletka tasodifiy pitsa tanlaydi |
-| 📱 **Telegram 8.0 imkoniyatlari** | Giroskop (pitsa telefon bilan birga qiyshayadi), akselerometr, LocationManager, CloudStorage (savat telefon va kompyuter orasida sinxron), `shareMessage`, bosh ekranga qo'shish, haptic, BackButton |
-| 🇺🇿 🇷🇺 **Ikki til** | O'zbekcha va ruscha, Telegram tiliga qarab avtomatik |
-| 🌗 **Yorug' / qorong'i** | Telegram mavzusiga moslashadi |
-| 🧑‍🍳 **Oshxona Telegramda** | Alohida admin panel shart emas: buyurtma guruhga kartochka bo'lib keladi, holat tugmalar bilan o'zgaradi, `/stop` — tugagan mahsulotlar, `/stats` — bugungi tushum |
+| Qatlam             | Texnologiya                                                              |
+| ------------------ | ------------------------------------------------------------------------ |
+| Til                | **TypeScript** (backend, frontend, umumiy kod, testlar) — `strict` rejim |
+| Backend            | Node.js 22+, **Express 5**, **Telegraf** (bot)                           |
+| Ma'lumotlar bazasi | **SQLite** + **Prisma ORM** (migratsiyalar bilan)                        |
+| Validatsiya        | **Zod** — har bir so'rov, `.env` va Telegram `initData`                  |
+| Frontend           | **React 18 + Vite**, Telegram WebApp API                                 |
+| Sifat              | ESLint (typescript-eslint), Prettier, `node:test`, GitHub Actions        |
 
-## Tez ishga tushirish
+## Arxitektura
 
-Talab: **Node.js 22.13+** (SQLite Node ichida tayyor, alohida baza o'rnatish shart emas).
-
-```bash
-cd pizza-app
-npm install
-npm run dev
+```
+            Telegram (Mini App)                      Telegram (bot)
+                   │ x-telegram-init-data                  │ webhook / polling
+                   ▼                                        ▼
+  ┌──────────────── Routes ────────────────┐        ┌──── bot/ ─────────────┐
+  │ telegramAuth → validate(Zod) → limit   │        │ handlers (mijoz,      │
+  └────────────────────┬───────────────────┘        │ oshxona, to'lov)      │
+                       ▼                            └──────────┬────────────┘
+                  Controllers  (HTTP ↔ DTO, hech qanday biznes mantiq yo'q)
+                       ▼                                       ▼
+                   Services  (biznes qoidalar: narx, holatlar, Davra, tilimlar)
+                       │                        │
+                       ▼                        ▼  EventBus: order:*, group:*, user:*
+                 Prisma ORM → SQLite        ┌───┴──────────────┐
+                                            ▼                  ▼
+                                      SSE (Mini App)     Notifier (bot xabarlari)
 ```
 
-`npm run dev` o'zi:
+- **Routes** faqat yo'l, middleware va controller'ni bog'laydi.
+- **Controllers** so'rovdan tekshirilgan ma'lumotni oladi (`read(req, schema)`), servisni chaqiradi, DTO qaytaradi.
+- **Services** — butun biznes mantiq. Ular HTTP ham, Telegram ham bilmaydi; faqat hodisa chiqaradi.
+- **Bot** va **SSE** hodisalarga obuna bo'ladi — qatlamlar bir-biriga bog'lanmaydi.
+- **shared/** — server va Mini App uchun yagona manba: turlar (DTO), menyu, narx hisoblash, Zod sxemalari.
+  Mini App ko'rsatgan narx va server hisoblagan narx doim bir xil.
 
-1. `.env` yo'q bo'lsa `.env.example` dan nusxa oladi
-2. `.env` da `NGROK_AUTHTOKEN` bo'lsa — https tunnel ochadi va uni `PUBLIC_URL` qiladi
-3. API serverni (3000) va Mini App'ni (5173) birga ishga tushiradi
-4. Bot menyu tugmasini joriy manzilga o'zi bog'laydi — BotFather'da URL yozish shart emas
-
-**Brauzerda sinash (botsiz ham):** <http://localhost:5173/?dev=1>.
-Davrani sinash uchun ikkinchi oynada `?dev=2` oching: bu boshqa foydalanuvchi bo'ladi.
-
-**Kuzatuvni botsiz sinash:** buyurtma berganingizdan keyin buyurtmani keyingi holatga
-o'tkazing (faqat `ALLOW_DEV_USER=true` bo'lganda ishlaydi):
-
-```bash
-curl -X POST localhost:3000/api/dev/orders/1001/advance -H 'x-dev-user: 1'
-```
-
-## Botni sozlash
-
-1. [@BotFather](https://t.me/BotFather) → `/newbot` → tokenni `.env` dagi `BOT_TOKEN` ga yozing
-2. Oshxona uchun Telegram guruh oching, botni qo'shing. Guruh ID sini `ADMIN_CHAT_ID` ga yozing
-   (masalan `-1001234567890`; bilish uchun guruhga [@RawDataBot](https://t.me/RawDataBot) ni qo'shing)
-3. Faqat ma'lum xodimlar holatni o'zgartirsin desangiz, ularning ID larini `ADMIN_IDS` ga yozing
-4. *(Ixtiyoriy)* Onlayn to'lov: BotFather → bot → **Payments** → Click yoki Payme →
-   tokenni `PAYMENT_PROVIDER_TOKEN` ga yozing
-5. *(Ixtiyoriy)* BotFather → `/newapp` → qisqa nom (masalan `menu`) → `MINIAPP_SHORT_NAME=menu`.
-   Shunda "Davra" havolasi botni chetlab, to'g'ridan-to'g'ri ilovani ochadi
-
-### Oshxona qanday ishlaydi
-
-Yangi buyurtma guruhga shunday keladi: mijoz, telefon, har bir pitsa tarkibi (−piyoz, +halapenyo),
-davra bo'lsa — kim nima olgani, manzil va xaritada nuqta. Tugmalar:
-
-`✅ Qabul qilish` → `🔥 Pechga` → `🛵 Kuryerga berildi` (yoki `📦 Tayyor`) → `🏁 Yetkazildi`
-
-Har bosishda mijozning ilovasi darhol yangilanadi va bot unga xabar yozadi.
-
-| Buyruq | Kim uchun | Vazifasi |
-|--------|-----------|----------|
-| `/start` | mijoz | Salomlashish va menyu tugmasi |
-| `/orders` | mijoz | So'nggi 5 ta buyurtma |
-| `/help` | mijoz | Yordam va telefon |
-| `/stats` | oshxona | Bugungi buyurtmalar, tushum, o'rtacha chek, top pitsalar |
-| `/stop` | oshxona | Stop-list: tugagan pitsa/masalliqni bir bosishda o'chirish-yoqish |
-
-## Menyu va sozlamalarni o'zgartirish
-
-| Nima | Qayerda |
-|------|---------|
-| Nom, telefon, manzil, ish vaqti, yetkazish narxi, bepul yetkazish chegarasi, radius | `shared/shop.js` |
-| Pitsalar, narxlar, masalliqlar, ichimliklar, gazaklar | `shared/menu.js` |
-| Matnlar (o'zbekcha/ruscha) | `src/lib/i18n.js` (ilova), `server/texts.js` (bot) |
-| Ranglar, shriftlar | `src/styles/app.css` (boshida `:root` o'zgaruvchilari) |
-
-Yangi pitsa qo'shish uchun rasm kerak emas — `shared/menu.js` ga masalliqlari bilan yozing,
-ilova uni o'zi chizadi. Server narxni aynan shu fayllardan qayta hisoblaydi, mijoz yuborgan
-narxga ishonilmaydi.
-
-## Serverga joylash (Render)
-
-Bitta servis: API, bot (webhook) va Mini App bitta manzilda.
-
-1. [Render](https://render.com) → **New → Web Service** → shu repozitoriya
-2. **Root Directory:** `pizza-app`
-3. **Build Command:** `npm ci --include=dev && npm run build`
-4. **Start Command:** `npm start`
-5. Environment: `NODE_VERSION=22`, `NODE_ENV=production`, `BOT_TOKEN`, `ADMIN_CHAT_ID`
-   (va kerak bo'lsa `ADMIN_IDS`, `PAYMENT_PROVIDER_TOKEN`)
-
-`PUBLIC_URL` ni yozish shart emas: Render o'zi `RENDER_EXTERNAL_URL` beradi, server webhook
-va menyu tugmasini shu manzilga o'rnatadi. `render.yaml` ham tayyor (Blueprint path:
-`pizza-app/render.yaml`).
-
-> ⚠️ **Baza haqida.** Render'ning bepul tarifida disk vaqtinchalik — har deploy'da
-> `data/pizza.db` tozalanadi. Haqiqiy pitsaxona uchun Render **Disk** ulang
-> (`DATABASE_FILE=/var/data/pizza.db`, `render.yaml` da izohda bor) yoki VPS ishlating.
-
-VPS'da: `npm ci --include=dev && npm run build`, keyin `NODE_ENV=production PUBLIC_URL=https://domen.uz npm start`
-(nginx orqasida; SSE uchun `proxy_buffering off`).
-
-## Tuzilma
+## Papka tuzilmasi
 
 ```
 pizza-app/
-├── shared/                 # Server va ilova uchun umumiy kod
-│   ├── shop.js             # Pitsaxona sozlamalari, ish vaqti, masofa
-│   ├── menu.js             # Menyu
-│   ├── pricing.js          # Narx, tekshiruv, hisobni bo'lish
-│   ├── status.js           # Buyurtma holatlari
-│   └── format.js           # Pul, vaqt, telefon formati
+├── prisma/
+│   ├── schema.prisma               # User, Order, Group, GroupMember, GroupItem, StopItem
+│   └── migrations/                 # SQL migratsiyalar (buyurtma raqami #1001 dan)
+├── shared/                         # Server + Mini App umumiy kodi
+│   ├── types.ts                    # DTO turlari (API javoblari)
+│   ├── schemas.ts                  # Zod sxemalari (buyurtma, savat, davra, parametrlar)
+│   ├── menu.ts                     # Menyu: pitsalar, masalliqlar, ichimliklar
+│   ├── pricing.ts                  # Narx, savat, hisobni bo'lish
+│   ├── shop.ts                     # Pitsaxona sozlamalari, ish vaqti, masofa
+│   ├── status.ts                   # Buyurtma holatlari va o'tishlar
+│   └── format.ts                   # Pul, vaqt, telefon formati
 ├── server/
-│   ├── index.js            # Ishga tushirish
-│   ├── app.js              # Express + SSE + bot yig'ilishi
-│   ├── routes.js           # /api yo'llari
-│   ├── auth.js             # Telegram initData HMAC tekshiruvi
-│   ├── telegram.js         # Bot: buyruqlar, oshxona tugmalari, to'lov, ulashish
-│   ├── texts.js            # Bot xabarlari
-│   ├── events.js           # Server-Sent Events
-│   ├── db.js               # SQLite (node:sqlite)
-│   └── services/           # users, orders, groups (Davra), stoplist
-├── src/                    # Mini App (React + Vite)
-│   ├── pizza/              # Pitsa renderer: Pizza.jsx, toppings.jsx, rng.js
-│   ├── screens/            # Home, Builder, Cart, Checkout, Tracker, Group, Profile
-│   ├── components/         # Kartochkalar, sahnalar (pech, kuryer), UI
-│   └── lib/                # store, api, telegram, sensors, i18n
-├── test/                   # node:test — narx, auth, API, Davra, SSE, bot (soxta Telegram)
-└── scripts/dev.js          # npm run dev
+│   ├── index.ts                    # Ishga tushirish nuqtasi
+│   ├── app.ts                      # Composition root: baza → servislar → bot → HTTP
+│   ├── config/env.ts               # .env ni Zod bilan tekshirish
+│   ├── routes/                     # index.ts, order.routes.ts, group.routes.ts
+│   ├── controllers/                # user, order, group, system
+│   ├── services/                   # user, order, group, stoplist + mappers (Prisma ↔ DTO)
+│   ├── middlewares/                # telegram-auth, validate, rate-limit, error-handler
+│   ├── utils/telegram-init-data.ts # initData HMAC-SHA256 tekshiruvi
+│   ├── lib/                        # prisma, events (EventBus), sse, errors, logger, clock
+│   ├── bot/                        # gateway, handlers/, notifier, keyboards, texts
+│   └── types/express.d.ts          # Request kengaytmasi (user, validated)
+├── client/                         # Mini App (React + Vite)
+│   ├── index.html
+│   └── src/
+│       ├── screens/                # Home, Builder, Cart, Checkout, Tracker, Group, Profile
+│       ├── components/             # kartochkalar, pech/kuryer sahnalari, UI
+│       ├── pizza/                  # SVG pitsa renderer
+│       ├── lib/                    # store, api, telegram, sensors, i18n, nav
+│       └── types/                  # Telegram WebApp turlari
+├── test/                           # 51 ta test: narx, Zod, initData, API, Davra, SSE, bot
+├── scripts/dev.ts                  # npm run dev
+├── eslint.config.js, .prettierrc.json
+├── tsconfig.base.json              # umumiy strict sozlamalar
+├── tsconfig.json                   # server + shared → build/
+├── client/tsconfig.json            # Mini App
+└── vite.config.ts
 ```
+
+## npm paketlari
+
+**dependencies** (serverda ishlaydi):
+
+| Paket            | Vazifasi                                                  |
+| ---------------- | --------------------------------------------------------- |
+| `express`        | HTTP server, API yo'llari                                 |
+| `telegraf`       | Telegram bot                                              |
+| `@prisma/client` | Prisma ORM mijozi                                         |
+| `prisma`         | Prisma CLI (`migrate deploy` ishga tushishda chaqiriladi) |
+| `zod`            | Validatsiya                                               |
+
+**devDependencies** (ishlab chiqish va build):
+
+| Paket                                                                               | Vazifasi                                                                           |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `typescript`, `tsx`                                                                 | TypeScript kompilyatori va TS'ni to'g'ridan-to'g'ri ishga tushirish (dev, testlar) |
+| `@types/node`, `@types/express`, `@types/react`, `@types/react-dom`                 | Turlar                                                                             |
+| `react`, `react-dom`, `vite`, `@vitejs/plugin-react`                                | Mini App                                                                           |
+| `eslint`, `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `globals` | Lint                                                                               |
+| `prettier`                                                                          | Formatlash                                                                         |
+| `@ngrok/ngrok`                                                                      | Lokal ishda https tunnel (ixtiyoriy)                                               |
+
+## Ishga tushirish (bosqichma-bosqich)
+
+Talab: **Node.js 22.13+**.
+
+**1. Paketlar**
+
+```bash
+cd pizza-app
+npm install            # postinstall avtomatik `prisma generate` qiladi
+```
+
+**2. Sozlamalar**
+
+```bash
+cp .env.example .env   # npm run dev buni o'zi ham qiladi
+```
+
+`.env` da kamida `BOT_TOKEN` va `ADMIN_CHAT_ID` ni yozing (botsiz ham brauzerda sinash mumkin).
+Server ishga tushganda `.env` Zod bilan tekshiriladi — xato bo'lsa aniq qaysi qator noto'g'riligini aytadi.
+
+**3. Baza**
+
+```bash
+npm run db:deploy      # prisma/migrations dagi jadvallarni yaratadi (npm run dev buni o'zi qiladi)
+```
+
+**4. Lokal ishga tushirish**
+
+```bash
+npm run dev
+```
+
+Bu buyruq migratsiyalarni qo'llaydi, `.env` da `NGROK_AUTHTOKEN` bo'lsa https tunnel ochadi,
+API serverni (`tsx watch`, 3000) va Mini App'ni (Vite, 5173) birga ishga tushiradi. Bot menyu
+tugmasi joriy manzilga o'zi bog'lanadi.
+
+- Brauzerda (botsiz): <http://localhost:5173/?dev=1>. Davrani sinash uchun ikkinchi oynada `?dev=2`.
+- Kuzatuvni botsiz sinash (`ALLOW_DEV_USER=true` bo'lganda):
+  `curl -X POST localhost:3000/api/dev/orders/1001/advance -H 'x-dev-user: 1'`
+
+**5. Tekshirish**
+
+```bash
+npm run check          # typecheck + lint + 51 ta test + build
+```
+
+**6. Production**
+
+```bash
+npm run build          # prisma generate + tsc (build/) + vite (dist/client)
+NODE_ENV=production PUBLIC_URL=https://domen.uz npm start   # migrate deploy + node build/server/index.js
+```
+
+## Xavfsizlik
+
+- **initData tekshiruvi** (`server/utils/telegram-init-data.ts`): har bir API so'rovida Telegram imzosi
+  bot tokeni bilan tekshiriladi — `secret = HMAC_SHA256("WebAppData", BOT_TOKEN)`,
+  `hash = HMAC_SHA256(secret, data_check_string)`. Taqqoslash `timingSafeEqual` bilan, 24 soatdan
+  eski imzo rad etiladi, `user` maydoni Zod bilan tekshiriladi. Imzosiz so'rov → `401`.
+- **Zod**: har bir so'rov tanasi va parametri route darajasida tekshiriladi; noma'lum pitsa, masalliq,
+  noto'g'ri telefon yoki manzil controller'gacha yetib bormaydi. Izohlardagi boshqaruv belgilari tozalanadi.
+- **Narxga ishonilmaydi**: mijoz yuborgan narx e'tiborsiz qoldiriladi, server `shared/pricing.ts` bilan qayta hisoblaydi.
+- **Ruxsatlar**: buyurtmani faqat egasi (va davradoshlari) ko'radi; davradoshlarga hostning telefoni ko'rsatilmaydi;
+  oshxona tugmalarini faqat `ADMIN_IDS` yoki admin guruh a'zolari bosa oladi.
+- **Poyga holatlari**: tilimlar shartli `updateMany` bilan yechiladi, davradan faqat bitta buyurtma o'tadi.
+- **To'lov**: `pre_checkout_query` da buyurtma holati va summasi qayta tekshiriladi.
+- **Webhook** maxfiy token bilan himoyalangan; rate limit buyurtma va davra yo'llarida.
+- `ALLOW_DEV_USER` productionda doim o'chiq (hatto `.env` da yoqilgan bo'lsa ham).
+
+## Botni sozlash
+
+1. [@BotFather](https://t.me/BotFather) → `/newbot` → token `BOT_TOKEN` ga
+2. Oshxona guruhini oching, botni qo'shing, guruh ID sini `ADMIN_CHAT_ID` ga yozing
+3. _(Ixtiyoriy)_ `ADMIN_IDS` — holatni o'zgartira oladigan xodimlar
+4. _(Ixtiyoriy)_ BotFather → Payments → Click/Payme → `PAYMENT_PROVIDER_TOKEN`
+5. _(Ixtiyoriy)_ BotFather → `/newapp` → `MINIAPP_SHORT_NAME` (Davra havolasi ilovani to'g'ridan-to'g'ri ochadi)
+
+Oshxona tugmalari: `✅ Qabul qilish` → `🔥 Pechga` → `🛵 Kuryerga berildi` / `📦 Tayyor` → `🏁 Yetkazildi`.
+Buyruqlar: `/stats` (bugungi tushum), `/stop` (tugagan mahsulotlar), mijozlar uchun `/start`, `/orders`, `/help`.
+
+## Prisma buyruqlari
+
+| Buyruq                               | Vazifasi                                                     |
+| ------------------------------------ | ------------------------------------------------------------ |
+| `npm run db:migrate -- --name <nom>` | `schema.prisma` o'zgargandan keyin yangi migratsiya          |
+| `npm run db:deploy`                  | Migratsiyalarni qo'llash (server `npm start` da o'zi qiladi) |
+| `npm run db:studio`                  | Bazani brauzerda ko'rish                                     |
+
+## Menyu va sozlamalar
+
+| Nima                                                     | Qayerda                                                       |
+| -------------------------------------------------------- | ------------------------------------------------------------- |
+| Nom, telefon, manzil, ish vaqti, yetkazish narxi, radius | `shared/shop.ts`                                              |
+| Pitsalar, narxlar, masalliqlar, ichimliklar              | `shared/menu.ts`                                              |
+| Matnlar                                                  | `client/src/lib/i18n.ts` (ilova), `server/bot/texts.ts` (bot) |
+
+Yangi pitsa uchun rasm kerak emas — Mini App uni masalliqlaridan o'zi chizadi.
+
+## Serverga joylash (Render)
+
+1. **New → Web Service** → repozitoriya, **Root Directory:** `pizza-app`
+2. **Build:** `npm ci --include=dev && npm run build` · **Start:** `npm start`
+3. Environment: `NODE_VERSION=22`, `NODE_ENV=production`, `BOT_TOKEN`, `ADMIN_CHAT_ID`
+
+`PUBLIC_URL` shart emas (Render `RENDER_EXTERNAL_URL` beradi). `render.yaml` tayyor.
+
+> ⚠️ Bepul tarifda disk vaqtinchalik — baza har deploy'da tozalanadi. Doimiy saqlash uchun Render
+> **Disk** ulang va `DATABASE_URL=file:/var/data/pizza.db` qiling, yoki VPS ishlating.
 
 ## API
 
-Barcha so'rovlar `x-telegram-init-data` header bilan (Telegram imzosi serverda tekshiriladi).
+Barcha so'rovlar `x-telegram-init-data` header bilan. Javob: `{ ok: true, ... }` yoki
+`{ ok: false, error: "<kod>", issues?: [...] }`.
 
-| Metod | Yo'l | Vazifasi |
-|-------|------|----------|
-| GET | `/api/bootstrap` | Foydalanuvchi, ish vaqti, stop-list, faol buyurtmalar, davra |
-| PATCH | `/api/me` | Tilni saqlash |
-| GET | `/api/orders` · `/api/orders/:id` | Buyurtmalar |
-| POST | `/api/orders` | Yangi buyurtma (narx serverda qayta hisoblanadi) |
-| POST | `/api/orders/:id/cancel` · `/invoice` · `/cash` | Bekor qilish, to'lov havolasi, naqdga o'tish |
-| POST | `/api/groups` | Davra ochish |
-| GET/POST | `/api/groups/:code` · `/join` · `/leave` | Davra |
-| POST/PATCH | `/api/groups/:code/items` | Davraga qo'shish / sonini o'zgartirish |
-| POST | `/api/groups/:code/share` | Ulashish uchun tayyor xabar |
-| GET | `/api/stream` | Jonli yangilanishlar (SSE) |
-
-## Tekshirish
-
-```bash
-npm test        # 48 ta test: narx, auth, API, Davra, SSE, bot (soxta Telegram server bilan)
-npm run build   # Mini App yig'ilishi
-```
+| Metod      | Yo'l                                                | Zod sxemasi                                 |
+| ---------- | --------------------------------------------------- | ------------------------------------------- |
+| GET        | `/api/health`                                       | — (ochiq)                                   |
+| GET        | `/api/bootstrap`                                    | —                                           |
+| PATCH      | `/api/me`                                           | `updateMeSchema`                            |
+| GET        | `/api/orders` · `/api/orders/:id`                   | `idParamSchema`                             |
+| POST       | `/api/orders`                                       | `createOrderSchema`                         |
+| POST       | `/api/orders/:id/cancel` · `/invoice` · `/cash`     | `idParamSchema`                             |
+| POST       | `/api/groups`                                       | —                                           |
+| GET · POST | `/api/groups/:code` · `/join` · `/leave` · `/share` | `codeParamSchema`                           |
+| POST       | `/api/groups/:code/items`                           | `addGroupItemSchema`                        |
+| PATCH      | `/api/groups/:code/items/:id`                       | `itemParamSchema` + `updateGroupItemSchema` |
+| GET        | `/api/stream`                                       | — (SSE)                                     |

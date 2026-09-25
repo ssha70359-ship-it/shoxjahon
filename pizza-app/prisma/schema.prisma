@@ -1,0 +1,114 @@
+// Olov Pizza — ma'lumotlar bazasi sxemasi (SQLite).
+// O'zgartirgandan keyin: npm run db:migrate -- --name <nom>
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Telegram foydalanuvchisi. id — Telegram user id (2^31 dan katta bo'lishi mumkin, shuning uchun BigInt)
+model User {
+  id        BigInt   @id
+  firstName String   @default("")
+  lastName  String   @default("")
+  username  String   @default("")
+  language  String   @default("uz")
+  phone     String?
+  /// Tilim kartasi: har bir yetkazilgan pitsa = 1 tilim
+  slices    Int      @default(0)
+  /// Oxirgi yetkazish manzili (keyingi safar qayta yozmaslik uchun)
+  address   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("users")
+}
+
+model Order {
+  id             Int       @id @default(autoincrement())
+  userId         BigInt
+  user           User      @relation(fields: [userId], references: [id])
+  groupCode      String?
+  /// OrderItem[] — narxi server tomonidan hisoblangan qatorlar
+  items          Json
+  mode           String
+  address        Json?
+  phone          String
+  comment        String    @default("")
+  payment        String
+  paid           Boolean   @default(false)
+  subtotal       Int
+  deliveryFee    Int
+  discount       Int
+  total          Int
+  slicesUsed     Int       @default(0)
+  slicesEarned   Int       @default(0)
+  status         String
+  /// HistoryEntry[]
+  history        Json
+  distanceKm     Float?
+  etaAt          DateTime?
+  adminChatId    String?
+  adminMessageId Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, id])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+/// "Davra" — birgalikdagi buyurtma
+model Group {
+  code      String   @id
+  hostId    BigInt
+  status    String
+  orderId   Int?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  members GroupMember[]
+  items   GroupItem[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  groupCode String
+  group     Group    @relation(fields: [groupCode], references: [code], onDelete: Cascade)
+  userId    BigInt
+  name      String
+  joinedAt  DateTime @default(now())
+
+  @@id([groupCode, userId])
+  @@index([userId])
+  @@map("group_members")
+}
+
+model GroupItem {
+  id        Int      @id @default(autoincrement())
+  groupCode String
+  group     Group    @relation(fields: [groupCode], references: [code], onDelete: Cascade)
+  userId    BigInt
+  /// LineConfig
+  config    Json
+  qty       Int
+  createdAt DateTime @default(now())
+
+  @@index([groupCode])
+  @@map("group_items")
+}
+
+/// Stop-list: vaqtincha tugagan pitsa, masalliq yoki mahsulot
+model StopItem {
+  id        String   @id
+  createdAt DateTime @default(now())
+
+  @@map("stoplist")
+}
