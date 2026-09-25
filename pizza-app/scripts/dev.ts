@@ -68,7 +68,7 @@ function run(name: string, color: number, command: string, args: string[], env: 
     cwd: ROOT,
     env: { ...process.env, ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
-    shell: process.platform === 'win32',
+    // shell ishlatilmaydi: Windows'da "C:\Program Files" dagi bo'sh joy buyruqni buzardi
   });
   const prefix = paint(color, `[${name}]`);
   const pipe = (stream: NodeJS.ReadableStream | null, out: NodeJS.WriteStream) =>
