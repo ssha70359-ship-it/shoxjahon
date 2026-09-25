@@ -9,10 +9,10 @@ from database.repository import Repository
 
 
 async def test_yangi_foydalanuvchi_qoshiladi(repo):
-    await repo.upsert_user(1, "shoxrux", "Shoxrux S", "uz")
+    await repo.upsert_user(1, "shohjahon", "Shohjahon S", "uz")
     user = await repo.get_user(1)
     assert user is not None
-    assert user.username == "shoxrux"
+    assert user.username == "shohjahon"
     assert user.selected_language == "uz"
     assert user.is_blocked is False
 
@@ -20,13 +20,13 @@ async def test_yangi_foydalanuvchi_qoshiladi(repo):
 async def test_upsert_tanlangan_tilni_ozgartirmaydi(repo):
     """Eng muhim qoida: profil yangilanganda til ustidan yozilmasligi kerak,
     aks holda har bir xabarda foydalanuvchi tanlovi yo'qolardi."""
-    await repo.upsert_user(1, "shoxrux", "Shoxrux", "uz")
+    await repo.upsert_user(1, "shohjahon", "Shohjahon", "uz")
     await repo.set_language(1, "en")
-    await repo.upsert_user(1, "shoxrux_yangi", "Shoxrux S", "uz")  # qayta kirish
+    await repo.upsert_user(1, "shohjahon_yangi", "Shohjahon S", "uz")  # qayta kirish
 
     user = await repo.get_user(1)
     assert user.selected_language == "en", "til ustidan yozilib ketdi"
-    assert user.username == "shoxrux_yangi", "profil yangilanmadi"
+    assert user.username == "shohjahon_yangi", "profil yangilanmadi"
 
 
 async def test_bloklangan_foydalanuvchi_qayta_kirsa_blok_olinadi(repo):

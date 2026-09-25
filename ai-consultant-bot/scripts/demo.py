@@ -58,12 +58,12 @@ def user_message(text: str, user_id: int = ME, language_code: str = "uz") -> dic
         "message": {
             "message_id": _uid(),
             "date": int(time.time()),
-            "chat": {"id": user_id, "type": "private", "first_name": "Shoxrux"},
+            "chat": {"id": user_id, "type": "private", "first_name": "Shohjahon"},
             "from": {
                 "id": user_id,
                 "is_bot": False,
-                "first_name": "Shoxrux",
-                "username": "shoxrux",
+                "first_name": "Shohjahon",
+                "username": "shohjahon",
                 "language_code": language_code,
             },
             "text": text,
@@ -79,8 +79,8 @@ def button_press(data: str, user_id: int = ME) -> dict:
             "from": {
                 "id": user_id,
                 "is_bot": False,
-                "first_name": "Shoxrux",
-                "username": "shoxrux",
+                "first_name": "Shohjahon",
+                "username": "shohjahon",
                 "language_code": "uz",
             },
             "chat_instance": "demo",

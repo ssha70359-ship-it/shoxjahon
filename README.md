@@ -106,7 +106,7 @@ Qisqacha: `render.yaml` va ikkala `vercel.json` tayyor, backend serverda o'zi
 ## 📁 Papka tuzilishi
 
 ```
-shoxrux/
+shohjahon/
 ├── public/products/                # Mahsulot rasmlari (backend uzatadi)
 ├── src/
 │   ├── config/default.js           # Sozlamalar va o'zgaruvchilar

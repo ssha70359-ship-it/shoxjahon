@@ -175,7 +175,7 @@ def dp(repo, ai):
 # ----------------------------------------------------------- yordamchilar
 
 
-def make_user(user_id: int, name: str = "Shoxrux", language_code: str = "uz") -> User:
+def make_user(user_id: int, name: str = "Shohjahon", language_code: str = "uz") -> User:
     return User(
         id=user_id,
         is_bot=False,
