@@ -189,21 +189,13 @@ class TelegrafGateway implements TelegramGateway {
       telegram.setMyCommands([
         { command: 'start', description: 'Bosh sahifa' },
         { command: 'orders', description: 'Soʻnggi buyurtmalar' },
+        { command: 'til', description: 'Tilni oʻzgartirish' },
         { command: 'help', description: 'Yordam' },
       ]),
       'setMyCommands',
     );
-    await safe(
-      telegram.setMyCommands(
-        [
-          { command: 'start', description: 'Главная' },
-          { command: 'orders', description: 'Последние заказы' },
-          { command: 'help', description: 'Помощь' },
-        ],
-        { language_code: 'ru' },
-      ),
-      'setMyCommands ru',
-    );
+    // Avval ruscha buyruqlar ro'yxati o'rnatilgan bo'lishi mumkin — o'chiramiz, hamma o'zbekcha ko'rsin
+    await safe(telegram.deleteMyCommands({ language_code: 'ru' }), 'deleteMyCommands ru');
     if (config.adminChatId) {
       await safe(
         telegram.setMyCommands(

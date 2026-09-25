@@ -60,6 +60,30 @@ export function registerCustomerHandlers(ctx: BotContext): void {
     await tg.reply(t.help, { parse_mode: 'HTML' });
   });
 
+  // Til: 🇺🇿 / 🇷🇺 tugmalari. Tanlov bot xabarlari va Mini App uchun saqlanadi
+  const languageKeyboard = {
+    inline_keyboard: [
+      [
+        { text: '🇺🇿 Oʻzbekcha', callback_data: 'lang:uz' },
+        { text: '🇷🇺 Русский', callback_data: 'lang:ru' },
+      ],
+    ],
+  };
+
+  bot.command('til', async (tg) => {
+    const user = await services.users.upsertFromTelegram(tg.from);
+    await tg.reply(texts(user.language).langPrompt, { reply_markup: languageKeyboard });
+  });
+
+  bot.action(/^lang:(uz|ru)$/, async (tg) => {
+    const language = tg.match[1] === 'ru' ? 'ru' : 'uz';
+    await services.users.upsertFromTelegram(tg.from);
+    await services.users.update(tg.from.id, { language });
+    const text = texts(language).langChanged;
+    await tg.answerCbQuery(text);
+    await safe(tg.editMessageText(text), 'lang edit');
+  });
+
   bot.command('orders', async (tg) => {
     const user = await services.users.upsertFromTelegram(tg.from);
     const t = texts(user.language);

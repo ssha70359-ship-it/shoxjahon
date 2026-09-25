@@ -83,7 +83,10 @@ export function displayName(user: Pick<UserDto, 'id' | 'firstName' | 'lastName' 
   return name || (user.username ? `@${user.username}` : `#${user.id}`);
 }
 
-/** Telegram tilidan ilova tilini tanlaydi: rus tilli qurilmalarga — ru, qolganlarga — uz */
-export function pickLanguage(code: string | undefined): Lang {
-  return /^(ru|be|kk|uk)/i.test(code ?? '') ? 'ru' : 'uz';
+/**
+ * Yangi foydalanuvchi tili. Asosiy til — o'zbekcha (Telegram qaysi tilda bo'lishidan qat'i nazar).
+ * Ruscha kerak bo'lsa mijoz botda /til yoki ilovadagi Profil → Til orqali almashtiradi.
+ */
+export function pickLanguage(_code?: string): Lang {
+  return 'uz';
 }

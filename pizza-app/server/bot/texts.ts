@@ -35,7 +35,7 @@ const uz = {
   track: '📍 Kuzatish',
   help:
     'Buyurtma berish uchun pastdagi <b>Menyu</b> tugmasini bosing.\n\n' +
-    '/start — bosh sahifa\n/orders — soʻnggi buyurtmalar\n/help — yordam\n\n' +
+    '/start — bosh sahifa\n/orders — soʻnggi buyurtmalar\n/til — tilni oʻzgartirish\n/help — yordam\n\n' +
     `☎️ ${SHOP.phone}`,
   noOrders: 'Hali buyurtmalaringiz yoʻq. Birinchisini hozir berib koʻring! 🍕',
   ordersTitle: '🧾 <b>Soʻnggi buyurtmalar</b>',
@@ -74,6 +74,8 @@ const uz = {
     `👥 <b>${esc(name)}</b> sizni <b>${SHOP.name}</b> dagi davrasiga chaqiryapti!\n\n` +
     `Har kim oʻz pitsasini tanlaydi, buyurtma bitta boʻlib ketadi. Davra kodi: <b>${code}</b>`,
   shareDescription: 'Har kim oʻz pitsasini tanlaydi — buyurtma bitta.',
+  langPrompt: 'Tilni tanlang:',
+  langChanged: 'Til oʻzgartirildi: oʻzbekcha 🇺🇿',
 };
 
 const ru: typeof uz = {
@@ -95,7 +97,7 @@ const ru: typeof uz = {
   track: '📍 Отследить',
   help:
     'Чтобы сделать заказ, нажмите кнопку <b>Меню</b> внизу.\n\n' +
-    '/start — главная\n/orders — последние заказы\n/help — помощь\n\n' +
+    '/start — главная\n/orders — последние заказы\n/til — сменить язык\n/help — помощь\n\n' +
     `☎️ ${SHOP.phone}`,
   noOrders: 'У вас пока нет заказов. Самое время сделать первый! 🍕',
   ordersTitle: '🧾 <b>Последние заказы</b>',
@@ -134,6 +136,8 @@ const ru: typeof uz = {
     `👥 <b>${esc(name)}</b> зовёт вас в свою давру в <b>${SHOP.name}</b>!\n\n` +
     `Каждый выбирает свою пиццу, заказ — один. Код давры: <b>${code}</b>`,
   shareDescription: 'Каждый выбирает свою пиццу — заказ один.',
+  langPrompt: 'Выберите язык:',
+  langChanged: 'Язык изменён: русский 🇷🇺',
 };
 
 export type BotTexts = typeof uz;

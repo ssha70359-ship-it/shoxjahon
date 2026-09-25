@@ -8,7 +8,7 @@ import type { BootstrapDto, GroupDto, Lang, LineConfig, OrderDto, OrderMode, Use
 
 import { api, ApiError } from './api';
 import { errorText, translate, type TranslationKey, type TranslationParams } from './i18n';
-import { cloudGet, cloudSet, hapticNotify, setClosingConfirmation, startParam, telegramUser } from './telegram';
+import { cloudGet, cloudSet, hapticNotify, setClosingConfirmation, startParam } from './telegram';
 
 const CART_KEY = 'olov_cart';
 
@@ -80,9 +80,9 @@ function loadLocalCart(): CartItem[] {
   }
 }
 
+/** Server javobigacha ko'rsatiladigan til — asosiy til o'zbekcha */
 function initialLang(): Lang {
-  const code = telegramUser()?.language_code ?? navigator.language ?? 'uz';
-  return /^(ru|be|kk|uk)/i.test(code) ? 'ru' : 'uz';
+  return 'uz';
 }
 
 const initialState: AppState = {
