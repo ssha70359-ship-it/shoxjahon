@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { tr } from '@shared/menu';
 import { summarize } from '@shared/pricing';
@@ -11,7 +11,15 @@ import { api, type CreateOrderPayload } from '../lib/api';
 import { formatMoney, formatPhone } from '../lib/format';
 import { useNav, type ScreenParams } from '../lib/nav';
 import { useStore } from '../lib/store';
-import { ensureWriteAccess, hapticNotify, openInvoice, openLink, requestLocation, requestPhone } from '../lib/telegram';
+import {
+  ensureWriteAccess,
+  hapticNotify,
+  openInvoice,
+  openLink,
+  requestLocation,
+  requestPhone,
+  type LatLng,
+} from '../lib/telegram';
 
 export default function Checkout({ params }: { params: ScreenParams['checkout'] }) {
   const { state, t, actions } = useStore();
@@ -43,6 +51,11 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
   const [payment, setPayment] = useState<PaymentMethod>('cash');
   const [comment, setComment] = useState('');
   const [locating, setLocating] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+  // Avtomatik yozilgan matn: mijoz o'zi yozgan manzilni hech qachon ustidan yozmaymiz
+  const autoText = useRef('');
+  const currentText = useRef(address.text);
+  currentText.current = address.text;
   const [submitting, setSubmitting] = useState(false);
 
   const km =
@@ -70,6 +83,28 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
     }
     hapticNotify('success');
     setAddress((current) => ({ ...current, lat: point.lat, lng: point.lng }));
+    void fillAddress(point);
+  }
+
+  /** Bo'sh, avtomatik yoki saqlangan (tegilmagan) manzilni yangi nuqta manzili bilan almashtiramiz */
+  function replaceable(text: string): boolean {
+    return !text.trim() || text === autoText.current || text === (saved.text ?? '');
+  }
+
+  async function fillAddress(point: LatLng) {
+    if (!replaceable(currentText.current)) return;
+    setGeocoding(true);
+    try {
+      const { text } = await api.reverseGeocode(point.lat, point.lng);
+      if (text && replaceable(currentText.current)) {
+        autoText.current = text;
+        setAddress((current) => ({ ...current, text }));
+      }
+    } catch {
+      // Topilmasa — mijoz manzilni o'zi yozadi
+    } finally {
+      setGeocoding(false);
+    }
   }
 
   async function sharePhone() {
@@ -169,11 +204,14 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
             className="input"
             value={address.text}
             onChange={setField('text')}
-            placeholder={t('checkout.addressPh')}
+            placeholder={geocoding ? t('checkout.addressLookup') : t('checkout.addressPh')}
             maxLength={200}
             autoComplete="street-address"
           />
-          {km != null && !addressOk && <p className="note note--warn">{t('checkout.addressAfterPin')}</p>}
+          {km != null && !addressOk && !geocoding && <p className="note note--warn">{t('checkout.addressAfterPin')}</p>}
+          {address.text !== '' && address.text === autoText.current && (
+            <p className="note">{t('checkout.addressAuto')}</p>
+          )}
           <div className="form__row">
             <input
               className="input"

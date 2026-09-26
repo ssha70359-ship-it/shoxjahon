@@ -141,6 +141,11 @@ export const updateGroupItemSchema = z.object({
   qty: z.number().int().min(0).max(LIMITS.maxQty),
 });
 
+export const reverseGeocodeSchema = z.object({
+  lat: z.coerce.number().min(-90).max(90),
+  lng: z.coerce.number().min(-180).max(180),
+});
+
 export const idParamSchema = z.object({ id: z.coerce.number().int().positive() });
 export const codeParamSchema = z.object({ code: groupCodeSchema });
 export const itemParamSchema = z.object({ code: groupCodeSchema, id: z.coerce.number().int().positive() });

@@ -2,9 +2,10 @@
 
 import express, { Router } from 'express';
 
-import { idParamSchema, updateMeSchema } from '../../shared/schemas.js';
+import { idParamSchema, reverseGeocodeSchema, updateMeSchema } from '../../shared/schemas.js';
 import type { TelegramGateway } from '../bot/gateway.js';
 import type { AppConfig } from '../config/env.js';
+import { GeoController } from '../controllers/geo.controller.js';
 import { GroupController } from '../controllers/group.controller.js';
 import { OrderController } from '../controllers/order.controller.js';
 import { SystemController } from '../controllers/system.controller.js';
@@ -33,6 +34,7 @@ export function createApiRouter({ config, services, telegram, hub }: ApiDeps): R
   const users = new UserController(services, telegram, config);
   const orders = new OrderController(services, telegram);
   const groups = new GroupController(services, telegram);
+  const geo = new GeoController(services);
 
   router.use(express.json({ limit: '64kb' }));
 
@@ -45,6 +47,7 @@ export function createApiRouter({ config, services, telegram, hub }: ApiDeps): R
   router.get('/bootstrap', users.bootstrap);
   router.patch('/me', validate({ body: updateMeSchema }), users.updateMe);
   router.get('/stream', system.stream);
+  router.get('/geocode/reverse', limit({ max: 12 }), validate({ query: reverseGeocodeSchema }), geo.reverse);
   router.use('/orders', orderRoutes(orders, limit));
   router.use('/groups', groupRoutes(groups, limit));
 

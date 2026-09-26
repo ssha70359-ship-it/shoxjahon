@@ -53,6 +53,8 @@ const envSchema = z
     MINIAPP_SHORT_NAME: trimmed,
     PAYMENT_PROVIDER_TOKEN: trimmed,
     TELEGRAM_API_ROOT: trimmed,
+    // Koordinatadan manzil topish. "off" — o'chirish
+    GEOCODER_URL: trimmed,
 
     ALLOW_DEV_USER: bool,
     IGNORE_WORKING_HOURS: bool,
@@ -81,6 +83,7 @@ export interface AppConfig {
   miniAppShortName: string;
   paymentProviderToken: string;
   telegramApiRoot: string;
+  geocoderUrl: string;
   allowDevUser: boolean;
   ignoreHours: boolean;
   rateLimit: boolean;
@@ -113,10 +116,18 @@ export function parseConfig(source: NodeJS.ProcessEnv = process.env): AppConfig 
     miniAppShortName: env.MINIAPP_SHORT_NAME,
     paymentProviderToken: env.PAYMENT_PROVIDER_TOKEN,
     telegramApiRoot: env.TELEGRAM_API_ROOT,
+    geocoderUrl: resolveGeocoder(env.GEOCODER_URL, env.NODE_ENV),
     // Telegram imzosisiz kirish — faqat lokal sinov uchun, productionda hech qachon
     allowDevUser: env.ALLOW_DEV_USER && !isProduction,
     ignoreHours: env.IGNORE_WORKING_HOURS,
     rateLimit: env.NODE_ENV !== 'test',
     clientDir: path.join(ROOT, 'dist', 'client'),
   };
+}
+
+/** Testlarda tashqi tarmoqqa chiqmaymiz: geokoder faqat aniq ko'rsatilsa ishlaydi */
+function resolveGeocoder(value: string, nodeEnv: string): string {
+  if (value === 'off') return '';
+  if (value) return value.replace(/\/+$/, '');
+  return nodeEnv === 'test' ? '' : 'https://nominatim.openstreetmap.org';
 }

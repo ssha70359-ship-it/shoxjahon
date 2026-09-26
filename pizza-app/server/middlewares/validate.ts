@@ -8,12 +8,14 @@ import type { z, ZodType } from 'zod';
 interface Schemas {
   body?: ZodType;
   params?: ZodType;
+  query?: ZodType;
 }
 
 export function validate(schemas: Schemas) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const store = (req.validated ??= new Map());
     if (schemas.params) store.set(schemas.params, schemas.params.parse(req.params));
+    if (schemas.query) store.set(schemas.query, schemas.query.parse(req.query));
     if (schemas.body) store.set(schemas.body, schemas.body.parse(req.body ?? {}));
     next();
   };

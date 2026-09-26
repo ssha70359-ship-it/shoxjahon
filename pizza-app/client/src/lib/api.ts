@@ -75,6 +75,9 @@ export const api = {
   bootstrap: () => request<BootstrapDto>('GET', '/bootstrap'),
   updateMe: (patch: { language: Lang }) => request<{ user: UserDto }>('PATCH', '/me', patch),
 
+  reverseGeocode: (lat: number, lng: number) =>
+    request<{ text: string | null }>('GET', `/geocode/reverse?lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}`),
+
   orders: () => request<{ orders: OrderDto[] }>('GET', '/orders'),
   order: (id: number) => request<{ order: OrderDto }>('GET', `/orders/${id}`),
   createOrder: (payload: CreateOrderPayload) =>
