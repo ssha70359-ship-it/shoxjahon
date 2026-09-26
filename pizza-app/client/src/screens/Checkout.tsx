@@ -156,6 +156,7 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
             maxLength={200}
             autoComplete="street-address"
           />
+          {km != null && !addressOk && <p className="note note--warn">{t('checkout.addressAfterPin')}</p>}
           <div className="form__row">
             <input
               className="input"
@@ -261,6 +262,9 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
       {belowMin && (
         <p className="note note--warn">{t('cart.minOrder', { sum: formatMoney(SHOP.delivery.minOrder, lang) })}</p>
       )}
+      {/* Tugma nega bosilmayotganini aytamiz: aks holda mijoz nima yetishmasligini topolmaydi */}
+      {state.open && !addressOk && <p className="note note--warn">{t('err.address_required')}</p>}
+      {state.open && addressOk && !phoneOk && <p className="note note--warn">{t('err.phone_required')}</p>}
 
       <div className="action-bar">
         <button type="button" className="btn btn--flame btn--grow btn--split" disabled={!canSubmit} onClick={submit}>
