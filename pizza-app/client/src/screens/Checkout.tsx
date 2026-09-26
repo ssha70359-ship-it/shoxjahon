@@ -11,7 +11,7 @@ import { api, type CreateOrderPayload } from '../lib/api';
 import { formatMoney, formatPhone } from '../lib/format';
 import { useNav, type ScreenParams } from '../lib/nav';
 import { useStore } from '../lib/store';
-import { ensureWriteAccess, hapticNotify, openInvoice, requestLocation, requestPhone } from '../lib/telegram';
+import { ensureWriteAccess, hapticNotify, openInvoice, openLink, requestLocation, requestPhone } from '../lib/telegram';
 
 export default function Checkout({ params }: { params: ScreenParams['checkout'] }) {
   const { state, t, actions } = useStore();
@@ -147,6 +147,23 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
                   : t('checkout.locate')}
             </span>
           </button>
+          {address.lat != null && address.lng != null && (
+            <MapPreview lat={address.lat} lng={address.lng} title={t('checkout.mapTitle')} />
+          )}
+          {km != null && (
+            <div className="map-actions">
+              <button type="button" className="link-btn" onClick={locate} disabled={locating}>
+                <Icon name="refresh" size={16} /> {t('checkout.relocate')}
+              </button>
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => openLink(yandexMapUrl(address.lat as number, address.lng as number))}
+              >
+                <Icon name="pin" size={16} /> {t('checkout.openMap')}
+              </button>
+            </div>
+          )}
           {tooFar && <p className="note note--warn">{t('err.too_far')}</p>}
           <input
             className="input"
@@ -274,4 +291,15 @@ export default function Checkout({ params }: { params: ScreenParams['checkout'] 
       </div>
     </div>
   );
+}
+
+const yandexMapUrl = (lat: number, lng: number) => `https://yandex.uz/maps/?pt=${lng},${lat}&z=17&l=map`;
+
+/** Mijoz nuqta to'g'ri belgilanganini ko'zi bilan tekshirishi uchun kichik xarita (OpenStreetMap, kalit shart emas) */
+function MapPreview({ lat, lng, title }: { lat: number; lng: number; title: string }) {
+  const dLat = 0.0025;
+  const dLng = 0.004;
+  const bbox = [lng - dLng, lat - dLat, lng + dLng, lat + dLat].map((n) => n.toFixed(5)).join(',');
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(6)},${lng.toFixed(6)}`;
+  return <iframe className="map-preview" src={src} title={title} loading="lazy" />;
 }

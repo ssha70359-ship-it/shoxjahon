@@ -118,6 +118,12 @@ export function openTelegramLink(url: string): void {
   else window.open(url, '_blank', 'noopener');
 }
 
+/** Tashqi saytni (xarita va h.k.) Telegram brauzerida ochadi */
+export function openLink(url: string): void {
+  if (tg) attempt(() => tg.openLink(url));
+  else window.open(url, '_blank', 'noopener');
+}
+
 export function callPhone(phone: string): void {
   const href = `tel:${phone.replace(/\s/g, '')}`;
   if (tg) attempt(() => tg.openLink(href));
